@@ -22,7 +22,7 @@ export interface GeoGebraFile {
 export const resources: Resource[] = [
   {
     id: "resource-1",
-    title: "Science Class 10 Software",
+    title: "OPT Class 10 Software",
     description: "Interactive learning software for Class 10 Science covering algebra, geometry, and trigonometry",
     download_link: "https://drive.google.com/file/d/YOUR_FILE_ID/view?usp=sharing",
     file_size: 25600000, // 25 MB in bytes
