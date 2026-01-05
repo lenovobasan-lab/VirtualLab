@@ -28,6 +28,14 @@ export const resources: Resource[] = [
     file_size: 2560000, // 2.4 MB in bytes
     created_at: "2026-01-05T18:40:00.000Z",
   },
+  {
+    id: "resource-2",
+    title: "GradeSheet Management System",
+    description: "A complete project on GradeSheet Management System",
+    download_link: "https://drive.google.com/file/d/1y5KZTMBWpmwxvGAG5PqDYKIWOeulc8RY/view?usp=sharing",
+    file_size: 4194304, // 4 MB in bytes
+    created_at: "2026-01-05T18:40:00.000Z",
+  },
   // Add more resources here following the same format
   // {
   //   id: "resource-2",
