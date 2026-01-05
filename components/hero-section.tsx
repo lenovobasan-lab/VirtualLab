@@ -31,7 +31,7 @@ export default function HeroSection() {
               Basanta Bhattarai
             </h1>
             <p className="text-xl md:text-2xl text-primary-foreground/90 mb-6 animate-slide-up stagger-1">
-              Government Teacher & Fullstack Developer
+              Teacher & Programmer
             </p>
             <p className="text-primary-foreground/80 text-lg mb-8 leading-relaxed animate-slide-up stagger-2">
               Empowering education through technology. Download free educational software and explore interactive

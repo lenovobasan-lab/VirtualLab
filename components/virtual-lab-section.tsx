@@ -60,7 +60,7 @@ export default function VirtualLabSection() {
                     <h3 className="font-serif font-semibold text-base mb-1">Welcome to Virtual Lab</h3>
                     <p className="text-muted-foreground text-sm">
                       Select a simulation from the list to start exploring interactive learning content.
-
+                      
                     </p>
                   </div>
                   <Button
