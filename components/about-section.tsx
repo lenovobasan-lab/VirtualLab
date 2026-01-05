@@ -10,7 +10,7 @@ export default function AboutSection() {
     {
       icon: Briefcase,
       label: "Occupation",
-      value: "Government Teacher & Fullstack Developer",
+      value: "Teacher & Fullstack Developer",
     },
     {
       icon: Phone,
