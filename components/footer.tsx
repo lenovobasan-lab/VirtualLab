@@ -11,7 +11,7 @@ export default function Footer() {
       <div className="container mx-auto px-4">
         <div className="text-center">
           <h3 className="font-serif text-xl font-semibold mb-2">Basanta Bhattarai</h3>
-          <p className="text-primary-foreground/70 text-sm mb-4">Government Teacher & Fullstack Developer</p>
+          <p className="text-primary-foreground/70 text-sm mb-4">Teacher & Programmer</p>
 
           <div className="flex items-center justify-center gap-4 mb-4 text-sm">
             <Link
