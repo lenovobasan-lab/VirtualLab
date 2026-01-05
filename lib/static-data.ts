@@ -22,11 +22,11 @@ export interface GeoGebraFile {
 export const resources: Resource[] = [
   {
     id: "resource-1",
-    title: "OPT Class 10 Software",
-    description: "Interactive learning software for Class 10 Science covering algebra, geometry, and trigonometry",
-    download_link: "https://drive.google.com/file/d/YOUR_FILE_ID/view?usp=sharing",
-    file_size: 25600000, // 25 MB in bytes
-    created_at: "2024-01-15T10:30:00.000Z",
+    title: "QR Based Attendance System",
+    description: "A complete project on QR code based attendance system",
+    download_link: "https://drive.google.com/file/d/1C6UZb_jggXjZrerKf0LPM_KpCkWyfEu8/view?usp=sharing",
+    file_size: 2560000, // 2.4 MB in bytes
+    created_at: "2026-01-05T18:40:00.000Z",
   },
   // Add more resources here following the same format
   // {
