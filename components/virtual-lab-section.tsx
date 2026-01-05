@@ -16,6 +16,7 @@ export default function VirtualLabSection() {
           <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">Virtual Lab</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Explore interactive GeoGebra simulations for hands-on learning experience in mathematics and science.
+            Press the "Restart Button" to simulate.
           </p>
           <div className="w-20 h-1 bg-accent mx-auto mt-4 rounded-full" />
         </div>
@@ -59,7 +60,7 @@ export default function VirtualLabSection() {
                     <h3 className="font-serif font-semibold text-base mb-1">Welcome to Virtual Lab</h3>
                     <p className="text-muted-foreground text-sm">
                       Select a simulation from the list to start exploring interactive learning content.
-                      Press the "Resart Button" to simulate.
+
                     </p>
                   </div>
                   <Button

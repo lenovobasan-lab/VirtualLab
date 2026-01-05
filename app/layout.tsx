@@ -16,7 +16,7 @@ const sourceSans = Source_Sans_3({
 })
 
 export const metadata: Metadata = {
-  title: "Basanta Bhattarai | Government Teacher & Fullstack Developer",
+  title: "Basanta Bhattarai | Teacher & Programmer",
   description:
     "Download free educational software and explore interactive GeoGebra virtual labs. Basanta Bhattarai - Government Teacher and Fullstack Developer from Ilam, Nepal.",
   keywords:
