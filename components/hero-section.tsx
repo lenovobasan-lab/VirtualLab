@@ -20,7 +20,7 @@ export default function HeroSection() {
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
           <div className="relative animate-fade-in">
             <div className="w-56 h-56 md:w-72 md:h-72 rounded-full overflow-hidden border-4 border-primary-foreground/30 shadow-2xl animate-float bg-white flex items-center justify-center p-4">
-              <img src="/images/flag-of-nepal.gif" alt="Waving Nepal Flag" className="w-full h-full object-contain" />
+              <img src="/images/science-teacher.PNG" alt="Waving Nepal Flag" className="w-full h-full object-contain" />
             </div>
           </div>
 
