@@ -81,7 +81,7 @@ export default function ResourcesSection() {
                     onClick={() => handleDownload(resource.download_link, resource.title)}
                   >
                     <ExternalLink className="w-4 h-4" />
-                    Download from Drive
+                    Download
                   </Button>
                 </div>
               </div>
