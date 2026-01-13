@@ -35,7 +35,7 @@
     --muted-foreground: 217 15% 45%;
 
     /* Success green for downloads */
-    --success: 0 70% 50%;
+    --success: 0 70% 40%;
     --success-foreground: 0 0% 100%;
 
     /* Destructive */
