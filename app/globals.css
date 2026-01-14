@@ -7,9 +7,9 @@
 @layer base {
   :root {
     /* Deep blue - trust, education, professionalism */
-    --primary: 217 91% 30%;
+    --primary: 210 91% 30%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 217 91% 45%;
+    --primary-glow: 210 91% 45%;
 
     /* Warm amber accent - approachable, welcoming */
     --accent: 38 96% 50%;
@@ -27,8 +27,8 @@
     --popover-foreground: 222 47% 11%;
 
     /* Secondary - soft blue-gray */
-    --secondary: 217 32% 95%;
-    --secondary-foreground: 217 32% 20%;
+    --secondary: 200 32% 95%;
+    --secondary-foreground: 200 32% 20%;
 
     /* Muted elements */
     --muted: 210 20% 94%;
