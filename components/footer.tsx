@@ -27,7 +27,7 @@ export default function Footer() {
           </div>
 
           <p className="text-primary-foreground/60 text-sm flex items-center justify-center gap-1">
-            Made with <Heart className="w-4 h-4 text-accent fill-accent" /> for Education
+            Developed by Basanta Bhattarai 
           </p>
           <p className="text-primary-foreground/50 text-xs mt-4">
             © {currentYear} Basanta Bhattarai. All rights reserved.
