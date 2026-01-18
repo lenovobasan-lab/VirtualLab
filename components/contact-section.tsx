@@ -1,4 +1,4 @@
-import { Phone, Mail, MapPin, MessageCircle } from "lucide-react"
+import { Phone, Mail, MapPin, MessageCircle, Facebook } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export default function ContactSection() {
@@ -75,6 +75,12 @@ export default function ContactSection() {
             <a href="https://wa.me/9779816027097" target="_blank" rel="noopener noreferrer" className="gap-2">
               <MessageCircle className="w-5 h-5" />
               Chat on WhatsApp
+            </a>
+          </Button>
+          <Button variant="outline" size="lg" asChild className="ml-4">
+            <a href="https://www.facebook.com/share/1a7VDo6F8S/?mibextid=wwXlfr" target="_blank" rel="noopener noreferrer" className="gap-2">
+              <Facebook className="w-5 h-5" />
+              Follow me on Facebook
             </a>
           </Button>
         </div>
