@@ -78,7 +78,7 @@ export default function ContactSection() {
             </a>
           </Button>
           <Button variant="outline" size="lg" asChild className="ml-4">
-            <a href="https://www.facebook.com/share/1a7VDo6F8S/?mibextid=wwXlfr" target="_blank" rel="noopener noreferrer" className="gap-2">
+            <a href="https://www.facebook.com/share/1a7VDo6F8S/?mibextid=wwXlfr" target="_blank" rel="noopener noreferrer" className="gap-3">
               <Facebook className="w-5 h-5" />
               Follow me on Facebook
             </a>
