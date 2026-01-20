@@ -36,7 +36,7 @@ export const photos: Photo[] = [
   {
     id: "photo-cover",
     type: "cover",
-    url: "/images/cover.jpg",
+    url: "/images/cover.PNG",
     alt: "Cover Photo",
   },
 ]
