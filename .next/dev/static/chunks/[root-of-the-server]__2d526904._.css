@@ -498,10 +498,6 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-.hero-gradient {
-  background: var(--gradient-hero);
-}
-
 .glass-card {
   border-width: 1px;
   border-color: hsl(var(--border) / .5);
@@ -892,6 +888,10 @@ h1, h2, h3, h4, h5, h6 {
   display: block;
 }
 
+.inline-block {
+  display: inline-block;
+}
+
 .flex {
   display: flex;
 }
@@ -1001,6 +1001,10 @@ h1, h2, h3, h4, h5, h6 {
 
 .h-4 {
   height: 1rem;
+}
+
+.h-40 {
+  height: 10rem;
 }
 
 .h-5 {
@@ -1149,6 +1153,10 @@ h1, h2, h3, h4, h5, h6 {
 
 .w-4 {
   width: 1rem;
+}
+
+.w-40 {
+  width: 10rem;
 }
 
 .w-5 {
@@ -1736,6 +1744,10 @@ h1, h2, h3, h4, h5, h6 {
   border-color: hsl(var(--primary) / .1);
 }
 
+.border-primary\/20 {
+  border-color: hsl(var(--primary) / .2);
+}
+
 .border-sidebar-border {
   border-color: hsl(var(--sidebar-border));
 }
@@ -1873,8 +1885,12 @@ h1, h2, h3, h4, h5, h6 {
   background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
 }
 
-.fill-accent {
-  fill: hsl(var(--accent));
+.bg-cover {
+  background-size: cover;
+}
+
+.bg-center {
+  background-position: center;
 }
 
 .fill-current {
@@ -1883,6 +1899,10 @@ h1, h2, h3, h4, h5, h6 {
 
 .object-contain {
   object-fit: contain;
+}
+
+.object-cover {
+  object-fit: cover;
 }
 
 .p-0 {
@@ -3914,8 +3934,16 @@ h1, h2, h3, h4, h5, h6 {
     display: none;
   }
 
+  .md\:h-48 {
+    height: 12rem;
+  }
+
   .md\:h-72 {
     height: 18rem;
+  }
+
+  .md\:w-48 {
+    width: 12rem;
   }
 
   .md\:w-72 {

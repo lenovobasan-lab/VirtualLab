@@ -1,6 +1,8 @@
 import { MapPin, Briefcase, Phone, Mail, BookOpen, Code, GraduationCap } from "lucide-react"
+import { photos } from "@/lib/static-data"
 
 export default function AboutSection() {
+  const profilePhoto = photos.find((p) => p.type === "profile")
   const details = [
     {
       icon: MapPin,
@@ -34,6 +36,19 @@ export default function AboutSection() {
         </div>
 
         <div className="max-w-4xl mx-auto">
+          {/* Profile Photo */}
+          <div className="mb-8 text-center">
+            <div className="inline-block">
+              <div className="w-40 h-40 md:w-48 md:h-48 rounded-full overflow-hidden border-4 border-primary/20 shadow-lg">
+                <img
+                  src={profilePhoto?.url}
+                  alt={profilePhoto?.alt}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          </div>
+
           <div className="glass-card rounded-2xl p-8 md:p-12">
             <div className="mb-8 space-y-4">
               <p className="text-lg text-muted-foreground leading-relaxed">

@@ -18,6 +18,29 @@ export interface GeoGebraFile {
   created_at: string
 }
 
+export interface Photo {
+  id: string
+  type: "profile" | "cover"
+  url: string
+  alt: string
+}
+
+// Add your photos here
+export const photos: Photo[] = [
+  {
+    id: "photo-profile",
+    type: "profile",
+    url: "/images/profile.jpg",
+    alt: "Profile Photo",
+  },
+  {
+    id: "photo-cover",
+    type: "cover",
+    url: "/images/cover.jpg",
+    alt: "Cover Photo",
+  },
+]
+
 // Add your educational resources here
 export const resources: Resource[] = [
   {
