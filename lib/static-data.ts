@@ -136,6 +136,14 @@ export const geogebraFiles: GeoGebraFile[] = [
     geogebra_url: "https://www.geogebra.org/m/ebcrxy2t",
     created_at: "2026-01-05T19:54:00.000Z",
   },
+  {
+    id: "geo-7",
+    title: "Electric Circuit Construction Kit",
+    description: "Interactive simulation of electric circuits",
+    subject: "Physics",
+    geogebra_url: "https://phet.colorado.edu/sims/html/circuit-construction-kit-dc-virtual-lab/latest/circuit-construction-kit-dc-virtual-lab_all.html",
+    created_at: "2026-01-05T19:54:00.000Z",
+  },
   // Add more simulations here following the same format
   // {
   //   id: "geo-2",
