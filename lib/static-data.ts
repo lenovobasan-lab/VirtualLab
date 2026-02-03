@@ -30,13 +30,13 @@ export const photos: Photo[] = [
   {
     id: "photo-profile",
     type: "profile",
-    url: "/images/profile.jpg",
+    url: "/images/profile.PNG",
     alt: "Profile Photo",
   },
   {
     id: "photo-cover",
     type: "cover",
-    url: "/images/cover.png",
+    url: "/images/cover.jpg",
     alt: "Cover Photo",
   },
 ]
