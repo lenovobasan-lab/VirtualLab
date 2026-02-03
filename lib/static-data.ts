@@ -30,7 +30,7 @@ export const photos: Photo[] = [
   {
     id: "photo-profile",
     type: "profile",
-    url: "/images/profile.PNG",
+    url: "/images/profile.jpg",
     alt: "Profile Photo",
   },
   {
