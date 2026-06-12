@@ -1,20 +1,25 @@
-// Edit this file to add your resources and GeoGebra simulations
+// Edit this file to add your resources, simulations, and photos
 
 export interface Resource {
   id: string
   title: string
   description: string | null
   download_link: string
-  file_size: number | null // in bytes (e.g., 25600000 = 25 MB)
+  file_size: number | null
   created_at: string
+  category?: "software" | "simulation" | "document"
 }
 
-export interface GeoGebraFile {
+export interface Simulation {
   id: string
   title: string
   description: string | null
   subject: string | null
-  geogebra_url: string
+  // For HTML files: put them in /public/simulations/ and set url: "/simulations/myfile.html"
+  // For GeoGebra: use the full GeoGebra URL  e.g. "https://www.geogebra.org/m/ju8ed6xe"
+  // For PhET or any other URL: just paste the full URL
+  url: string
+  type: "html" | "geogebra" | "phet" | "url"
   created_at: string
 }
 
@@ -25,13 +30,12 @@ export interface Photo {
   alt: string
 }
 
-// Add your photos here
 export const photos: Photo[] = [
   {
     id: "photo-profile",
     type: "profile",
     url: "/images/profile.PNG",
-    alt: "Profile Photo",
+    alt: "Basanta Bhattarai",
   },
   {
     id: "photo-cover",
@@ -41,116 +45,124 @@ export const photos: Photo[] = [
   },
 ]
 
-// Add your educational resources here
 export const resources: Resource[] = [
   {
     id: "resource-1",
     title: "QR Based Attendance System",
     description: "A complete project on QR code based attendance system",
     download_link: "https://drive.google.com/file/d/1C6UZb_jggXjZrerKf0LPM_KpCkWyfEu8/view?usp=sharing",
-    file_size: 2560000, // 2.4 MB in bytes
+    file_size: 2560000,
     created_at: "2026-01-05T18:40:00.000Z",
+    category: "software",
   },
   {
     id: "resource-2",
     title: "GradeSheet Management System",
     description: "A complete project on GradeSheet Management System",
     download_link: "https://drive.google.com/file/d/1y5KZTMBWpmwxvGAG5PqDYKIWOeulc8RY/view?usp=sharing",
-    file_size: 4194304, // 4 MB in bytes
+    file_size: 4194304,
     created_at: "2026-01-05T18:40:00.000Z",
+    category: "software",
   },
   {
     id: "resource-3",
     title: "School Management System",
     description: "A complete project on School Management System",
     download_link: "https://drive.google.com/file/d/1AmfVoviOIRtCWXF0RT-fPGbrgFicpfxL/view?usp=sharing",
-    file_size: 5120000, // 5 MB in bytes
+    file_size: 5120000,
     created_at: "2026-01-05T18:40:00.000Z",
+    category: "software",
   },
   {
     id: "resource-4",
     title: "Dispersion of Light Simulation",
     description: "A complete project on Dispersion of Light Simulation",
     download_link: "https://drive.google.com/file/d/1NfRwNC7L-5e5LiL8F9fA9mLph11x2GjH/view?usp=sharing",
-    file_size: 3072000, // 3 MB in bytes
+    file_size: 3072000,
     created_at: "2026-01-05T18:40:00.000Z",
+    category: "simulation",
   },
-  // Add more resources here following the same format
-  // {
-  //   id: "resource-2",
-  //   title: "Physics Simulation Pack",
-  //   description: "Collection of physics simulations for Class 11-12",
-  //   download_link: "https://drive.google.com/file/d/YOUR_FILE_ID/view?usp=sharing",
-  //   file_size: 45000000, // 45 MB
-  //   created_at: "2024-01-20T10:30:00.000Z"
-  // },
 ]
 
-// Add your GeoGebra simulations here
-export const geogebraFiles: GeoGebraFile[] = [
+export const simulations: Simulation[] = [
+  // ── GeoGebra simulations ──────────────────────────────────────────────
   {
-    id: "geo-1",
-    title: "Acid and Base test",
-    description: "Simulation to test acids and bases using Litmus paper",
+    id: "sim-1",
+    title: "Acid & Base Test",
+    description: "Test acids and bases using litmus paper",
     subject: "Science",
-    geogebra_url: "https://www.geogebra.org/m/ju8ed6xe",
+    url: "https://www.geogebra.org/m/ju8ed6xe",
+    type: "geogebra",
     created_at: "2026-01-05T19:54:00.000Z",
   },
   {
-    id: "geo-2",
+    id: "sim-2",
     title: "Atomic Structure",
-    description: "Demonstration of atomic structure of first 20 elements",
+    description: "Atomic structure of the first 20 elements",
     subject: "Chemistry",
-    geogebra_url: "https://www.geogebra.org/m/v4b6n5c4",
+    url: "https://www.geogebra.org/m/v4b6n5c4",
+    type: "geogebra",
     created_at: "2026-01-05T19:54:00.000Z",
   },
   {
-    id: "geo-3",
-    title: "Lab preparation of Hydrogen gas",
-    description: "Simulation for lab preparation of Hydrogen gas",
-    subject: "Chemistry" ,
-    geogebra_url: "https://www.geogebra.org/m/jrvbwuxn",
+    id: "sim-3",
+    title: "Lab Preparation of Hydrogen Gas",
+    description: "Simulation for lab preparation of hydrogen gas",
+    subject: "Chemistry",
+    url: "https://www.geogebra.org/m/jrvbwuxn",
+    type: "geogebra",
     created_at: "2026-01-05T19:54:00.000Z",
   },
   {
-    id: "geo-4",
+    id: "sim-4",
     title: "Ohm's Law",
     description: "Simulation of Ohm's Law in electrical circuits",
     subject: "Physics",
-    geogebra_url: "https://www.geogebra.org/m/qm5wrpgs",
+    url: "https://www.geogebra.org/m/qm5wrpgs",
+    type: "geogebra",
     created_at: "2026-01-05T19:54:00.000Z",
   },
   {
-    id: "geo-5",
-    title: "Solar and Lunar eclipses",
+    id: "sim-5",
+    title: "Solar & Lunar Eclipses",
     description: "Demonstration of solar and lunar eclipses",
     subject: "Astronomy",
-    geogebra_url: "https://www.geogebra.org/m/wycbnvna",
+    url: "https://www.geogebra.org/m/wycbnvna",
+    type: "geogebra",
     created_at: "2026-01-05T19:54:00.000Z",
   },
   {
-    id: "geo-6",
-    title: "(a-b)² Simulation",
-    description: "Visualization of the algebraic identity (a-b)²",
+    id: "sim-6",
+    title: "(a-b)² Visualization",
+    description: "Visual proof of the algebraic identity (a-b)²",
     subject: "Mathematics",
-    geogebra_url: "https://www.geogebra.org/m/ebcrxy2t",
+    url: "https://www.geogebra.org/m/ebcrxy2t",
+    type: "geogebra",
     created_at: "2026-01-05T19:54:00.000Z",
   },
+  // ── PhET simulations ──────────────────────────────────────────────────
   {
-    id: "geo-7",
-    title: "Electric Circuit Construction Kit",
-    description: "Interactive simulation of electric circuits",
+    id: "sim-7",
+    title: "Electric Circuit Kit",
+    description: "Build and test DC circuits interactively",
     subject: "Physics",
-    geogebra_url: "https://phet.colorado.edu/sims/html/circuit-construction-kit-dc-virtual-lab/latest/circuit-construction-kit-dc-virtual-lab_all.html",
+    url: "https://phet.colorado.edu/sims/html/circuit-construction-kit-dc-virtual-lab/latest/circuit-construction-kit-dc-virtual-lab_all.html",
+    type: "phet",
     created_at: "2026-01-05T19:54:00.000Z",
   },
-  // Add more simulations here following the same format
-  // {
-  //   id: "geo-2",
-  //   title: "Circular Motion",
-  //   description: "Demonstration of uniform circular motion",
-  //   subject: "Physics",
-  //   geogebra_url: "https://www.geogebra.org/m/xyz789",
-  //   created_at: "2024-01-20T10:30:00.000Z"
-  // },
+  // ── LOCAL HTML simulations ────────────────────────────────────────────
+  // To add your own HTML simulation:
+  //  1. Put the HTML file in  /public/simulations/your-sim.html
+  //  2. Add an entry below with  type: "html"  and  url: "/simulations/your-sim.html"
+  //
+  // Example local HTML simulation (included as a demo):
+  {
+    id: "sim-local-pendulum",
+    title: "Simple Pendulum",
+    description: "Interactive pendulum – adjust length, gravity and damping in real time",
+    subject: "Physics",
+    url: "/simulations/pendulum.html",
+    type: "html",
+    created_at: "2026-01-05T19:54:00.000Z",
+  },
 ]

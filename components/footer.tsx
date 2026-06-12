@@ -1,37 +1,39 @@
 "use client"
 
-import { Heart } from "lucide-react"
 import Link from "next/link"
+import { FlaskConical, Heart } from "lucide-react"
 
 export default function Footer() {
-  const currentYear = new Date().getFullYear()
-
   return (
-    <footer className="bg-primary text-primary-foreground py-8">
+    <footer className="bg-card border-t border-border/50 py-10">
       <div className="container mx-auto px-4">
-        <div className="text-center">
-          <h3 className="font-serif text-xl font-semibold mb-2">Basanta Bhattarai</h3>
-          <p className="text-primary-foreground/70 text-sm mb-4">Teacher & Programmer</p>
-
-          <div className="flex items-center justify-center gap-4 mb-4 text-sm">
-            <Link
-              href="/privacy"
-              className="text-primary-foreground/70 hover:text-primary-foreground transition-colors"
-            >
-              Privacy Policy
-            </Link>
-            <span className="text-primary-foreground/40">•</span>
-            <Link href="/terms" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors">
-              Terms of Service
-            </Link>
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          {/* brand */}
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 rounded-lg bg-primary/20">
+              <FlaskConical className="w-4 h-4 text-primary" />
+            </div>
+            <div>
+              <p className="font-serif font-bold text-foreground text-sm">Basanta Bhattarai</p>
+              <p className="text-muted-foreground text-xs">Teacher & Programmer · Ilam, Nepal</p>
+            </div>
           </div>
 
-          <p className="text-primary-foreground/60 text-sm flex items-center justify-center gap-1">
-            Developed by Basanta Bhattarai 
+          {/* links */}
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
+            <span className="opacity-30">•</span>
+            <Link href="/terms"   className="hover:text-foreground transition-colors">Terms of Service</Link>
+          </div>
+
+          {/* credit */}
+          <p className="text-xs text-muted-foreground flex items-center gap-1">
+            Built with <Heart className="w-3 h-3 text-red-400" /> for Nepal's classrooms
           </p>
-          <p className="text-primary-foreground/50 text-xs mt-4">
-            © {currentYear} Basanta Bhattarai. All rights reserved.
-          </p>
+        </div>
+
+        <div className="mt-6 pt-6 border-t border-border/30 text-center text-xs text-muted-foreground/50">
+          © {new Date().getFullYear()} Basanta Bhattarai. All rights reserved.
         </div>
       </div>
     </footer>

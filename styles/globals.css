@@ -3,90 +3,166 @@
 @tailwind utilities;
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  .section-padding { @apply py-24 px-4; }
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-md border border-white/10 shadow-lg;
   }
+  .glass-card-light {
+    @apply bg-white/80 backdrop-blur-md border border-white/60 shadow-lg;
+  }
+  .hover-lift {
+    @apply transition-all duration-300 hover:-translate-y-2 hover:shadow-glow;
+  }
+  .text-glow {
+    text-shadow: 0 0 30px hsl(var(--primary-glow) / 0.6);
+  }
+  .animate-fade-in  { animation: fadeIn  0.7s ease-out forwards; }
+  .animate-slide-up { animation: slideUp 0.7s ease-out forwards; }
+  .stagger-1 { animation-delay: 0.1s; opacity: 0; }
+  .stagger-2 { animation-delay: 0.2s; opacity: 0; }
+  .stagger-3 { animation-delay: 0.3s; opacity: 0; }
+  .stagger-4 { animation-delay: 0.4s; opacity: 0; }
+
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: float linear infinite;
+  }
+  .grid-bg {
+    background-image:
+      linear-gradient(hsl(var(--primary) / 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--primary) / 0.08) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  .animate-slide-up-mobile { animation: slideUpMobile 0.2s ease-out forwards; }
+}
+
+@keyframes fadeIn    { from { opacity: 0 }                      to { opacity: 1 } }
+@keyframes slideUp   { from { opacity: 0; transform: translateY(24px) } to { opacity: 1; transform: translateY(0) } }
+@keyframes slideUpMobile { from { opacity: 0; transform: translateY(-10px) } to { opacity: 1; transform: translateY(0) } }
+@keyframes float {
+  0%   { transform: translateY(0px)   rotate(0deg);   opacity: 0.6; }
+  50%  { transform: translateY(-30px) rotate(180deg); opacity: 0.3; }
+  100% { transform: translateY(0px)   rotate(360deg); opacity: 0.6; }
+}
+@keyframes pulse-ring {
+  0%   { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2);   opacity: 0; }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+@keyframes orbit {
+  from { transform: rotate(0deg)   translateX(120px) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(120px) rotate(-360deg); }
+}
+@keyframes orbitReverse {
+  from { transform: rotate(0deg)   translateX(80px) rotate(0deg); }
+  to   { transform: rotate(-360deg) translateX(80px) rotate(360deg); }
 }
 
 @layer base {
   :root {
-    --font-sans: var(--font-geist-sans);
-    --font-mono: var(--font-geist-mono);
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
+    /* ── Brand – deep navy science theme ── */
+    --primary:            220 80% 56%;   /* electric blue */
+    --primary-foreground: 0   0%  98%;
+    --primary-glow:       220 90% 65%;
+
+    --accent:             45  95% 58%;   /* amber-gold    */
+    --accent-foreground:  0   0%   5%;
+
+    --success:            160 70% 45%;
+    --success-foreground: 0   0%  98%;
+
+    /* ── Dark canvas ── */
+    --background:         222 47% 7%;    /* near-black navy */
+    --foreground:         210 40% 96%;
+
+    --card:               222 40% 10%;
+    --card-foreground:    210 40% 96%;
+
+    --popover:            222 40% 10%;
+    --popover-foreground: 210 40% 96%;
+
+    --secondary:          222 35% 14%;
+    --secondary-foreground: 210 30% 80%;
+
+    --muted:              222 30% 16%;
+    --muted-foreground:   215 20% 55%;
+
+    --destructive:        0  70% 55%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    --border:             220 30% 18%;
+    --input:              220 30% 18%;
+    --ring:               220 80% 56%;
+
+    --shadow-sm:   0 1px  3px hsl(0 0% 0% / 0.4);
+    --shadow-md:   0 4px 16px hsl(0 0% 0% / 0.5);
+    --shadow-lg:   0 8px 32px hsl(0 0% 0% / 0.6);
+    --shadow-glow: 0 0  24px hsl(220 90% 65% / 0.4);
+
+    --radius: 0.75rem;
+
+    --chart-1: 220 80% 56%;
+    --chart-2: 45  95% 58%;
+    --chart-3: 160 70% 45%;
+    --chart-4: 280 70% 60%;
+    --chart-5: 0   70% 55%;
+
+    --sidebar-background:         222 40% 10%;
+    --sidebar-foreground:         210 40% 96%;
+    --sidebar-primary:            220 80% 56%;
+    --sidebar-primary-foreground: 0   0%  98%;
+    --sidebar-accent:             222 35% 14%;
+    --sidebar-accent-foreground:  210 40% 96%;
+    --sidebar-border:             220 30% 18%;
+    --sidebar-ring:               220 80% 56%;
   }
-  .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
+
+  /* Light mode overrides (toggle via .light class) */
+  .light {
+    --primary:            220 75% 40%;
+    --primary-foreground: 0   0%  98%;
+    --primary-glow:       220 80% 50%;
+    --accent:             38  92% 50%;
+    --accent-foreground:  0   0%   5%;
+    --success:            142 71% 45%;
+    --success-foreground: 0   0%  98%;
+    --background:         210 40% 98%;
+    --foreground:         222 47% 11%;
+    --card:               0   0% 100%;
+    --card-foreground:    222 47% 11%;
+    --popover:            0   0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --secondary:          210 40% 93%;
+    --secondary-foreground: 222 47% 20%;
+    --muted:              210 40% 93%;
+    --muted-foreground:   215 16% 47%;
+    --destructive:        0  84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border:             214 32% 86%;
+    --input:              214 32% 86%;
+    --ring:               220 75% 40%;
+    --shadow-sm:   0 1px  3px hsl(220 47% 11% / 0.08);
+    --shadow-md:   0 4px 12px hsl(220 47% 11% / 0.12);
+    --shadow-lg:   0 8px 24px hsl(220 47% 11% / 0.16);
+    --shadow-glow: 0 0  20px hsl(220 75% 40% / 0.25);
+    --sidebar-background:         0   0% 100%;
+    --sidebar-foreground:         222 47% 11%;
+    --sidebar-primary:            220 75% 40%;
+    --sidebar-primary-foreground: 0   0%  98%;
+    --sidebar-accent:             210 40% 93%;
+    --sidebar-accent-foreground:  222 47% 11%;
+    --sidebar-border:             214 32% 86%;
+    --sidebar-ring:               220 75% 40%;
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+  * { @apply border-border; }
+  html { scroll-behavior: smooth; }
+  body { @apply bg-background text-foreground; font-family: var(--font-sans, system-ui); }
 }
