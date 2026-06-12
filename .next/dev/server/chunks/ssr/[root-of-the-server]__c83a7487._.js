@@ -146,61 +146,6 @@ const resources = [
     }
 ];
 const simulations = [
-    // ── GeoGebra simulations ──────────────────────────────────────────────
-    {
-        id: "sim-1",
-        title: "Acid & Base Test",
-        description: "Test acids and bases using litmus paper",
-        subject: "Science",
-        url: "https://www.geogebra.org/m/ju8ed6xe",
-        type: "geogebra",
-        created_at: "2026-01-05T19:54:00.000Z"
-    },
-    {
-        id: "sim-2",
-        title: "Atomic Structure",
-        description: "Atomic structure of the first 20 elements",
-        subject: "Chemistry",
-        url: "https://www.geogebra.org/m/v4b6n5c4",
-        type: "geogebra",
-        created_at: "2026-01-05T19:54:00.000Z"
-    },
-    {
-        id: "sim-3",
-        title: "Lab Preparation of Hydrogen Gas",
-        description: "Simulation for lab preparation of hydrogen gas",
-        subject: "Chemistry",
-        url: "https://www.geogebra.org/m/jrvbwuxn",
-        type: "geogebra",
-        created_at: "2026-01-05T19:54:00.000Z"
-    },
-    {
-        id: "sim-4",
-        title: "Ohm's Law",
-        description: "Simulation of Ohm's Law in electrical circuits",
-        subject: "Physics",
-        url: "https://www.geogebra.org/m/qm5wrpgs",
-        type: "geogebra",
-        created_at: "2026-01-05T19:54:00.000Z"
-    },
-    {
-        id: "sim-5",
-        title: "Solar & Lunar Eclipses",
-        description: "Demonstration of solar and lunar eclipses",
-        subject: "Astronomy",
-        url: "https://www.geogebra.org/m/wycbnvna",
-        type: "geogebra",
-        created_at: "2026-01-05T19:54:00.000Z"
-    },
-    {
-        id: "sim-6",
-        title: "(a-b)² Visualization",
-        description: "Visual proof of the algebraic identity (a-b)²",
-        subject: "Mathematics",
-        url: "https://www.geogebra.org/m/ebcrxy2t",
-        type: "geogebra",
-        created_at: "2026-01-05T19:54:00.000Z"
-    },
     // ── PhET simulations ──────────────────────────────────────────────────
     {
         id: "sim-7",
@@ -223,6 +168,15 @@ const simulations = [
         description: "Interactive pendulum – adjust length, gravity and damping in real time",
         subject: "Physics",
         url: "/simulations/pendulum.html",
+        type: "html",
+        created_at: "2026-01-05T19:54:00.000Z"
+    },
+    {
+        id: "sim-addition-subtraction",
+        title: "Addition and Subtraction Simulation",
+        description: "Interactive simulation of additionand subtraction",
+        subject: "Mathematics",
+        url: "/simulations/math_lab.html",
         type: "html",
         created_at: "2026-01-05T19:54:00.000Z"
     }
