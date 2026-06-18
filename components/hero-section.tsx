@@ -167,7 +167,7 @@ export default function HeroSection() {
       {coverPhoto && (
         <Image
           src={coverPhoto.url} alt="Cover"
-          fill className="object-cover object-center opacity-10"
+          fill className="object-cover object-center opacity-60"
           priority sizes="100vw"
         />
       )}
@@ -190,18 +190,19 @@ export default function HeroSection() {
         <div className="max-w-2xl mx-auto lg:mx-0 text-center lg:text-left">
 
           {/* eyebrow badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/10 text-primary text-sm font-medium mb-6 animate-fade-in">
-            <Atom className="w-4 h-4" />
-            Teacher & Programmer · Ilam, Nepal
-          </div>
+          
 
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif font-bold text-foreground mb-4 animate-slide-up leading-tight">
-            Basanta
+            Basanta's
             <span className="block text-glow" style={{ color: "hsl(var(--primary))" }}>
-              Bhattarai
+              Learning Portal & Virtual Lab
             </span>
           </h1>
+<div className="inline-flex items-center gap-2 px-2 py-1 rounded-full border border-primary/30 bg-primary/10 text-primary text-sm font-medium mb-4 animate-fade-in">
+            <Atom className="w-2 h-2" />
 
+            Virtual Lab developed in Ilam, Nepal
+          </div>
           <p className="text-xl md:text-2xl text-muted-foreground mb-4 animate-slide-up stagger-1 font-light">
             Empowering students through interactive science & maths simulations — free for every school in Nepal.
           </p>
