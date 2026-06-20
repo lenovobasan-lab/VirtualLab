@@ -128,4 +128,12 @@ export const simulations: Simulation[] = [
     type: "html",
     created_at: "2026-06-20T19:54:00.000Z",
   },
+  {id: "equation-solver",
+    title: "Simultaneous Equation Solver",
+    description: "Interactive simulation for solving algebraic equations",
+    subject: "Mathematics",
+    url: "/simulations/equation_solver.html",
+    type: "html",
+    created_at: "2026-06-20T19:54:00.000Z",
+  },
 ]
