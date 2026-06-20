@@ -179,6 +179,15 @@ const simulations = [
         url: "/simulations/math_lab.html",
         type: "html",
         created_at: "2026-01-05T19:54:00.000Z"
+    },
+    {
+        id: "Hydrogen gas simulation",
+        title: "Hydrogen Gas Preparation Simulation",
+        description: "Interactive simulation of hydrogen gas preparation",
+        subject: "Chemistry",
+        url: "/simulations/hydrogen_lab_simulation.html",
+        type: "html",
+        created_at: "2026-06-20T19:54:00.000Z"
     }
 ];
 }),
