@@ -20,8 +20,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["var(--font-sans)", "Source Sans 3", "system-ui", "sans-serif"],
-        serif: ["var(--font-serif)", "Playfair Display", "serif"],
+        sans: ["var(--font-sans)", "Inter", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

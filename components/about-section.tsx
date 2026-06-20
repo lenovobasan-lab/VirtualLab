@@ -15,12 +15,12 @@ export default function AboutSection() {
   const offerings = [
     { title: "Educational Software", desc: "Custom-built apps for science and mathematics with interactive features." },
     { title: "Virtual Lab Sims",     desc: "GeoGebra-powered experiments that bring abstract concepts to life." },
-    { title: "Free Resources",       desc: "All materials are freely available to download for any classroom." },
-    { title: "HTML Simulations",     desc: "Run your own .html simulation files directly inside the Virtual Lab." },
+    { title: "HTML Simulations",     desc: "Self-contained simulations you can run directly inside the Virtual Lab." },
+    { title: "Open & Free",          desc: "Everything here is free to use for any student or classroom." },
   ]
 
   return (
-    <section id="about" className="section-padding bg-background relative overflow-hidden">
+    <section className="section-padding bg-background relative overflow-hidden">
       {/* ambient */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-primary/5 blur-3xl rounded-full pointer-events-none" />
 
@@ -30,9 +30,9 @@ export default function AboutSection() {
             <Sparkles className="w-4 h-4" />
             About Me
           </div>
-          <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-3">
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
             The Person Behind the Lab
-          </h2>
+          </h1>
           <div className="w-16 h-0.5 bg-primary mx-auto rounded-full" />
         </div>
 
@@ -44,7 +44,7 @@ export default function AboutSection() {
               <div className="shrink-0 mx-auto md:mx-0">
                 <div
                   className="relative w-36 h-36 rounded-2xl overflow-hidden border-2 border-primary/30"
-                  style={{ boxShadow: "0 0 40px hsl(220 80% 56% / 0.25)" }}
+                  style={{ boxShadow: "0 0 40px hsl(173 58% 32% / 0.25)" }}
                 >
                   {profilePhoto ? (
                     <Image
@@ -57,7 +57,7 @@ export default function AboutSection() {
                     />
                   ) : (
                     <div className="w-full h-full bg-primary/20 flex items-center justify-center">
-                      <span className="text-4xl font-serif font-bold text-primary">BB</span>
+                      <span className="text-4xl font-bold text-primary">BB</span>
                     </div>
                   )}
                 </div>
@@ -65,7 +65,7 @@ export default function AboutSection() {
 
               {/* bio */}
               <div className="flex-1">
-                <h3 className="text-2xl font-serif font-bold text-foreground mb-1">Basanta Bhattarai</h3>
+                <h3 className="text-2xl font-bold text-foreground mb-1">Basanta Bhattarai</h3>
                 <p className="text-primary text-sm font-medium mb-3">Government Teacher · Fullstack Developer</p>
                 <p className="text-muted-foreground text-sm leading-relaxed mb-3">
                   Namaste 🙏 — I teach science and maths in a government school in the hills of Ilam, Nepal.
@@ -74,8 +74,7 @@ export default function AboutSection() {
                 </p>
                 <p className="text-muted-foreground text-sm leading-relaxed">
                   Everything here is <span className="text-foreground font-medium">free and open</span> — from
-                  desktop software to the GeoGebra simulations and locally-run HTML experiments you see in the
-                  Virtual Lab above.
+                  the GeoGebra simulations to the locally-run HTML experiments you'll find in the Virtual Lab.
                 </p>
               </div>
             </div>
@@ -120,7 +119,7 @@ export default function AboutSection() {
           <div className="grid sm:grid-cols-2 gap-3 mb-6">
             {offerings.map(({ title, desc }, i) => (
               <div key={title}
-                className="flex items-start gap-3 p-4 rounded-xl bg-white/3 border border-border/50 hover-lift animate-fade-in"
+                className="flex items-start gap-3 p-4 rounded-xl bg-secondary/40 border border-border/50 hover-lift animate-fade-in"
                 style={{ animationDelay: `${i * 0.08}s` }}>
                 <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 shrink-0" />
                 <div>
@@ -134,7 +133,7 @@ export default function AboutSection() {
           {/* contact details */}
           <div className="grid sm:grid-cols-2 gap-3">
             {details.map(({ icon: Icon, label, value }) => (
-              <div key={label} className="flex items-center gap-3 p-4 rounded-xl bg-white/3 border border-border/50">
+              <div key={label} className="flex items-center gap-3 p-4 rounded-xl bg-secondary/40 border border-border/50">
                 <div className="p-2 rounded-lg bg-primary/10 shrink-0">
                   <Icon className="w-4 h-4 text-primary" />
                 </div>

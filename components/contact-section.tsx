@@ -10,7 +10,7 @@ export default function ContactSection() {
   ]
 
   return (
-    <section id="contact" className="section-padding bg-secondary/20 relative overflow-hidden">
+    <section className="section-padding bg-secondary/20 relative overflow-hidden">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-primary/5 blur-3xl rounded-full pointer-events-none" />
 
       <div className="container mx-auto relative z-10">
@@ -19,7 +19,7 @@ export default function ContactSection() {
             <MessageCircle className="w-4 h-4" />
             Let's Connect
           </div>
-          <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-3">Get In Touch</h2>
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">Get In Touch</h1>
           <p className="text-muted-foreground max-w-md mx-auto text-sm">
             Have questions or want to collaborate? Reach out through any of these channels.
           </p>

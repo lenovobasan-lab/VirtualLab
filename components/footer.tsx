@@ -14,7 +14,7 @@ export default function Footer() {
               <FlaskConical className="w-4 h-4 text-primary" />
             </div>
             <div>
-              <p className="font-serif font-bold text-foreground text-sm">Basanta Bhattarai</p>
+              <p className="font-bold text-foreground text-sm">Basanta Bhattarai</p>
               <p className="text-muted-foreground text-xs">Teacher & Programmer · Ilam, Nepal</p>
             </div>
           </div>

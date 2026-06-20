@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react"
 import { simulations, type Simulation } from "@/lib/static-data"
 import { Button } from "@/components/ui/button"
-import { FlaskConical, ExternalLink, Monitor, Globe, FileCode, Atom, BookOpen, Upload } from "lucide-react"
+import { FlaskConical, ExternalLink, Monitor, Globe, FileCode, Atom, BookOpen } from "lucide-react"
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -33,11 +33,11 @@ function typeLabel(type: Simulation["type"]) {
 }
 
 const subjectColors: Record<string, string> = {
-  Science:     "bg-green-500/15  text-green-400  border-green-500/30",
-  Chemistry:   "bg-purple-500/15 text-purple-400 border-purple-500/30",
-  Physics:     "bg-blue-500/15   text-blue-400   border-blue-500/30",
-  Mathematics: "bg-amber-500/15  text-amber-400  border-amber-500/30",
-  Astronomy:   "bg-indigo-500/15 text-indigo-400 border-indigo-500/30",
+  Science:     "bg-emerald-500/12  text-emerald-700  border-emerald-500/25 dark:text-emerald-400",
+  Chemistry:   "bg-violet-500/12 text-violet-700 border-violet-500/25 dark:text-violet-400",
+  Physics:     "bg-sky-500/12   text-sky-700   border-sky-500/25 dark:text-sky-400",
+  Mathematics: "bg-amber-500/12  text-amber-700  border-amber-500/25 dark:text-amber-400",
+  Astronomy:   "bg-indigo-500/12 text-indigo-700 border-indigo-500/25 dark:text-indigo-400",
 }
 
 // ── component ─────────────────────────────────────────────────────────────────
@@ -64,7 +64,7 @@ export default function VirtualLabSection() {
 
   if (simulations.length === 0) {
     return (
-      <section id="virtual-lab" className="section-padding bg-background">
+      <section className="section-padding bg-background">
         <div className="container mx-auto text-center py-8">
           <FlaskConical className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
           <p className="text-muted-foreground">No simulations yet. Add some in <code>lib/static-data.ts</code></p>
@@ -74,10 +74,7 @@ export default function VirtualLabSection() {
   }
 
   return (
-    <section id="virtual-lab" className="section-padding bg-background relative overflow-hidden">
-      {/* ambient glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/5 blur-3xl rounded-full pointer-events-none" />
-
+    <section className="section-padding bg-background relative overflow-hidden">
       <div className="container mx-auto relative z-10">
         {/* heading */}
         <div className="text-center mb-10">
@@ -85,7 +82,7 @@ export default function VirtualLabSection() {
             <FlaskConical className="w-4 h-4" />
             Interactive Simulations
           </div>
-          <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-3">Virtual Lab</h2>
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">Virtual Lab</h1>
           <p className="text-muted-foreground max-w-xl mx-auto text-sm">
             Explore simulations right here in the browser. Works with GeoGebra, PhET, and your own HTML files.
           </p>
@@ -109,7 +106,8 @@ export default function VirtualLabSection() {
           ))}
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
+        {/* sidebar narrower (1/4), viewer wider (3/4) — viewer is where learning happens */}
+        <div className="grid lg:grid-cols-4 gap-6">
           {/* ── sidebar ── */}
           <div className="lg:col-span-1 flex flex-col gap-3">
             <div className="glass-card rounded-xl p-4 flex-1">
@@ -124,7 +122,7 @@ export default function VirtualLabSection() {
                     className={`w-full text-left p-3 rounded-xl transition-all group ${
                       active.id === sim.id
                         ? "bg-primary text-primary-foreground shadow-glow"
-                        : "hover:bg-white/5 text-foreground"
+                        : "hover:bg-secondary text-foreground"
                     }`}
                   >
                     <div className="flex items-start gap-2.5">
@@ -143,7 +141,7 @@ export default function VirtualLabSection() {
                               {sim.subject}
                             </span>
                           )}
-                          <span className={`text-xs ${active.id === sim.id ? "opacity-60" : "text-muted-foreground"}`}>
+                          <span className={`text-xs ${active.id === sim.id ? "opacity-70" : "text-muted-foreground"}`}>
                             {typeLabel(sim.type)}
                           </span>
                         </div>
@@ -155,16 +153,16 @@ export default function VirtualLabSection() {
             </div>
           </div>
 
-          {/* ── viewer ── */}
-          <div className="lg:col-span-2">
+          {/* ── viewer (wider — where the actual learning happens) ── */}
+          <div className="lg:col-span-3">
             <div className="glass-card rounded-2xl overflow-hidden">
               {/* topbar */}
-              <div className="flex items-center gap-3 px-5 py-3.5 border-b border-border/50 bg-white/3">
+              <div className="flex items-center gap-3 px-5 py-3.5 border-b border-border bg-secondary/40">
                 {/* window dots */}
                 <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-500/60" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
-                  <div className="w-3 h-3 rounded-full bg-green-500/60" />
+                  <div className="w-3 h-3 rounded-full bg-red-400/70" />
+                  <div className="w-3 h-3 rounded-full bg-amber-400/70" />
+                  <div className="w-3 h-3 rounded-full bg-emerald-400/70" />
                 </div>
 
                 {/* title */}
@@ -191,13 +189,13 @@ export default function VirtualLabSection() {
 
               {/* description */}
               {active.description && (
-                <div className="px-5 py-2.5 bg-primary/5 border-b border-border/30 text-xs text-muted-foreground">
+                <div className="px-5 py-2.5 bg-primary/5 border-b border-border/60 text-xs text-muted-foreground">
                   {active.description}
                 </div>
               )}
 
               {/* iframe */}
-              <div className="relative w-full bg-black" style={{ paddingBottom: "60%" }}>
+              <div className="relative w-full bg-card" style={{ paddingBottom: "62%" }}>
                 <iframe
                   key={`${active.id}-${iframeKey}`}
                   src={getEmbedUrl(active)}
