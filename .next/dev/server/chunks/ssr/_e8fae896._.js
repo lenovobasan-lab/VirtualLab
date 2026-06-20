@@ -343,7 +343,7 @@ const photos = [
     {
         id: "photo-cover",
         type: "cover",
-        url: "/images/cover.PNG",
+        url: "/images/cover.png",
         alt: "Cover Photo"
     }
 ];
