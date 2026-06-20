@@ -1339,7 +1339,7 @@ function TypeIcon({ type }) {
     }, this);
 }
 function typeLabel(type) {
-    if (type === "html") return "Local HTML";
+    if (type === "html") return "HTML";
     if (type === "phet") return "PhET";
     if (type === "geogebra") return "GeoGebra";
     return "Web";

@@ -26,7 +26,7 @@ function TypeIcon({ type }: { type: Simulation["type"] }) {
 }
 
 function typeLabel(type: Simulation["type"]) {
-  if (type === "html")    return "Local HTML"
+  if (type === "html")    return "HTML"
   if (type === "phet")    return "PhET"
   if (type === "geogebra") return "GeoGebra"
   return "Web"
