@@ -136,4 +136,12 @@ export const simulations: Simulation[] = [
     type: "html",
     created_at: "2026-06-20T19:54:00.000Z",
   },
+  {id: "Atomic Structure Simulation",
+    title: "Atomic Structure Of First 20 Elements",
+    description: "Interactive simulation of atomic structure",
+    subject: "Chemistry",
+    url: "/simulations/atomic_structure_simulation_2.html",
+    type: "html",
+    created_at: "2026-06-20T19:54:00.000Z",
+  },
 ]
