@@ -1,0 +1,223 @@
+
+<div id="app" style="background:#0f172a;border-radius:16px;padding:16px;font-family:'Segoe UI',system-ui,sans-serif;color:#e2e8f0;">
+
+<h2 class="sr-only">Relative Velocity</h2>
+
+<div id="stars" style="position:relative;height:0;overflow:visible;pointer-events:none;"></div>
+
+<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+  <div>
+    <div id="t1" style="font-size:17px;font-weight:700;color:#f1f5f9;">Relative Velocity</div>
+    <div id="t2" style="font-size:11px;color:#64748b;margin-top:1px;">सापेक्षिक गति</div>
+  </div>
+  <button id="langBtn" onclick="toggleLang()" style="background:#1e293b;border:1px solid #334155;border-radius:999px;padding:5px 13px;font-size:12px;font-weight:600;color:#94a3b8;cursor:pointer;font-family:inherit;">
+    &#127760; <span id="langLbl">नेपाली</span>
+  </button>
+</div>
+
+<div style="display:flex;gap:8px;margin-bottom:12px;">
+  <button id="bSame" onclick="setMode('same')" style="flex:1;padding:9px;border-radius:10px;background:#3b82f6;border:none;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">
+    <span id="lSame">&#8594;&#8594; Same Direction</span>
+  </button>
+  <button id="bOpp" onclick="setMode('opp')" style="flex:1;padding:9px;border-radius:10px;background:#1e293b;border:1px solid #334155;color:#64748b;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">
+    <span id="lOpp">&#8592;&#8594; Opposite Direction</span>
+  </button>
+</div>
+
+<canvas id="road" height="120" style="width:100%;border-radius:12px;display:block;margin-bottom:12px;"></canvas>
+
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+  <div style="width:10px;height:10px;border-radius:50%;background:#3b82f6;flex-shrink:0;"></div>
+  <span id="lA" style="font-size:12px;color:#93c5fd;min-width:105px;">Speed of Car A</span>
+  <input type="range" min="0" max="120" value="60" step="1" id="slA" oninput="calc()" style="flex:1;accent-color:#3b82f6;">
+  <span id="oA" style="font-size:13px;font-weight:700;min-width:60px;text-align:right;color:#93c5fd;">60 km/h</span>
+</div>
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+  <div style="width:10px;height:10px;border-radius:50%;background:#f97316;flex-shrink:0;"></div>
+  <span id="lB" style="font-size:12px;color:#fdba74;min-width:105px;">Speed of Car B</span>
+  <input type="range" min="0" max="120" value="40" step="1" id="slB" oninput="calc()" style="flex:1;accent-color:#f97316;">
+  <span id="oB" style="font-size:13px;font-weight:700;min-width:60px;text-align:right;color:#fdba74;">40 km/h</span>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;">
+  <div style="background:#1e293b;border-radius:10px;padding:10px 12px;border:1px solid #334155;">
+    <div id="mlA" style="font-size:10px;color:#3b82f6;margin-bottom:3px;font-weight:700;letter-spacing:.5px;">CAR A</div>
+    <div id="mA" style="font-size:18px;font-weight:700;color:#93c5fd;">60 km/h</div>
+  </div>
+  <div style="background:#1e293b;border-radius:10px;padding:10px 12px;border:1px solid #334155;">
+    <div id="mlB" style="font-size:10px;color:#f97316;margin-bottom:3px;font-weight:700;letter-spacing:.5px;">CAR B</div>
+    <div id="mB" style="font-size:18px;font-weight:700;color:#fdba74;">40 km/h</div>
+  </div>
+  <div style="background:#064e3b;border-radius:10px;padding:10px 12px;border:1px solid #065f46;">
+    <div id="mlR" style="font-size:10px;color:#34d399;margin-bottom:3px;font-weight:700;letter-spacing:.5px;">RELATIVE</div>
+    <div id="mR" style="font-size:18px;font-weight:700;color:#6ee7b7;">20 km/h</div>
+  </div>
+</div>
+
+<div style="background:#1e1b4b;border-radius:10px;border-left:3px solid #818cf8;padding:10px 14px;margin-bottom:10px;">
+  <div id="fEq" style="font-size:13px;font-weight:700;color:#c7d2fe;margin-bottom:3px;font-family:monospace;">V_rel = 60 - 40 = 20 km/h</div>
+  <div id="fDesc" style="font-size:11px;color:#a5b4fc;line-height:1.6;">Same direction: subtract the speeds.</div>
+</div>
+
+<div id="noteBox" style="background:#1e293b;border-radius:10px;border:1px solid #334155;padding:8px 12px;font-size:11px;color:#94a3b8;line-height:1.6;margin-bottom:12px;">
+  From Car B, Car A appears to move forward at 20 km/h.
+</div>
+
+<div style="display:flex;gap:8px;">
+  <button id="playBtn" onclick="togglePlay()" style="flex:1;padding:10px;border-radius:10px;background:#10b981;border:none;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;">
+    &#9654; <span id="pTxt">Play</span>
+  </button>
+  <button onclick="doReset()" style="padding:10px 18px;border-radius:10px;background:#1e293b;border:1px solid #334155;font-size:13px;color:#94a3b8;cursor:pointer;font-family:inherit;">
+    &#8635; <span id="rTxt">Reset</span>
+  </button>
+</div>
+</div>
+
+<script>
+var lang='en', mode='same', playing=false, raf=null;
+var pA=0.08, pB=0.55;
+var last=null;
+var W=500, H=120;
+
+var TX={
+  en:{t1:'Relative Velocity',t2:'सापेक्षिक गति',ll:'नेपाली',same:'&#8594;&#8594; Same Direction',opp:'&#8592;&#8594; Opposite Direction',lA:'Speed of Car A',lB:'Speed of Car B',mlA:'CAR A',mlB:'CAR B',mlR:'RELATIVE',play:'Play',pause:'Pause',reset:'Reset',
+    laneA:'Car A →',laneB_s:'Car B →',laneB_o:'← Car B'},
+  np:{t1:'सापेक्षिक गति',t2:'Relative Velocity',ll:'English',same:'&#8594;&#8594; एउटै दिशा',opp:'&#8592;&#8594; विपरीत दिशा',lA:'गाडी A को गति',lB:'गाडी B को गति',mlA:'गाडी A',mlB:'गाडी B',mlR:'आपेक्षिक',play:'चलाउनुस्',pause:'रोक्नुस्',reset:'रिसेट',
+    laneA:'गाडी A →',laneB_s:'गाडी B →',laneB_o:'← गाडी B'}
+};
+
+function g(id){return document.getElementById(id);}
+
+function applyLang(){
+  var t=TX[lang];
+  g('t1').textContent=t.t1; g('t2').textContent=t.t2; g('langLbl').textContent=t.ll;
+  g('lSame').innerHTML=t.same; g('lOpp').innerHTML=t.opp;
+  g('lA').textContent=t.lA; g('lB').textContent=t.lB;
+  g('mlA').textContent=t.mlA; g('mlB').textContent=t.mlB; g('mlR').textContent=t.mlR;
+  g('rTxt').textContent=t.reset;
+  g('pTxt').textContent=playing?t.pause:t.play;
+}
+
+function toggleLang(){lang=lang==='en'?'np':'en'; applyLang(); calc();}
+
+function setMode(m){
+  mode=m;
+  if(m==='same'){
+    g('bSame').style.background='#3b82f6'; g('bSame').style.border='none'; g('bSame').style.color='#fff';
+    g('bOpp').style.background='#1e293b'; g('bOpp').style.border='1px solid #334155'; g('bOpp').style.color='#64748b';
+  } else {
+    g('bOpp').style.background='#7c3aed'; g('bOpp').style.border='none'; g('bOpp').style.color='#fff';
+    g('bSame').style.background='#1e293b'; g('bSame').style.border='1px solid #334155'; g('bSame').style.color='#64748b';
+  }
+  doReset(); calc();
+}
+
+function calc(){
+  var va=+g('slA').value, vb=+g('slB').value;
+  g('oA').textContent=va+' km/h'; g('oB').textContent=vb+' km/h';
+  g('mA').textContent=va+' km/h'; g('mB').textContent=vb+' km/h';
+  var rel, eq, desc, note;
+  if(mode==='same'){
+    rel=Math.abs(va-vb); eq='V_rel = '+va+' - '+vb+' = '+(va-vb)+' km/h';
+    if(va>vb){desc=(lang==='en'?'Same direction: A is faster.':'एउटै दिशा: A छिटो।'); note=(lang==='en'?'From Car B, Car A moves ahead at '+rel+' km/h.':'गाडी B बाट, गाडी A '+rel+' km/h मा अगाडि देखिन्छ।');}
+    else if(va<vb){desc=(lang==='en'?'Same direction: B is faster.':'एउटै दिशा: B छिटो।'); note=(lang==='en'?'From Car A, Car B moves ahead at '+rel+' km/h.':'गाडी A बाट, गाडी B '+rel+' km/h मा अगाडि देखिन्छ।');}
+    else{desc=(lang==='en'?'Equal speeds — cars appear stationary.':'बराबर गति — दुवै स्थिर देखिन्छन्।'); note=(lang==='en'?'Relative velocity = 0.':'आपेक्षिक गति = ०।');}
+  } else {
+    rel=va+vb; eq='V_rel = '+va+' + '+vb+' = '+rel+' km/h';
+    desc=(lang==='en'?'Opposite directions: speeds add up.':'विपरीत दिशा: गतिहरू जोडिन्छन्।');
+    note=(lang==='en'?'They approach each other at '+rel+' km/h.':'दुवै '+rel+' km/h मा एकअर्कातर्फ आउँछन्।');
+  }
+  g('mR').textContent=rel+' km/h';
+  g('fEq').textContent=eq; g('fDesc').textContent=desc; g('noteBox').textContent=note;
+}
+
+function drawCar(ctx, x, y, clr, flip){
+  ctx.save();
+  if(flip){ ctx.translate(x+35,y); ctx.scale(-1,1); ctx.translate(-35,0); } else { ctx.translate(x,y); }
+  ctx.fillStyle=clr;
+  ctx.beginPath(); ctx.roundRect(0,8,70,20,5); ctx.fill();
+  ctx.fillStyle='rgba(200,235,255,0.8)';
+  ctx.beginPath(); ctx.roundRect(10,1,18,14,3); ctx.fill();
+  ctx.beginPath(); ctx.roundRect(31,1,16,14,3); ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,0.12)'; ctx.fillRect(0,16,70,4);
+  ctx.fillStyle='#111';
+  ctx.beginPath(); ctx.arc(13,29,5,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(55,29,5,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#444';
+  ctx.beginPath(); ctx.arc(13,29,3,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(55,29,3,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#fde68a';
+  if(!flip){ctx.fillRect(68,10,4,8);}
+  else{ctx.fillRect(0,10,4,8);}
+  ctx.restore();
+}
+
+function drawRoad(){
+  var cv=g('road');
+  W=cv.clientWidth||500;
+  cv.width=W; cv.height=H;
+  var ctx=cv.getContext('2d');
+  ctx.fillStyle='#111827'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='rgba(255,255,255,0.03)';
+  for(var i=0;i<W;i+=40){ ctx.fillRect(i,0,1,H); }
+  ctx.strokeStyle='rgba(253,224,71,0.6)'; ctx.lineWidth=2; ctx.setLineDash([22,22]);
+  ctx.beginPath(); ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='rgba(59,130,246,0.06)'; ctx.fillRect(0,0,W,H/2);
+  ctx.fillStyle='rgba(249,115,22,0.06)'; ctx.fillRect(0,H/2,W,H/2);
+  var t=TX[lang];
+  ctx.font='bold 10px "Segoe UI",system-ui,sans-serif';
+  ctx.fillStyle='rgba(147,197,253,0.7)'; ctx.fillText(t.laneA,8,14);
+  ctx.fillStyle='rgba(253,186,116,0.7)'; ctx.fillText(mode==='same'?t.laneB_s:t.laneB_o,8,H-6);
+  var xA=Math.round(pA*W), xB=Math.round(pB*W);
+  drawCar(ctx,xA,4,'#1d4ed8',false);
+  drawCar(ctx,xB,H/2+4,'#c2410c',mode==='opp');
+}
+
+function doReset(){
+  stop();
+  pA=0.08; pB=0.55;
+  drawRoad();
+}
+
+function stop(){
+  playing=false; last=null;
+  if(raf){cancelAnimationFrame(raf);raf=null;}
+  g('pTxt').textContent=TX[lang].play;
+  g('playBtn').style.background='#10b981';
+}
+
+function togglePlay(){
+  if(playing){stop();}
+  else{
+    playing=true; last=null;
+    g('pTxt').textContent=TX[lang].pause;
+    g('playBtn').style.background='#dc2626';
+    raf=requestAnimationFrame(frame);
+  }
+}
+
+function frame(ts){
+  if(!playing){return;}
+  if(!last){last=ts; raf=requestAnimationFrame(frame); return;}
+  var dt=Math.min((ts-last)/1000,0.05); last=ts;
+  var va=+g('slA').value, vb=+g('slB').value;
+  var sp=0.28;
+  pA+=(va/120)*sp*dt;
+  if(pA>1.1) pA=-0.15;
+  if(mode==='same'){
+    pB+=(vb/120)*sp*dt;
+    if(pB>1.1) pB=-0.15;
+  } else {
+    pB-=(vb/120)*sp*dt;
+    if(pB<-0.15) pB=1.1;
+  }
+  drawRoad();
+  raf=requestAnimationFrame(frame);
+}
+
+window.addEventListener('load',function(){
+  drawRoad(); calc();
+});
+window.addEventListener('resize',function(){drawRoad();});
+</script>

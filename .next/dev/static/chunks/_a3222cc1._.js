@@ -363,6 +363,33 @@ const simulations = [
         url: "/simulations/atomic_structure_simulation_2.html",
         type: "html",
         created_at: "2026-06-20T19:54:00.000Z"
+    },
+    {
+        id: "sim-8",
+        title: "Solar System",
+        description: "Interactive simulation of Solar System",
+        subject: "Astronomy",
+        url: "/simulations/solar-system-3d.html",
+        type: "html",
+        created_at: "2026-06-20T19:54:00.000Z"
+    },
+    {
+        id: "sim-9",
+        title: "Set Relations",
+        description: "Interactive simulation of set relations",
+        subject: "Mathematics",
+        url: "/simulations/interactive-set-operations-explorer_1.html",
+        type: "html",
+        created_at: "2026-06-20T19:54:00.000Z"
+    },
+    {
+        id: "sim-10",
+        title: "Relative Motion",
+        description: "Interactive simulation of relative motion",
+        subject: "Physics",
+        url: "/simulations/relative_velocity_v4.html",
+        type: "html",
+        created_at: "2026-06-20T19:54:00.000Z"
     }
 ];
 if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {

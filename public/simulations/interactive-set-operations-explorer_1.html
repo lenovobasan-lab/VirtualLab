@@ -1,0 +1,1812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>Interactive Set Operations Explorer</title>
+<!-- Fonts: loaded from CDN when online; UI gracefully falls back to system fonts (Georgia/Segoe UI/Consolas) when offline since --font-display/--font-body/--font-mono already specify fallback chains. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-0:#0f1029;
+  --bg-1:#171a3d;
+  --bg-2:#1f2350;
+  --panel:rgba(255,255,255,0.06);
+  --panel-border:rgba(255,255,255,0.12);
+  --panel-strong:rgba(255,255,255,0.10);
+  --text-0:#f4f3fb;
+  --text-1:#c7c8e6;
+  --text-2:#9293c0;
+  --setA:#ff6b6b;
+  --setA-soft:rgba(255,107,107,0.35);
+  --setB:#22c3b6;
+  --setB-soft:rgba(34,195,182,0.35);
+  --both:#ffc857;
+  --both-soft:rgba(255,200,87,0.45);
+  --universe:#5865c9;
+  --accent:#8b7cf6;
+  --accent-2:#ff9f6b;
+  --good:#3ddc97;
+  --bad:#ff6b8b;
+  --radius-lg:22px;
+  --radius-md:14px;
+  --radius-sm:9px;
+  --shadow-lg:0 20px 60px rgba(0,0,0,0.45);
+  --shadow-md:0 10px 30px rgba(0,0,0,0.35);
+  --font-display:'Fraunces', 'Iowan Old Style', Georgia, serif;
+  --font-body:'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono:'JetBrains Mono', 'SF Mono', Consolas, monospace;
+}
+
+[data-theme="light"]{
+  --bg-0:#f1efe4;
+  --bg-1:#e9e6d8;
+  --bg-2:#ffffff;
+  --panel:rgba(255,255,255,0.65);
+  --panel-border:rgba(20,20,40,0.10);
+  --panel-strong:rgba(255,255,255,0.85);
+  --text-0:#1c1c2e;
+  --text-1:#3c3c5c;
+  --text-2:#6b6b8c;
+  --setA:#e8543f;
+  --setA-soft:rgba(232,84,63,0.28);
+  --setB:#0e9488;
+  --setB-soft:rgba(14,148,136,0.28);
+  --both:#d99a14;
+  --both-soft:rgba(217,154,20,0.35);
+  --universe:#4452a8;
+  --accent:#6f5ae0;
+  --accent-2:#d97a3f;
+  --shadow-lg:0 20px 50px rgba(30,25,15,0.18);
+  --shadow-md:0 10px 26px rgba(30,25,15,0.14);
+}
+
+[data-contrast="high"]{
+  --text-1:var(--text-0);
+  --text-2:var(--text-0);
+  --panel-border:rgba(255,255,255,0.4);
+}
+[data-theme="light"][data-contrast="high"]{
+  --panel-border:rgba(0,0,0,0.4);
+}
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:var(--font-body);
+  color:var(--text-0);
+  background:
+    radial-gradient(circle at 15% 8%, var(--bg-2), transparent 45%),
+    radial-gradient(circle at 85% 0%, var(--bg-1), transparent 50%),
+    linear-gradient(160deg, var(--bg-0), var(--bg-1) 60%, var(--bg-0));
+  background-attachment:fixed;
+  transition:background .4s ease, color .4s ease;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important;}
+}
+
+::selection{ background:var(--accent); color:#fff; }
+
+a, button, input{ font-family:inherit; }
+
+/* ---------- Layout shell ---------- */
+.app{
+  max-width:1400px;
+  margin:0 auto;
+  padding:20px 22px 80px;
+}
+
+/* ---------- Top bar ---------- */
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:14px 20px;
+  border-radius:var(--radius-lg);
+  background:var(--panel);
+  border:1px solid var(--panel-border);
+  backdrop-filter:blur(18px) saturate(150%);
+  -webkit-backdrop-filter:blur(18px) saturate(150%);
+  box-shadow:var(--shadow-md);
+  position:sticky;
+  top:14px;
+  z-index:100;
+  margin-bottom:26px;
+  flex-wrap:wrap;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.brand-mark{
+  width:42px;height:42px;flex:0 0 auto;
+  position:relative;
+}
+.brand-title{
+  font-family:var(--font-display);
+  font-weight:600;
+  font-size:1.32rem;
+  letter-spacing:0.2px;
+  line-height:1.1;
+}
+.brand-title em{ font-style:normal; color:var(--accent); }
+.brand-sub{
+  font-size:0.72rem;
+  text-transform:uppercase;
+  letter-spacing:1.6px;
+  color:var(--text-2);
+  font-weight:600;
+}
+.topbar-controls{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.icon-btn{
+  width:42px;height:42px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--panel-strong);
+  border:1px solid var(--panel-border);
+  color:var(--text-0);
+  cursor:pointer;
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1), background .25s, box-shadow .25s;
+}
+.icon-btn:hover{ transform:translateY(-2px) scale(1.05); box-shadow:var(--shadow-md); }
+.icon-btn:active{ transform:translateY(0) scale(0.96); }
+.icon-btn svg{ width:20px; height:20px; }
+.icon-btn:focus-visible, button:focus-visible, input:focus-visible, [tabindex]:focus-visible{
+  outline:2.5px solid var(--accent-2);
+  outline-offset:2px;
+}
+
+/* ---------- Mode nav ---------- */
+.mode-nav{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:26px;
+}
+.mode-btn{
+  padding:11px 20px;
+  border-radius:999px;
+  border:1px solid var(--panel-border);
+  background:var(--panel);
+  color:var(--text-1);
+  font-weight:600;
+  font-size:0.92rem;
+  cursor:pointer;
+  display:flex;align-items:center;gap:8px;
+  transition:all .25s ease;
+  backdrop-filter:blur(10px);
+}
+.mode-btn:hover{ color:var(--text-0); border-color:var(--accent); transform:translateY(-1px); }
+.mode-btn.active{
+  background:linear-gradient(135deg, var(--accent), var(--universe));
+  color:#fff;
+  border-color:transparent;
+  box-shadow:0 8px 22px rgba(139,124,246,0.35);
+}
+.mode-btn .dot{ width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.6; }
+
+/* ---------- Panels / Glass cards ---------- */
+.panel{
+  background:var(--panel);
+  border:1px solid var(--panel-border);
+  border-radius:var(--radius-lg);
+  backdrop-filter:blur(18px) saturate(150%);
+  -webkit-backdrop-filter:blur(18px) saturate(150%);
+  box-shadow:var(--shadow-md);
+  padding:22px;
+}
+.panel-title{
+  font-family:var(--font-display);
+  font-size:1.05rem;
+  font-weight:600;
+  margin:0 0 14px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  letter-spacing:0.2px;
+}
+.panel-title .num{
+  font-family:var(--font-mono);
+  font-size:0.7rem;
+  color:var(--accent-2);
+  border:1px solid currentColor;
+  border-radius:5px;
+  padding:1px 6px;
+}
+
+/* ---------- View: Explorer layout ---------- */
+.view{ display:none; }
+.view.active{ display:block; animation:viewIn .45s ease; }
+@keyframes viewIn{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;} }
+
+.explorer-grid{
+  display:grid;
+  grid-template-columns:340px 1fr 320px;
+  gap:22px;
+  align-items:start;
+}
+@media (max-width:1180px){
+  .explorer-grid{ grid-template-columns:1fr; }
+}
+
+/* Sets input column */
+.set-input-group{ margin-bottom:16px; }
+.set-input-group label{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-weight:700;
+  font-size:0.95rem;
+  margin-bottom:8px;
+}
+.set-chip{
+  width:14px;height:14px;border-radius:5px;flex:0 0 auto;
+}
+.set-chip.A{ background:var(--setA); }
+.set-chip.B{ background:var(--setB); }
+.set-chip.U{ background:var(--universe); }
+
+.set-input-group input[type="text"]{
+  width:100%;
+  padding:11px 14px;
+  border-radius:var(--radius-sm);
+  border:1.5px solid var(--panel-border);
+  background:var(--bg-2);
+  color:var(--text-0);
+  font-size:0.95rem;
+  font-family:var(--font-mono);
+  transition:border-color .2s, box-shadow .2s;
+}
+[data-theme="light"] .set-input-group input[type="text"]{ background:#fff; }
+.set-input-group input[type="text"]:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 4px rgba(139,124,246,0.18);
+  outline:none;
+}
+.set-input-hint{
+  font-size:0.74rem;
+  color:var(--text-2);
+  margin-top:5px;
+}
+
+.btn{
+  border:none;
+  border-radius:var(--radius-sm);
+  padding:11px 18px;
+  font-weight:700;
+  font-size:0.9rem;
+  cursor:pointer;
+  transition:transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s, filter .2s;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+}
+.btn:hover{ transform:translateY(-2px); filter:brightness(1.08); }
+.btn:active{ transform:translateY(0); }
+.btn-primary{
+  background:linear-gradient(135deg, var(--accent), var(--universe));
+  color:#fff;
+  box-shadow:0 8px 20px rgba(139,124,246,0.3);
+}
+.btn-ghost{
+  background:var(--panel-strong);
+  color:var(--text-0);
+  border:1px solid var(--panel-border);
+}
+.btn-block{ width:100%; }
+.btn-sm{ padding:8px 14px; font-size:0.82rem; }
+.btn-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:6px; }
+
+/* Operation buttons grid */
+.op-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:6px;
+}
+.op-btn{
+  position:relative;
+  padding:13px 10px;
+  border-radius:var(--radius-md);
+  border:1.5px solid var(--panel-border);
+  background:var(--panel-strong);
+  color:var(--text-0);
+  cursor:pointer;
+  text-align:left;
+  transition:all .25s cubic-bezier(.34,1.56,.64,1);
+  overflow:hidden;
+}
+.op-btn .op-sym{
+  font-family:var(--font-mono);
+  font-size:1.05rem;
+  font-weight:700;
+  display:block;
+}
+.op-btn .op-name{
+  font-size:0.7rem;
+  color:var(--text-2);
+  display:block;
+  margin-top:2px;
+  font-weight:600;
+}
+.op-btn:hover{ transform:translateY(-3px); border-color:var(--accent); box-shadow:var(--shadow-md); }
+.op-btn.active{
+  background:linear-gradient(135deg, var(--accent), var(--universe));
+  border-color:transparent;
+  box-shadow:0 10px 26px rgba(139,124,246,0.4);
+}
+.op-btn.active .op-name{ color:rgba(255,255,255,0.85); }
+.op-btn.active::after{
+  content:'';
+  position:absolute; inset:0;
+  background:radial-gradient(circle at 30% 20%, rgba(255,255,255,0.25), transparent 60%);
+}
+
+/* Diagram column */
+.diagram-col{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+  position:sticky;
+  top:100px;
+}
+.diagram-wrap{
+  position:relative;
+  border-radius:var(--radius-lg);
+  overflow:hidden;
+  background:var(--panel);
+  border:1px solid var(--panel-border);
+  box-shadow:var(--shadow-lg);
+}
+.diagram-wrap .panel-title{ padding:18px 20px 0; }
+#vennSvg{
+  display:block;
+  width:100%;
+  height:auto;
+}
+.legend{
+  display:flex;
+  gap:18px;
+  flex-wrap:wrap;
+  padding:14px 20px 20px;
+  font-size:0.82rem;
+  color:var(--text-1);
+}
+.legend-item{ display:flex; align-items:center; gap:7px; }
+.legend-swatch{ width:13px;height:13px;border-radius:4px; }
+
+.formula-bar{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  padding:16px 18px;
+  font-family:var(--font-mono);
+  font-size:1.15rem;
+  font-weight:600;
+  flex-wrap:wrap;
+}
+.formula-bar .eq{ color:var(--text-2); }
+.formula-bar .result-set{
+  color:var(--accent-2);
+  font-weight:700;
+}
+
+.result-panel{ min-height:64px; }
+.result-set-display{
+  font-family:var(--font-mono);
+  font-size:1.3rem;
+  font-weight:700;
+  color:var(--both);
+  word-break:break-word;
+}
+.result-meta{ font-size:0.8rem; color:var(--text-2); margin-top:6px; }
+
+.export-row{ display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+
+/* Right column: explanation + definitions */
+.steps-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.step-line{
+  padding:11px 13px;
+  border-radius:10px;
+  background:var(--panel-strong);
+  border-left:3px solid var(--accent);
+  font-size:0.88rem;
+  line-height:1.5;
+  opacity:0;
+  transform:translateX(-8px);
+  animation:stepIn .45s ease forwards;
+}
+@keyframes stepIn{ to{ opacity:1; transform:none; } }
+.step-line b{ color:var(--accent-2); }
+.step-line .frm{ font-family:var(--font-mono); }
+
+.def-box{
+  font-size:0.86rem;
+  line-height:1.6;
+  color:var(--text-1);
+}
+.def-box .def-term{
+  font-family:var(--font-display);
+  font-size:1.1rem;
+  color:var(--text-0);
+  font-weight:600;
+  display:block;
+  margin-bottom:4px;
+}
+.def-box .real-world{
+  margin-top:10px;
+  padding-top:10px;
+  border-top:1px dashed var(--panel-border);
+  font-style:italic;
+  color:var(--text-2);
+}
+
+/* ---------- Drag & Drop view ---------- */
+.dnd-grid{
+  display:grid;
+  grid-template-columns:1fr 1.3fr;
+  gap:22px;
+}
+@media (max-width:1000px){ .dnd-grid{ grid-template-columns:1fr; } }
+
+.pool{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  padding:18px;
+  min-height:90px;
+  border-radius:var(--radius-md);
+  background:var(--panel-strong);
+  border:1.5px dashed var(--panel-border);
+}
+.draggable-el{
+  width:52px;height:52px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;
+  font-size:1rem;
+  cursor:grab;
+  color:#fff;
+  background:linear-gradient(135deg, var(--accent), var(--universe));
+  box-shadow:0 6px 16px rgba(0,0,0,0.25);
+  transition:transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s;
+  user-select:none;
+  touch-action:none;
+  position:relative;
+}
+.draggable-el:hover{ transform:scale(1.1) translateY(-2px); }
+.draggable-el.dragging{ opacity:0.35; transform:scale(0.9); }
+.draggable-el:focus-visible{ outline:3px solid var(--accent-2); outline-offset:3px; }
+
+.dnd-zones{
+  position:relative;
+  border-radius:var(--radius-lg);
+  background:var(--panel);
+  border:1px solid var(--panel-border);
+  min-height:420px;
+  overflow:hidden;
+}
+.dnd-zones svg{ position:absolute; inset:0; width:100%; height:100%; }
+.drop-target{
+  position:absolute;
+  display:flex;
+  flex-wrap:wrap;
+  align-content:flex-start;
+  gap:8px;
+  padding:14px;
+  transition:background .2s;
+}
+.drop-target.dragover{ background:rgba(255,255,255,0.08); }
+
+/* ---------- Practice / Challenge ---------- */
+.quiz-wrap{
+  max-width:760px;
+  margin:0 auto;
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+.quiz-stats{
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  flex-wrap:wrap;
+}
+.stat-pill{
+  flex:1;
+  min-width:120px;
+  padding:14px 16px;
+  border-radius:var(--radius-md);
+  background:var(--panel);
+  border:1px solid var(--panel-border);
+  text-align:center;
+}
+.stat-pill .stat-num{
+  font-family:var(--font-display);
+  font-size:1.6rem;
+  font-weight:700;
+  color:var(--accent-2);
+  display:block;
+}
+.stat-pill .stat-label{
+  font-size:0.72rem;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:var(--text-2);
+}
+
+.question-card{
+  text-align:center;
+  padding:30px 24px;
+}
+.q-sets{
+  font-family:var(--font-mono);
+  font-size:1.05rem;
+  color:var(--text-1);
+  margin-bottom:14px;
+}
+.q-text{
+  font-family:var(--font-display);
+  font-size:1.45rem;
+  font-weight:600;
+  margin:10px 0 22px;
+}
+.q-options{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+@media (max-width:560px){ .q-options{ grid-template-columns:1fr; } }
+.q-option{
+  padding:14px 16px;
+  border-radius:var(--radius-md);
+  border:1.5px solid var(--panel-border);
+  background:var(--panel-strong);
+  font-family:var(--font-mono);
+  font-size:1rem;
+  font-weight:700;
+  color:var(--text-0);
+  cursor:pointer;
+  transition:all .2s;
+}
+.q-option:hover{ border-color:var(--accent); transform:translateY(-2px); }
+.q-option.correct{ background:var(--good); border-color:var(--good); color:#06281b; animation:pop .4s; }
+.q-option.wrong{ background:var(--bad); border-color:var(--bad); color:#2c0710; animation:shake .4s; }
+.q-option.disabled{ pointer-events:none; opacity:0.55; }
+@keyframes pop{ 0%{transform:scale(1);} 50%{transform:scale(1.06);} 100%{transform:scale(1);} }
+@keyframes shake{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+
+.feedback-box{
+  margin-top:18px;
+  padding:14px 18px;
+  border-radius:var(--radius-md);
+  font-size:0.92rem;
+  line-height:1.55;
+  display:none;
+}
+.feedback-box.show{ display:block; animation:stepIn .35s ease; }
+.feedback-box.good{ background:rgba(61,220,151,0.15); border:1px solid var(--good); }
+.feedback-box.bad{ background:rgba(255,107,139,0.15); border:1px solid var(--bad); }
+
+.timer-bar-track{
+  height:8px;
+  border-radius:99px;
+  background:var(--panel-strong);
+  overflow:hidden;
+  border:1px solid var(--panel-border);
+}
+.timer-bar-fill{
+  height:100%;
+  background:linear-gradient(90deg, var(--good), var(--both), var(--bad));
+  transition:width 1s linear;
+  border-radius:99px;
+}
+
+.final-card{
+  text-align:center;
+  padding:40px 28px;
+}
+.final-score{
+  font-family:var(--font-display);
+  font-size:3.2rem;
+  font-weight:700;
+  background:linear-gradient(135deg, var(--accent), var(--accent-2));
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+/* ---------- Particle canvas ---------- */
+#particleCanvas{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:9999;
+}
+
+/* ---------- Misc ---------- */
+.sr-only{
+  position:absolute; width:1px;height:1px; padding:0;margin:-1px;
+  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+}
+.fade-region{ transition:opacity .5s ease, filter .5s ease; }
+.glow-region{ transition:opacity .5s ease, filter .5s ease; }
+
+footer{
+  text-align:center;
+  color:var(--text-2);
+  font-size:0.78rem;
+  margin-top:50px;
+  padding-top:20px;
+}
+
+@media print{
+  .topbar, .mode-nav, .export-row, .icon-btn{ display:none !important; }
+  body{ background:#fff !important; color:#000 !important; }
+}
+</style>
+</head>
+<body data-theme="dark" data-contrast="normal">
+
+<canvas id="particleCanvas"></canvas>
+
+<div class="app">
+
+  <!-- ===== Top bar ===== -->
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="19" cy="24" r="14" fill="var(--setA)" opacity="0.75"/>
+        <circle cx="30" cy="24" r="14" fill="var(--setB)" opacity="0.75"/>
+      </svg>
+      <div>
+        <div class="brand-title">Set Operations <em>Explorer</em></div>
+        <div class="brand-sub">Interactive Venn Diagram Lab</div>
+      </div>
+    </div>
+    <div class="topbar-controls">
+      <button class="icon-btn" id="contrastToggle" title="Toggle high contrast" aria-label="Toggle high contrast mode">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg>
+      </button>
+      <button class="icon-btn" id="themeToggle" title="Toggle dark/light mode" aria-label="Toggle dark or light mode">
+        <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ===== Mode nav ===== -->
+  <nav class="mode-nav" role="tablist" aria-label="Application modes">
+    <button class="mode-btn active" data-mode="explorer" role="tab" aria-selected="true"><span class="dot"></span>Explorer</button>
+    <button class="mode-btn" data-mode="dnd" role="tab" aria-selected="false"><span class="dot"></span>Drag &amp; Drop</button>
+    <button class="mode-btn" data-mode="practice" role="tab" aria-selected="false"><span class="dot"></span>Practice Mode</button>
+    <button class="mode-btn" data-mode="challenge" role="tab" aria-selected="false"><span class="dot"></span>Challenge Mode</button>
+  </nav>
+
+  <!-- ===== EXPLORER VIEW ===== -->
+  <section class="view active" id="view-explorer">
+    <div class="explorer-grid">
+
+      <!-- LEFT: inputs + operations -->
+      <div class="col-left" style="display:flex;flex-direction:column;gap:18px;">
+        <div class="panel">
+          <h2 class="panel-title"><span class="num">1</span> Define Your Sets</h2>
+
+          <div class="set-input-group">
+            <label for="inputU"><span class="set-chip U"></span>Universal Set (U)</label>
+            <input type="text" id="inputU" value="1,2,3,4,5,6,7,8,9,10" autocomplete="off">
+            <div class="set-input-hint">Comma-separated elements</div>
+          </div>
+          <div class="set-input-group">
+            <label for="inputA"><span class="set-chip A"></span>Set A</label>
+            <input type="text" id="inputA" value="1,2,3,4,5" autocomplete="off">
+          </div>
+          <div class="set-input-group">
+            <label for="inputB"><span class="set-chip B"></span>Set B</label>
+            <input type="text" id="inputB" value="4,5,6,7,8" autocomplete="off">
+          </div>
+
+          <div class="btn-row">
+            <button class="btn btn-primary btn-block" id="applySets">Update Sets</button>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-ghost" id="loadExample" style="flex:1">🎲 Preloaded Example</button>
+            <button class="btn btn-ghost" id="randomizeSets" style="flex:1">🔀 Randomize</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2 class="panel-title"><span class="num">2</span> Choose an Operation</h2>
+          <div class="op-grid" id="opGrid">
+            <button class="op-btn" data-op="union"><span class="op-sym">A ∪ B</span><span class="op-name">Union</span></button>
+            <button class="op-btn" data-op="intersection"><span class="op-sym">A ∩ B</span><span class="op-name">Intersection</span></button>
+            <button class="op-btn" data-op="aMinusB"><span class="op-sym">A − B</span><span class="op-name">Difference</span></button>
+            <button class="op-btn" data-op="bMinusA"><span class="op-sym">B − A</span><span class="op-name">Difference</span></button>
+            <button class="op-btn" data-op="complementA"><span class="op-sym">A′</span><span class="op-name">Complement of A</span></button>
+            <button class="op-btn" data-op="complementB"><span class="op-sym">B′</span><span class="op-name">Complement of B</span></button>
+            <button class="op-btn" data-op="symDiff" style="grid-column:1/-1"><span class="op-sym">A Δ B</span><span class="op-name">Symmetric Difference</span></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CENTER: diagram -->
+      <div class="diagram-col">
+        <div class="diagram-wrap">
+          <h2 class="panel-title">Venn Diagram</h2>
+          <svg id="vennSvg" viewBox="0 0 600 420" role="img" aria-label="Venn diagram showing sets A and B inside the universal set"></svg>
+          <div class="legend">
+            <div class="legend-item"><span class="legend-swatch" style="background:var(--setA)"></span>Set A only</div>
+            <div class="legend-item"><span class="legend-swatch" style="background:var(--setB)"></span>Set B only</div>
+            <div class="legend-item"><span class="legend-swatch" style="background:var(--both)"></span>A ∩ B</div>
+            <div class="legend-item"><span class="legend-swatch" style="background:var(--universe);opacity:.5"></span>Universal Set U</div>
+          </div>
+        </div>
+
+        <div class="panel formula-bar" id="formulaBar">
+          <span>Select an operation above to begin</span>
+        </div>
+
+        <div class="panel result-panel">
+          <h2 class="panel-title">Result Set</h2>
+          <div class="result-set-display" id="resultSetDisplay">—</div>
+          <div class="result-meta" id="resultMeta"></div>
+          <div class="export-row">
+            <button class="btn btn-ghost btn-sm" id="exportPng">📷 Save PNG</button>
+            <button class="btn btn-ghost btn-sm" id="printWorksheet">🖨️ Print Worksheet</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: steps + definitions -->
+      <div class="col-right" style="display:flex;flex-direction:column;gap:18px;">
+        <div class="panel">
+          <h2 class="panel-title"><span class="num">3</span> Step-by-Step</h2>
+          <div class="steps-list" id="stepsList">
+            <div class="step-line">Pick an operation to see the explanation unfold here, step by step.</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2 class="panel-title">📘 Definition</h2>
+          <div class="def-box" id="defBox">
+            <span class="def-term">Set Operations</span>
+            Combine, compare, and contrast sets using union, intersection, difference, complement, and symmetric difference.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== DRAG & DROP VIEW ===== -->
+  <section class="view" id="view-dnd">
+    <div class="panel" style="margin-bottom:20px;">
+      <h2 class="panel-title">🎯 Build Your Sets by Dragging</h2>
+      <p style="color:var(--text-1);font-size:0.9rem;margin:0 0 14px;">Drag each colorful element into Set A, Set B, or the overlap region. You can also press <kbd>Enter</kbd> or <kbd>Space</kbd> on a focused element, then use arrow keys + Enter to place it (keyboard-accessible alternative).</p>
+      <div class="pool" id="elementPool" aria-label="Unplaced elements"></div>
+      <div class="btn-row" style="margin-top:14px;">
+        <button class="btn btn-ghost btn-sm" id="dndReset">↺ Reset Elements</button>
+        <button class="btn btn-ghost btn-sm" id="dndNewSet">🎲 New Element Set</button>
+      </div>
+    </div>
+
+    <div class="dnd-grid">
+      <div class="panel">
+        <h2 class="panel-title">Live Set Contents</h2>
+        <div class="set-input-group">
+          <label><span class="set-chip A"></span>Set A</label>
+          <div class="result-set-display" id="dndASet" style="font-size:1.05rem;">{ }</div>
+        </div>
+        <div class="set-input-group">
+          <label><span class="set-chip B"></span>Set B</label>
+          <div class="result-set-display" id="dndBSet" style="font-size:1.05rem;">{ }</div>
+        </div>
+        <div class="set-input-group">
+          <label><span class="set-chip" style="background:var(--both)"></span>A ∩ B (auto)</label>
+          <div class="result-set-display" id="dndIntersect" style="font-size:1.05rem;color:var(--both)">{ }</div>
+        </div>
+      </div>
+
+      <div class="dnd-zones" id="dndZones">
+        <svg viewBox="0 0 600 420" id="dndVennSvg" aria-hidden="true"></svg>
+        <div class="drop-target" id="zoneA" data-zone="A" style="left:0;top:0;width:42%;height:100%;" tabindex="0" aria-label="Set A drop zone"></div>
+        <div class="drop-target" id="zoneAB" data-zone="AB" style="left:38%;top:25%;width:24%;height:50%;" tabindex="0" aria-label="Intersection drop zone"></div>
+        <div class="drop-target" id="zoneB" data-zone="B" style="left:58%;top:0;width:42%;height:100%;" tabindex="0" aria-label="Set B drop zone"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PRACTICE MODE ===== -->
+  <section class="view" id="view-practice">
+    <div class="quiz-wrap">
+      <div class="quiz-stats">
+        <div class="stat-pill"><span class="stat-num" id="practiceScore">0</span><span class="stat-label">Score</span></div>
+        <div class="stat-pill"><span class="stat-num" id="practiceStreak">0</span><span class="stat-label">Streak</span></div>
+        <div class="stat-pill"><span class="stat-num" id="practiceTotal">0</span><span class="stat-label">Answered</span></div>
+      </div>
+
+      <div class="panel question-card">
+        <div class="q-sets" id="practiceSets">A = {1,2,3} &nbsp; B = {2,3,4}</div>
+        <div class="q-text" id="practiceQuestion">What is A ∩ B?</div>
+        <div class="q-options" id="practiceOptions"></div>
+        <div class="feedback-box" id="practiceFeedback"></div>
+        <div class="btn-row" style="justify-content:center;margin-top:18px;">
+          <button class="btn btn-primary" id="practiceNext" style="display:none;">Next Question →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CHALLENGE MODE ===== -->
+  <section class="view" id="view-challenge">
+    <div class="quiz-wrap" id="challengeIntro">
+      <div class="panel" style="text-align:center;padding:44px 28px;">
+        <h2 class="panel-title" style="justify-content:center;font-size:1.6rem;">⚡ Challenge Mode</h2>
+        <p style="color:var(--text-1);max-width:480px;margin:0 auto 24px;">Answer 10 random set-operation questions against the clock. Each question gives you 20 seconds. Ready?</p>
+        <button class="btn btn-primary" id="challengeStart">Start Challenge</button>
+      </div>
+    </div>
+
+    <div class="quiz-wrap" id="challengeQuiz" style="display:none;">
+      <div class="quiz-stats">
+        <div class="stat-pill"><span class="stat-num" id="challengeScore">0</span><span class="stat-label">Score</span></div>
+        <div class="stat-pill"><span class="stat-num" id="challengeQNum">1/10</span><span class="stat-label">Question</span></div>
+        <div class="stat-pill"><span class="stat-num" id="challengeTime">20</span><span class="stat-label">Seconds Left</span></div>
+      </div>
+      <div class="timer-bar-track"><div class="timer-bar-fill" id="challengeTimerFill" style="width:100%;"></div></div>
+
+      <div class="panel question-card">
+        <div class="q-sets" id="challengeSets"></div>
+        <div class="q-text" id="challengeQuestion"></div>
+        <div class="q-options" id="challengeOptions"></div>
+        <div class="feedback-box" id="challengeFeedback"></div>
+      </div>
+    </div>
+
+    <div class="quiz-wrap" id="challengeFinal" style="display:none;">
+      <div class="panel final-card">
+        <div style="font-size:0.85rem;text-transform:uppercase;letter-spacing:2px;color:var(--text-2);">Challenge Complete</div>
+        <div class="final-score" id="finalScoreDisplay">0/10</div>
+        <p id="finalScoreMsg" style="color:var(--text-1);margin:8px 0 24px;"></p>
+        <button class="btn btn-primary" id="challengeRestart">Try Again</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>Interactive Set Operations Explorer · Works fully offline · Built by Basanta Bhattarai</footer>
+</div>
+
+<audio id="successSound" preload="auto"></audio>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   STATE
+============================================================ */
+const state = {
+  U: [1,2,3,4,5,6,7,8,9,10],
+  A: [1,2,3,4,5],
+  B: [4,5,6,7,8],
+  currentOp: null,
+  theme: 'dark',
+  contrast: 'normal'
+};
+
+const OP_META = {
+  union:{
+    sym:'A ∪ B', name:'Union',
+    formula:'A ∪ B = { x | x ∈ A or x ∈ B }',
+    def:'The union of two sets combines every element that appears in A, in B, or in both — with no duplicates.',
+    real:'Real life: Students enrolled in Math OR Science club — everyone who takes at least one.',
+    regions:['onlyA','onlyB','both']
+  },
+  intersection:{
+    sym:'A ∩ B', name:'Intersection',
+    formula:'A ∩ B = { x | x ∈ A and x ∈ B }',
+    def:'The intersection contains only the elements that are common to both A and B at the same time.',
+    real:'Real life: Students who play BOTH football AND basketball.',
+    regions:['both']
+  },
+  aMinusB:{
+    sym:'A − B', name:'Difference (A−B)',
+    formula:'A − B = { x | x ∈ A and x ∉ B }',
+    def:'A − B contains elements that belong to A but are removed if they also belong to B.',
+    real:'Real life: Students who play football but NOT basketball.',
+    regions:['onlyA']
+  },
+  bMinusA:{
+    sym:'B − A', name:'Difference (B−A)',
+    formula:'B − A = { x | x ∈ B and x ∉ A }',
+    def:'B − A contains elements that belong to B but are removed if they also belong to A.',
+    real:'Real life: Students who play basketball but NOT football.',
+    regions:['onlyB']
+  },
+  complementA:{
+    sym:"A′", name:'Complement of A',
+    formula:"A′ = { x | x ∈ U and x ∉ A }",
+    def:'The complement of A is everything in the Universal Set that is NOT in A.',
+    real:'Real life: All students in school who are NOT in the Math club.',
+    regions:['onlyB','outside']
+  },
+  complementB:{
+    sym:"B′", name:'Complement of B',
+    formula:"B′ = { x | x ∈ U and x ∉ B }",
+    def:'The complement of B is everything in the Universal Set that is NOT in B.',
+    real:'Real life: All students in school who are NOT in the Science club.',
+    regions:['onlyA','outside']
+  },
+  symDiff:{
+    sym:'A Δ B', name:'Symmetric Difference',
+    formula:'A Δ B = (A − B) ∪ (B − A)',
+    def:'The symmetric difference contains elements in A or B but NOT in both — everything except the overlap.',
+    real:'Real life: Students who play exactly one of football or basketball, not both.',
+    regions:['onlyA','onlyB']
+  }
+};
+
+/* ============================================================
+   SET UTILITIES
+============================================================ */
+function parseList(str){
+  return str.split(',')
+    .map(s=>s.trim())
+    .filter(s=>s.length>0)
+    .filter((v,i,arr)=>arr.indexOf(v)===i); // dedupe, preserve order
+}
+function fmtSet(arr){
+  if(!arr || arr.length===0) return '{ }';
+  return '{ ' + arr.join(', ') + ' }';
+}
+function setUnion(a,b){ return [...a, ...b.filter(x=>!a.includes(x))]; }
+function setIntersect(a,b){ return a.filter(x=>b.includes(x)); }
+function setDiff(a,b){ return a.filter(x=>!b.includes(x)); }
+function setSymDiff(a,b){ return setUnion(setDiff(a,b), setDiff(b,a)); }
+function setComplement(set,u){ return u.filter(x=>!set.includes(x)); }
+
+function computeResult(op){
+  const {U,A,B} = state;
+  switch(op){
+    case 'union': return setUnion(A,B);
+    case 'intersection': return setIntersect(A,B);
+    case 'aMinusB': return setDiff(A,B);
+    case 'bMinusA': return setDiff(B,A);
+    case 'complementA': return setComplement(A,U);
+    case 'complementB': return setComplement(B,U);
+    case 'symDiff': return setSymDiff(A,B);
+    default: return [];
+  }
+}
+
+/* ============================================================
+   VENN DIAGRAM RENDERING (SVG)
+============================================================ */
+const VENN_W=600, VENN_H=420;
+const CIRC_R=128;
+const A_CX=235, A_CY=210;
+const B_CX=365, B_CY=210;
+
+function buildVennSVG(targetId){
+  const svg = document.getElementById(targetId);
+  svg.setAttribute('viewBox', `0 0 ${VENN_W} ${VENN_H}`);
+  svg.innerHTML = `
+    <defs>
+      <radialGradient id="gradA-${targetId}" cx="35%" cy="30%" r="75%">
+        <stop offset="0%" stop-color="var(--setA)" stop-opacity="0.85"/>
+        <stop offset="100%" stop-color="var(--setA)" stop-opacity="0.35"/>
+      </radialGradient>
+      <radialGradient id="gradB-${targetId}" cx="65%" cy="30%" r="75%">
+        <stop offset="0%" stop-color="var(--setB)" stop-opacity="0.85"/>
+        <stop offset="100%" stop-color="var(--setB)" stop-opacity="0.35"/>
+      </radialGradient>
+      <radialGradient id="gradBoth-${targetId}" cx="50%" cy="30%" r="75%">
+        <stop offset="0%" stop-color="var(--both)" stop-opacity="0.95"/>
+        <stop offset="100%" stop-color="var(--both)" stop-opacity="0.55"/>
+      </radialGradient>
+      <filter id="glow-${targetId}" x="-60%" y="-60%" width="220%" height="220%">
+        <feGaussianBlur stdDeviation="9" result="blur"/>
+        <feMerge>
+          <feMergeNode in="blur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+
+    <rect class="fade-region" id="rectU-${targetId}" x="14" y="14" width="${VENN_W-28}" height="${VENN_H-28}" rx="20"
+      fill="none" stroke="var(--universe)" stroke-width="2.5"/>
+    <text x="32" y="42" font-family="var(--font-mono)" font-size="17" font-weight="700" fill="var(--universe)">U</text>
+
+    <rect class="fade-region" id="regOutside-${targetId}" x="14" y="14" width="${VENN_W-28}" height="${VENN_H-28}" rx="20"
+      fill="var(--universe)" opacity="0"/>
+
+    <g id="regions-${targetId}">
+      <path id="onlyA-${targetId}" class="fade-region"></path>
+      <path id="onlyB-${targetId}" class="fade-region"></path>
+      <path id="both-${targetId}" class="fade-region"></path>
+    </g>
+
+    <circle class="fade-region" id="strokeA-${targetId}" cx="${A_CX}" cy="${A_CY}" r="${CIRC_R}" fill="none" stroke="var(--setA)" stroke-width="3"/>
+    <circle class="fade-region" id="strokeB-${targetId}" cx="${B_CX}" cy="${B_CY}" r="${CIRC_R}" fill="none" stroke="var(--setB)" stroke-width="3"/>
+
+    <text x="${A_CX}" y="56" text-anchor="middle" font-family="var(--font-display)" font-size="24" font-weight="700" fill="var(--setA)">A</text>
+    <text x="${B_CX}" y="56" text-anchor="middle" font-family="var(--font-display)" font-size="24" font-weight="700" fill="var(--setB)">B</text>
+
+    <g id="elementsLayer-${targetId}" font-family="var(--font-mono)" font-size="13" font-weight="700"></g>
+  `;
+
+  drawRegionPaths(targetId);
+}
+
+function drawRegionPaths(targetId){
+  const r=CIRC_R;
+  const d = computeLensGeometry(A_CX,A_CY,B_CX,B_CY,r);
+
+  const onlyA = document.getElementById(`onlyA-${targetId}`);
+  const onlyB = document.getElementById(`onlyB-${targetId}`);
+  const both = document.getElementById(`both-${targetId}`);
+
+  onlyA.setAttribute('d', `M ${A_CX-r},${A_CY} A ${r},${r} 0 1,0 ${A_CX+r},${A_CY} A ${r},${r} 0 1,0 ${A_CX-r},${A_CY} Z ${d.lensPath}`);
+  onlyA.setAttribute('fill-rule','evenodd');
+  onlyA.setAttribute('fill', `url(#gradA-${targetId})`);
+
+  onlyB.setAttribute('d', `M ${B_CX-r},${B_CY} A ${r},${r} 0 1,0 ${B_CX+r},${B_CY} A ${r},${r} 0 1,0 ${B_CX-r},${B_CY} Z ${d.lensPath}`);
+  onlyB.setAttribute('fill-rule','evenodd');
+  onlyB.setAttribute('fill', `url(#gradB-${targetId})`);
+
+  both.setAttribute('d', d.lensPath);
+  both.setAttribute('fill', `url(#gradBoth-${targetId})`);
+}
+
+function computeLensGeometry(x1,y1,x2,y2,r){
+  const dx=x2-x1, dy=y2-y1;
+  const dist=Math.sqrt(dx*dx+dy*dy);
+  const a = dist/2;
+  const h = Math.sqrt(Math.max(r*r-a*a,0));
+  const mx = x1+dx/2, my=y1+dy/2;
+  const ux = -dy/dist, uy = dx/dist;
+  const p1x = mx+ux*h, p1y=my+uy*h;
+  const p2x = mx-ux*h, p2y=my-uy*h;
+  const lensPath = `M ${p1x},${p1y} A ${r},${r} 0 0,1 ${p2x},${p2y} A ${r},${r} 0 0,1 ${p1x},${p1y} Z`;
+  return {lensPath, p1:{x:p1x,y:p1y}, p2:{x:p2x,y:p2y}};
+}
+
+function renderVennElements(targetId){
+  const layer = document.getElementById(`elementsLayer-${targetId}`);
+  layer.innerHTML='';
+  const {U,A,B} = state;
+  const onlyA = setDiff(A,B), onlyB = setDiff(B,A), both = setIntersect(A,B);
+  const outside = setDiff(U, setUnion(A,B));
+
+  placeInRegion(layer, onlyA, A_CX-55, A_CY, 60);
+  placeInRegion(layer, both, (A_CX+B_CX)/2, A_CY, 36);
+  placeInRegion(layer, onlyB, B_CX+55, B_CY, 60);
+  placeOutside(layer, outside);
+}
+
+function placeInRegion(layer, items, cx, cy, radius){
+  const n = items.length;
+  items.forEach((item,i)=>{
+    let x,y;
+    if(n===1){ x=cx; y=cy; }
+    else{
+      const cols = Math.ceil(Math.sqrt(n));
+      const rows = Math.ceil(n/cols);
+      const col = i%cols, row=Math.floor(i/cols);
+      const spacing = Math.min(34, (radius*1.7)/cols);
+      x = cx + (col-(cols-1)/2)*spacing;
+      y = cy + (row-(rows-1)/2)*spacing;
+    }
+    addElementDot(layer,x,y,item);
+  });
+}
+
+function placeOutside(layer, items){
+  const n=items.length;
+  items.forEach((item,i)=>{
+    const x = 50 + (i%9)*55;
+    const y = 70 + Math.floor(i/9)*32;
+    addElementDot(layer,x,y,item);
+  });
+}
+
+function addElementDot(layer,x,y,label){
+  const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.setAttribute('class','venn-el');
+  g.innerHTML = `
+    <circle cx="${x}" cy="${y}" r="15" fill="rgba(15,16,41,0.55)" stroke="rgba(255,255,255,0.6)" stroke-width="1.2"/>
+    <text x="${x}" y="${y+5}" text-anchor="middle" fill="#fff" font-size="12.5">${escapeXml(String(label))}</text>
+  `;
+  layer.appendChild(g);
+}
+function escapeXml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ============================================================
+   EXPLORER VIEW LOGIC
+============================================================ */
+function refreshSetsFromInputs(){
+  state.U = parseList(document.getElementById('inputU').value);
+  state.A = parseList(document.getElementById('inputA').value);
+  state.B = parseList(document.getElementById('inputB').value);
+  state.U = setUnion(state.U, setUnion(state.A, state.B));
+  document.getElementById('inputU').value = state.U.join(',');
+  renderVennElements('vennSvg');
+  if(state.currentOp){ applyOperation(state.currentOp); }
+}
+
+function applyOperation(op){
+  state.currentOp = op;
+  document.querySelectorAll('.op-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.op===op);
+  });
+
+  const meta = OP_META[op];
+  const result = computeResult(op);
+
+  document.getElementById('formulaBar').innerHTML =
+    `<span>${meta.formula.split('=')[0].trim()}</span><span class="eq">=</span><span class="result-set">${fmtSet(result)}</span>`;
+
+  document.getElementById('resultSetDisplay').textContent = fmtSet(result);
+  document.getElementById('resultMeta').textContent = `${meta.name} · ${result.length} element${result.length===1?'':'s'}`;
+
+  document.getElementById('defBox').innerHTML = `
+    <span class="def-term">${meta.name} (${meta.sym})</span>
+    ${meta.def}
+    <div class="real-world">${meta.real}</div>
+  `;
+
+  applyRegionHighlight('vennSvg', meta.regions);
+  buildSteps(op, meta, result);
+  pulseResultPanel();
+}
+
+function applyRegionHighlight(targetId, activeRegions){
+  const regionIds = {onlyA:`onlyA-${targetId}`, onlyB:`onlyB-${targetId}`, both:`both-${targetId}`, outside:`regOutside-${targetId}`};
+  Object.entries(regionIds).forEach(([key,id])=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    const isActive = activeRegions.includes(key);
+    if(key==='outside'){
+      el.style.opacity = isActive ? '0.28' : '0';
+      el.style.filter='none';
+    } else {
+      el.style.opacity = isActive ? '1' : '0.16';
+      el.setAttribute('filter', isActive ? `url(#glow-${targetId})` : '');
+    }
+  });
+  const strokeA = document.getElementById(`strokeA-${targetId}`);
+  const strokeB = document.getElementById(`strokeB-${targetId}`);
+  if(strokeA) strokeA.style.opacity = (activeRegions.includes('onlyA')||activeRegions.includes('both')||activeRegions.includes('outside')) ? '1':'0.5';
+  if(strokeB) strokeB.style.opacity = (activeRegions.includes('onlyB')||activeRegions.includes('both')||activeRegions.includes('outside')) ? '1':'0.5';
+}
+
+function buildSteps(op, meta, result){
+  const {A,B,U} = state;
+  let lines = [];
+  lines.push(`<b>A</b> = <span class="frm">${fmtSet(A)}</span>`);
+  lines.push(`<b>B</b> = <span class="frm">${fmtSet(B)}</span>`);
+
+  switch(op){
+    case 'union':
+      lines.push(`Union means collecting every element that is in A, in B, or in both — no repeats.`);
+      lines.push(`Combine A and B, listing shared elements only once.`);
+      lines.push(`Therefore <b>A ∪ B</b> = <span class="frm">${fmtSet(result)}</span>`);
+      break;
+    case 'intersection':{
+      const common = setIntersect(A,B);
+      lines.push(common.length ? `Common elements are ${common.join(', ')}.` : `A and B share no common elements.`);
+      lines.push(`Therefore <b>A ∩ B</b> = <span class="frm">${fmtSet(result)}</span>`);
+      break;}
+    case 'aMinusB':
+      lines.push(`Start with all elements of A, then remove any that also appear in B.`);
+      lines.push(`Remaining elements stay only if they are NOT in B.`);
+      lines.push(`Therefore <b>A − B</b> = <span class="frm">${fmtSet(result)}</span>`);
+      break;
+    case 'bMinusA':
+      lines.push(`Start with all elements of B, then remove any that also appear in A.`);
+      lines.push(`Remaining elements stay only if they are NOT in A.`);
+      lines.push(`Therefore <b>B − A</b> = <span class="frm">${fmtSet(result)}</span>`);
+      break;
+    case 'complementA':
+      lines.push(`<b>U</b> = <span class="frm">${fmtSet(U)}</span>`);
+      lines.push(`Complement of A means everything in U that is NOT in A.`);
+      lines.push(`Therefore <b>A′</b> = <span class="frm">${fmtSet(result)}</span>`);
+      break;
+    case 'complementB':
+      lines.push(`<b>U</b> = <span class="frm">${fmtSet(U)}</span>`);
+      lines.push(`Complement of B means everything in U that is NOT in B.`);
+      lines.push(`Therefore <b>B′</b> = <span class="frm">${fmtSet(result)}</span>`);
+      break;
+    case 'symDiff':{
+      const ab = setDiff(A,B), ba = setDiff(B,A);
+      lines.push(`A − B = <span class="frm">${fmtSet(ab)}</span> (in A but not B)`);
+      lines.push(`B − A = <span class="frm">${fmtSet(ba)}</span> (in B but not A)`);
+      lines.push(`Symmetric difference unites these two: elements in exactly one set.`);
+      lines.push(`Therefore <b>A Δ B</b> = <span class="frm">${fmtSet(result)}</span>`);
+      break;}
+  }
+
+  const container = document.getElementById('stepsList');
+  container.innerHTML='';
+  lines.forEach((html,i)=>{
+    const div = document.createElement('div');
+    div.className='step-line';
+    div.style.animationDelay = (i*0.12)+'s';
+    div.innerHTML = html;
+    container.appendChild(div);
+  });
+}
+
+function pulseResultPanel(){
+  const el = document.getElementById('resultSetDisplay');
+  el.style.transition='none';
+  el.style.transform='scale(1.08)';
+  requestAnimationFrame(()=>{
+    el.style.transition='transform .35s cubic-bezier(.34,1.56,.64,1)';
+    el.style.transform='scale(1)';
+  });
+}
+
+/* ============================================================
+   PRELOADED EXAMPLES / RANDOMIZE
+============================================================ */
+const EXAMPLES = [
+  {U:'1,2,3,4,5,6,7,8,9,10', A:'1,2,3,4,5', B:'4,5,6,7,8'},
+  {U:'1,2,3,4,5,6,7,8,9,10,11,12', A:'2,4,6,8,10,12', B:'3,6,9,12'},
+  {U:'Apple,Banana,Mango,Grapes,Orange,Kiwi,Papaya,Lychee', A:'Apple,Mango,Grapes,Kiwi', B:'Mango,Orange,Kiwi,Papaya'},
+  {U:'1,2,3,4,5,6,7,8,9,10', A:'1,3,5,7,9', B:'2,4,6,8,10'},
+  {U:'Football,Basketball,Cricket,Tennis,Hockey,Chess,Badminton', A:'Football,Basketball,Cricket', B:'Cricket,Tennis,Chess'}
+];
+let exampleIdx=0;
+function loadExample(){
+  const ex = EXAMPLES[exampleIdx % EXAMPLES.length];
+  exampleIdx++;
+  document.getElementById('inputU').value = ex.U;
+  document.getElementById('inputA').value = ex.A;
+  document.getElementById('inputB').value = ex.B;
+  refreshSetsFromInputs();
+}
+
+function randomizeSets(){
+  const pool = Array.from({length:14}, (_,i)=>i+1);
+  const shuffled = pool.sort(()=>Math.random()-0.5);
+  const u = shuffled.slice(0,12).sort((a,b)=>a-b);
+  const aCount = 4+Math.floor(Math.random()*3);
+  const bCount = 4+Math.floor(Math.random()*3);
+  const a = [...u].sort(()=>Math.random()-0.5).slice(0,aCount).sort((x,y)=>x-y);
+  const b = [...u].sort(()=>Math.random()-0.5).slice(0,bCount).sort((x,y)=>x-y);
+  document.getElementById('inputU').value = u.join(',');
+  document.getElementById('inputA').value = a.join(',');
+  document.getElementById('inputB').value = b.join(',');
+  refreshSetsFromInputs();
+}
+
+/* ============================================================
+   MODE SWITCHING
+============================================================ */
+function switchMode(mode){
+  document.querySelectorAll('.mode-btn').forEach(b=>{
+    const active = b.dataset.mode===mode;
+    b.classList.toggle('active', active);
+    b.setAttribute('aria-selected', active?'true':'false');
+  });
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+mode).classList.add('active');
+
+  if(mode==='dnd'){ initDndIfNeeded(); }
+  if(mode==='practice'){ initPracticeIfNeeded(); }
+}
+
+/* ============================================================
+   DRAG & DROP MODE
+============================================================ */
+const DND_POOL_ITEMS = ['🍎','🍌','🍇','🍉','🍓','🥝','🍑','🍒','🍍','🥥','🍋','🫐'];
+let dndState = { placed:{} };
+
+function initDndIfNeeded(){
+  if(initDndIfNeeded._done) return;
+  initDndIfNeeded._done = true;
+  buildVennSVG('dndVennSvg');
+  applyRegionHighlight('dndVennSvg', ['onlyA','onlyB','both']);
+  populatePool();
+  setupDndHandlers();
+  document.getElementById('dndReset').addEventListener('click', resetDnd);
+  document.getElementById('dndNewSet').addEventListener('click', ()=>{ resetDnd(); populatePool(true); });
+}
+
+function populatePool(shuffle){
+  const pool = document.getElementById('elementPool');
+  pool.innerHTML='';
+  let items = DND_POOL_ITEMS.slice();
+  if(shuffle) items = items.sort(()=>Math.random()-0.5);
+  items.slice(0,8).forEach((emoji,i)=>{
+    const el = document.createElement('div');
+    el.className='draggable-el';
+    el.draggable=true;
+    el.tabIndex=0;
+    el.dataset.id = 'el'+i+'_'+emoji;
+    el.textContent = emoji;
+    el.setAttribute('role','button');
+    el.setAttribute('aria-label', `Element ${emoji}, draggable. Press Enter to cycle placement.`);
+    pool.appendChild(el);
+  });
+}
+
+function setupDndHandlers(){
+  const zones = document.querySelectorAll('.drop-target');
+  const pool = document.getElementById('elementPool');
+
+  document.addEventListener('dragstart', e=>{
+    if(!e.target.classList.contains('draggable-el')) return;
+    e.dataTransfer.setData('text/plain', e.target.dataset.id);
+    e.target.classList.add('dragging');
+  });
+  document.addEventListener('dragend', e=>{
+    if(e.target.classList.contains('draggable-el')) e.target.classList.remove('dragging');
+  });
+
+  [pool, ...zones].forEach(zone=>{
+    zone.addEventListener('dragover', e=>{ e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', ()=> zone.classList.remove('dragover'));
+    zone.addEventListener('drop', e=>{
+      e.preventDefault();
+      zone.classList.remove('dragover');
+      const id = e.dataTransfer.getData('text/plain');
+      const el = document.querySelector(`[data-id="${CSS.escape(id)}"]`);
+      if(!el) return;
+      zone.appendChild(el);
+      placeElement(id, zone.dataset.zone || null);
+    });
+  });
+
+  document.addEventListener('keydown', e=>{
+    if((e.key==='Enter'||e.key===' ') && e.target.classList.contains('draggable-el')){
+      e.preventDefault();
+      const id = e.target.dataset.id;
+      const order = [null,'A','AB','B'];
+      const cur = dndState.placed[id]?.zone ?? null;
+      const next = order[(order.indexOf(cur)+1)%order.length];
+      const targetEl = next===null ? document.getElementById('elementPool') : document.getElementById('zone'+next);
+      targetEl.appendChild(e.target);
+      placeElement(id, next);
+      e.target.focus();
+    }
+  });
+}
+
+function placeElement(id, zone){
+  const emoji = id.split('_')[1];
+  dndState.placed[id] = {zone, emoji};
+  recomputeDndSets();
+}
+
+function recomputeDndSets(){
+  const A=[], B=[];
+  Object.values(dndState.placed).forEach(({zone,emoji})=>{
+    if(zone==='A') A.push(emoji);
+    if(zone==='B') B.push(emoji);
+    if(zone==='AB'){ A.push(emoji); B.push(emoji); }
+  });
+  document.getElementById('dndASet').textContent = fmtSet(A);
+  document.getElementById('dndBSet').textContent = fmtSet(B);
+  document.getElementById('dndIntersect').textContent = fmtSet(setIntersect(A,B));
+}
+
+function resetDnd(){
+  dndState = {placed:{}};
+  document.querySelectorAll('.draggable-el').forEach(el=>{
+    document.getElementById('elementPool').appendChild(el);
+  });
+  recomputeDndSets();
+}
+
+/* ============================================================
+   PRACTICE MODE
+============================================================ */
+let practiceStats = {score:0, streak:0, total:0};
+
+function genQuestion(){
+  const opsKeys = Object.keys(OP_META);
+  const op = opsKeys[Math.floor(Math.random()*opsKeys.length)];
+  const meta = OP_META[op];
+
+  const allItems = [1,2,3,4,5,6,7,8,9].sort(()=>Math.random()-0.5);
+  const u = allItems.slice(0,8).sort((a,b)=>a-b);
+  const a = u.filter(()=>Math.random()<0.55).slice(0,5);
+  const b = u.filter(()=>Math.random()<0.55).slice(0,5);
+  const aArr = a.length?a:[u[0]];
+  const bArr = b.length?b:[u[1]||u[0]];
+
+  const savedU=state.U, savedA=state.A, savedB=state.B;
+  state.U=u.map(String); state.A=aArr.map(String); state.B=bArr.map(String);
+  const correct = computeResult(op);
+  const correctStr = fmtSet(correct);
+
+  // Build a pool of plausible distractors from other operations, all guaranteed distinct from the correct answer.
+  const distractorPool = new Set([
+    fmtSet(setUnion(state.A,state.B)),
+    fmtSet(setIntersect(state.A,state.B)),
+    fmtSet(setDiff(state.A,state.B)),
+    fmtSet(setDiff(state.B,state.A)),
+    fmtSet(setComplement(state.A,state.U)),
+    fmtSet(setComplement(state.B,state.U)),
+    fmtSet(setSymDiff(state.A,state.B)),
+    fmtSet(state.A),
+    fmtSet(state.B)
+  ]);
+  distractorPool.delete(correctStr);
+  let distractors = Array.from(distractorPool).sort(()=>Math.random()-0.5).slice(0,3);
+
+  // Pad with synthetic, guaranteed-unique fallback distractors if the pool was too small
+  // (small U sets can make several operations coincide).
+  let padIdx=0;
+  const usedSoFar = new Set([correctStr, ...distractors]);
+  while(distractors.length<3){
+    let candidate;
+    if(padIdx===0) candidate = fmtSet(u.map(String)); // full universal set
+    else if(padIdx===1) candidate = '{ }'; // empty set
+    else candidate = fmtSet(u.slice(0, Math.max(1,u.length-padIdx)).map(String)); // shrinking slices of U
+    padIdx++;
+    if(!usedSoFar.has(candidate)){
+      distractors.push(candidate);
+      usedSoFar.add(candidate);
+    }
+    if(padIdx>20) break; // safety valve, should never trigger
+  }
+
+  const options = [correctStr, ...distractors].sort(()=>Math.random()-0.5);
+
+  const q = {
+    op, meta,
+    U:state.U.slice(), A:state.A.slice(), B:state.B.slice(),
+    correct: correctStr,
+    options
+  };
+  state.U=savedU; state.A=savedA; state.B=savedB;
+  return q;
+}
+
+function initPracticeIfNeeded(){
+  if(initPracticeIfNeeded._done) return;
+  initPracticeIfNeeded._done = true;
+  nextPracticeQuestion();
+  document.getElementById('practiceNext').addEventListener('click', nextPracticeQuestion);
+}
+
+let currentPracticeQ=null;
+function nextPracticeQuestion(){
+  currentPracticeQ = genQuestion();
+  document.getElementById('practiceSets').innerHTML =
+    `A = ${fmtSet(currentPracticeQ.A)} &nbsp;&nbsp; B = ${fmtSet(currentPracticeQ.B)} &nbsp;&nbsp; U = ${fmtSet(currentPracticeQ.U)}`;
+  document.getElementById('practiceQuestion').textContent = `What is ${currentPracticeQ.meta.sym}?`;
+  const optsWrap = document.getElementById('practiceOptions');
+  optsWrap.innerHTML='';
+  currentPracticeQ.options.forEach(opt=>{
+    const btn = document.createElement('button');
+    btn.className='q-option';
+    btn.textContent = opt;
+    btn.addEventListener('click', ()=>answerPractice(opt,btn));
+    optsWrap.appendChild(btn);
+  });
+  const fb = document.getElementById('practiceFeedback');
+  fb.className='feedback-box'; fb.innerHTML='';
+  document.getElementById('practiceNext').style.display='none';
+}
+
+function answerPractice(selected, btnEl){
+  const correct = currentPracticeQ.correct;
+  const isCorrect = selected===correct;
+  document.querySelectorAll('#practiceOptions .q-option').forEach(b=>{
+    b.classList.add('disabled');
+    if(b.textContent===correct) b.classList.add('correct');
+    if(b===btnEl && !isCorrect) b.classList.add('wrong');
+  });
+
+  practiceStats.total++;
+  if(isCorrect){
+    practiceStats.score++;
+    practiceStats.streak++;
+    triggerParticles();
+    playSuccessSound();
+  } else {
+    practiceStats.streak=0;
+  }
+  document.getElementById('practiceScore').textContent = practiceStats.score;
+  document.getElementById('practiceStreak').textContent = practiceStats.streak;
+  document.getElementById('practiceTotal').textContent = practiceStats.total;
+
+  const fb = document.getElementById('practiceFeedback');
+  fb.className = 'feedback-box show ' + (isCorrect?'good':'bad');
+  fb.innerHTML = isCorrect
+    ? `✅ Correct! <b>${currentPracticeQ.meta.sym}</b> = ${correct}. ${currentPracticeQ.meta.def}`
+    : `❌ Not quite. <b>${currentPracticeQ.meta.sym}</b> = ${correct}. ${currentPracticeQ.meta.def}`;
+
+  document.getElementById('practiceNext').style.display='inline-flex';
+}
+
+/* ============================================================
+   CHALLENGE MODE
+============================================================ */
+let challengeState = {
+  qIndex:0, total:10, score:0, timeLeft:20, timerId:null, questions:[], current:null
+};
+
+function startChallenge(){
+  challengeState = {qIndex:0,total:10,score:0,timeLeft:20,timerId:null,questions:[],current:null};
+  for(let i=0;i<10;i++) challengeState.questions.push(genQuestion());
+  document.getElementById('challengeIntro').style.display='none';
+  document.getElementById('challengeFinal').style.display='none';
+  document.getElementById('challengeQuiz').style.display='flex';
+  document.getElementById('challengeScore').textContent='0';
+  nextChallengeQuestion();
+}
+
+function nextChallengeQuestion(){
+  clearInterval(challengeState.timerId);
+  if(challengeState.qIndex>=challengeState.total){
+    finishChallenge();
+    return;
+  }
+  challengeState.current = challengeState.questions[challengeState.qIndex];
+  challengeState.timeLeft=20;
+  document.getElementById('challengeQNum').textContent = `${challengeState.qIndex+1}/${challengeState.total}`;
+  document.getElementById('challengeSets').innerHTML =
+    `A = ${fmtSet(challengeState.current.A)} &nbsp;&nbsp; B = ${fmtSet(challengeState.current.B)} &nbsp;&nbsp; U = ${fmtSet(challengeState.current.U)}`;
+  document.getElementById('challengeQuestion').textContent = `What is ${challengeState.current.meta.sym}?`;
+  const optsWrap = document.getElementById('challengeOptions');
+  optsWrap.innerHTML='';
+  challengeState.current.options.forEach(opt=>{
+    const btn = document.createElement('button');
+    btn.className='q-option';
+    btn.textContent = opt;
+    btn.addEventListener('click', ()=>answerChallenge(opt,btn));
+    optsWrap.appendChild(btn);
+  });
+  const fb = document.getElementById('challengeFeedback');
+  fb.className='feedback-box'; fb.innerHTML='';
+  updateTimerDisplay();
+  challengeState.timerId = setInterval(tickChallengeTimer, 1000);
+}
+
+function tickChallengeTimer(){
+  challengeState.timeLeft--;
+  updateTimerDisplay();
+  if(challengeState.timeLeft<=0){
+    clearInterval(challengeState.timerId);
+    lockChallengeOptions(null,false);
+    setTimeout(()=>{ challengeState.qIndex++; nextChallengeQuestion(); }, 1200);
+  }
+}
+function updateTimerDisplay(){
+  document.getElementById('challengeTime').textContent = challengeState.timeLeft;
+  document.getElementById('challengeTimerFill').style.width = (challengeState.timeLeft/20*100)+'%';
+}
+
+function answerChallenge(selected, btnEl){
+  clearInterval(challengeState.timerId);
+  const correct = challengeState.current.correct;
+  const isCorrect = selected===correct;
+  lockChallengeOptions(btnEl, isCorrect);
+
+  if(isCorrect){
+    challengeState.score++;
+    triggerParticles();
+    playSuccessSound();
+  }
+  document.getElementById('challengeScore').textContent = challengeState.score;
+
+  const fb = document.getElementById('challengeFeedback');
+  fb.className = 'feedback-box show ' + (isCorrect?'good':'bad');
+  fb.innerHTML = isCorrect
+    ? `✅ Correct! ${challengeState.current.meta.sym} = ${correct}`
+    : `❌ ${challengeState.current.meta.sym} = ${correct}`;
+
+  setTimeout(()=>{ challengeState.qIndex++; nextChallengeQuestion(); }, 1100);
+}
+
+function lockChallengeOptions(selectedBtn, isCorrect){
+  document.querySelectorAll('#challengeOptions .q-option').forEach(b=>{
+    b.classList.add('disabled');
+    if(b.textContent===challengeState.current.correct) b.classList.add('correct');
+    if(b===selectedBtn && !isCorrect) b.classList.add('wrong');
+  });
+}
+
+function finishChallenge(){
+  document.getElementById('challengeQuiz').style.display='none';
+  document.getElementById('challengeFinal').style.display='flex';
+  const score = challengeState.score;
+  document.getElementById('finalScoreDisplay').textContent = `${score}/${challengeState.total}`;
+  let msg='Keep practicing — you\'ll master set operations in no time!';
+  if(score>=9) msg='Outstanding! You\'re a Set Operations expert! 🏆';
+  else if(score>=7) msg='Great job! You really understand the concepts. 🌟';
+  else if(score>=5) msg='Good effort! Review the definitions and try again.';
+  document.getElementById('finalScoreMsg').textContent = msg;
+  if(score>=7) triggerParticles(60);
+}
+
+/* ============================================================
+   PARTICLE CELEBRATION
+============================================================ */
+const pCanvas = document.getElementById('particleCanvas');
+const pCtx = pCanvas.getContext('2d');
+let particles=[];
+function resizeCanvas(){ pCanvas.width=innerWidth; pCanvas.height=innerHeight; }
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function triggerParticles(count){
+  count = count || 30;
+  const colors = ['#ff6b6b','#22c3b6','#ffc857','#8b7cf6','#3ddc97'];
+  for(let i=0;i<count;i++){
+    particles.push({
+      x: innerWidth/2 + (Math.random()-0.5)*200,
+      y: innerHeight/2,
+      vx: (Math.random()-0.5)*9,
+      vy: (Math.random()-1.4)*9,
+      size: 4+Math.random()*5,
+      color: colors[Math.floor(Math.random()*colors.length)],
+      life: 60+Math.random()*30,
+      rot: Math.random()*Math.PI*2,
+      vr: (Math.random()-0.5)*0.3
+    });
+  }
+  if(!particleLoopRunning){ particleLoopRunning=true; requestAnimationFrame(particleLoop); }
+}
+let particleLoopRunning=false;
+function particleLoop(){
+  pCtx.clearRect(0,0,pCanvas.width,pCanvas.height);
+  particles.forEach(p=>{
+    p.x+=p.vx; p.y+=p.vy; p.vy+=0.22; p.life--; p.rot+=p.vr;
+    pCtx.save();
+    pCtx.translate(p.x,p.y);
+    pCtx.rotate(p.rot);
+    pCtx.globalAlpha = Math.max(p.life/80,0);
+    pCtx.fillStyle=p.color;
+    pCtx.fillRect(-p.size/2,-p.size/2,p.size,p.size);
+    pCtx.restore();
+  });
+  particles = particles.filter(p=>p.life>0);
+  if(particles.length>0){
+    requestAnimationFrame(particleLoop);
+  } else {
+    particleLoopRunning=false;
+    pCtx.clearRect(0,0,pCanvas.width,pCanvas.height);
+  }
+}
+
+function playSuccessSound(){
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type='sine';
+    o.frequency.setValueAtTime(523.25, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(1046.5, ctx.currentTime+0.18);
+    g.gain.setValueAtTime(0.15, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.32);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(); o.stop(ctx.currentTime+0.32);
+  }catch(e){ /* audio not available, ignore silently */ }
+}
+
+/* ============================================================
+   EXPORT: PNG + Print
+============================================================ */
+function exportVennPNG(){
+  const svg = document.getElementById('vennSvg');
+  const serializer = new XMLSerializer();
+  let svgStr = serializer.serializeToString(svg);
+
+  const cs = getComputedStyle(document.body);
+  const varsToResolve = ['--setA','--setB','--both','--universe','--font-mono','--font-display'];
+  varsToResolve.forEach(v=>{
+    const val = cs.getPropertyValue(v).trim();
+    svgStr = svgStr.split(`var(${v})`).join(val);
+  });
+
+  const bgColor = cs.getPropertyValue('--bg-1').trim() || '#171a3d';
+  const img = new Image();
+  const svgBlob = new Blob([svgStr], {type:'image/svg+xml;charset=utf-8'});
+  const url = URL.createObjectURL(svgBlob);
+  img.onload = function(){
+    const canvas = document.createElement('canvas');
+    const scale=2;
+    canvas.width = VENN_W*scale; canvas.height = VENN_H*scale;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.scale(scale,scale);
+    ctx.drawImage(img,0,0,VENN_W,VENN_H);
+    URL.revokeObjectURL(url);
+    canvas.toBlob(blob=>{
+      const link = document.createElement('a');
+      link.download = 'venn-diagram-set-operations.png';
+      link.href = URL.createObjectURL(blob);
+      link.click();
+    });
+  };
+  img.src = url;
+}
+
+function printWorksheet(){
+  window.print();
+}
+
+/* ============================================================
+   THEME / CONTRAST TOGGLES
+============================================================ */
+function toggleTheme(){
+  state.theme = state.theme==='dark' ? 'light' : 'dark';
+  document.body.setAttribute('data-theme', state.theme);
+  const icon = document.getElementById('themeIcon');
+  icon.innerHTML = state.theme==='dark'
+    ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'
+    : '<circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>';
+}
+function toggleContrast(){
+  state.contrast = state.contrast==='normal' ? 'high' : 'normal';
+  document.body.setAttribute('data-contrast', state.contrast);
+}
+
+/* ============================================================
+   INIT
+============================================================ */
+function init(){
+  buildVennSVG('vennSvg');
+  renderVennElements('vennSvg');
+
+  document.getElementById('applySets').addEventListener('click', refreshSetsFromInputs);
+  ['inputU','inputA','inputB'].forEach(id=>{
+    document.getElementById(id).addEventListener('keydown', e=>{
+      if(e.key==='Enter') refreshSetsFromInputs();
+    });
+  });
+  document.getElementById('loadExample').addEventListener('click', loadExample);
+  document.getElementById('randomizeSets').addEventListener('click', randomizeSets);
+
+  document.querySelectorAll('.op-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>applyOperation(btn.dataset.op));
+  });
+
+  document.querySelectorAll('.mode-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>switchMode(btn.dataset.mode));
+  });
+
+  document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+  document.getElementById('contrastToggle').addEventListener('click', toggleContrast);
+
+  document.getElementById('exportPng').addEventListener('click', exportVennPNG);
+  document.getElementById('printWorksheet').addEventListener('click', printWorksheet);
+
+  document.getElementById('challengeStart').addEventListener('click', startChallenge);
+  document.getElementById('challengeRestart').addEventListener('click', startChallenge);
+
+  applyOperation('union');
+}
+
+document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+</body>
+</html>
