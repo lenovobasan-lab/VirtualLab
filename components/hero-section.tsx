@@ -28,11 +28,11 @@ export default function HeroSection() {
         <div className="max-w-2xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/25 bg-primary/10 text-primary text-xs font-medium mb-6 tracking-wide uppercase">
             <FlaskConical className="w-3.5 h-3.5" />
-            Ilam, Nepal
+            From the hills of Ilam, Nepal
           </div>
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-5 leading-[1.1] animate-slide-up">
-            Learning Portal &amp;
+            Basanta's Learning Portal &amp;
             <span className="block text-primary">Virtual Lab</span>
           </h1>
 
