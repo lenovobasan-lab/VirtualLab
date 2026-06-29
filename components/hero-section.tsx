@@ -45,7 +45,7 @@ export default function HeroSection() {
             <Button size="xl" className="gap-2 shadow-glow" asChild>
               <Link href="/virtual-lab">
                 <FlaskConical className="w-5 h-5" />
-                Open Virtual Lab
+                Take a Tour
               </Link>
             </Button>
             <Button size="xl" variant="outline" className="gap-2" asChild>
