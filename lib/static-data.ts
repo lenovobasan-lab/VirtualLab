@@ -168,4 +168,12 @@ export const simulations: Simulation[] = [
     type: "html",
     created_at: "2026-06-20T19:54:00.000Z",
   },
+  {id: "sim-11",
+    title: "Ray Diagram Simulation in Concave and Convex Lens",
+    description: "Interactive simulation of ray diagrams in concave and convex lenses",
+    subject: "Physics",
+    url: "/simulations/mirror_simulation.html",
+    type: "html",
+    created_at: "2026-06-20T19:54:00.000Z",
+  },
 ]

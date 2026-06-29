@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mirror Reflection Simulation | ऐनामा प्रकाशको परावर्तन</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at center, #1a202c 0%, #0d1117 100%);
+            color: #e2e8f0;
+            overflow: hidden;
+            touch-action: none; /* Prevent scrolling while dragging on mobile */
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Custom Range Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]:focus {
+            outline: none;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+        }
+        input[type=range]::-webkit-slider-thumb {
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: #3b82f6; /* Tailwind blue-500 */
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -6px;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
+            transition: transform 0.1s;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .btn-glowing {
+            transition: all 0.3s ease;
+        }
+        .btn-glowing:hover {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
+            transform: translateY(-1px);
+        }
+
+        /* Toggle Switch CSS */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #3b82f6;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #3b82f6;
+        }
+        
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .data-label { color: #94a3b8; font-size: 0.9rem; }
+        .data-value { font-weight: 600; text-align: right; }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col md:flex-row">
+
+    <aside class="glass-panel w-full md:w-80 h-1/3 md:h-full flex flex-col z-10 overflow-y-auto shrink-0 border-r border-white/10">
+        <div class="p-5 flex-1 flex flex-col gap-6">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-teal-300" data-i18n="controlPanel">Control Panel</h2>
+                <button id="langToggle" class="bg-white/10 hover:bg-white/20 px-3 py-1 rounded text-sm transition font-semibold border border-white/20">
+                    नेपाली
+                </button>
+            </div>
+
+            <!-- Mirror Type -->
+            <div class="space-y-2">
+                <label class="text-sm text-slate-400 font-semibold uppercase tracking-wider" data-i18n="mirrorType">Mirror Type</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button id="btnConcave" class="bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-md transition shadow-[0_0_10px_rgba(37,99,235,0.5)] border border-blue-400" data-i18n="concave">Concave</button>
+                    <button id="btnConvex" class="bg-white/10 hover:bg-white/20 text-white py-2 rounded-md transition border border-white/10" data-i18n="convex">Convex</button>
+                </div>
+            </div>
+
+            <!-- Sliders -->
+            <div class="space-y-4">
+                <div class="space-y-1">
+                    <label class="text-sm text-slate-300" data-i18n="posPreset">Position Preset</label>
+                    <select id="presetPos" class="w-full bg-slate-800 text-white rounded p-1.5 border border-slate-600 text-sm focus:outline-none focus:border-blue-500">
+                        <option value="custom" data-i18n="posCustom">Custom</option>
+                        <option value="-1000" data-i18n="posInfinity">1. At Infinity</option>
+                        <option value="-450" data-i18n="posBeyondC">2. Beyond C</option>
+                        <option value="-300" data-i18n="posAtC">3. At C</option>
+                        <option value="-225" data-i18n="posBetweenCF">4. Between C and F</option>
+                        <option value="-150" data-i18n="posAtF">5. At F</option>
+                        <option value="-75" data-i18n="posBetweenPF">6. Between P and F</option>
+                    </select>
+                </div>
+                
+                <div class="space-y-1">
+                    <div class="flex justify-between">
+                        <label class="text-sm text-slate-300" data-i18n="objectPos">Object Position</label>
+                        <span id="valPos" class="text-sm font-mono text-blue-300"></span>
+                    </div>
+                    <input type="range" id="sliderPos" min="-1000" max="-20" step="1" value="-250">
+                </div>
+                
+                <div class="space-y-1">
+                    <div class="flex justify-between">
+                        <label class="text-sm text-slate-300" data-i18n="objectHeight">Object Height</label>
+                        <span id="valHeight" class="text-sm font-mono text-blue-300"></span>
+                    </div>
+                    <input type="range" id="sliderHeight" min="10" max="100" step="1" value="50">
+                </div>
+            </div>
+
+            <!-- Toggles -->
+            <div class="space-y-3 pt-2 border-t border-white/10">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-slate-300" data-i18n="labels">Show Labels</span>
+                    <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                        <input type="checkbox" name="toggleLabels" id="toggleLabels" checked class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 border-slate-600 appearance-none cursor-pointer transition-transform duration-200 z-10 top-0 left-0"/>
+                        <label for="toggleLabels" class="toggle-label block overflow-hidden h-5 rounded-full bg-slate-600 cursor-pointer"></label>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-slate-300" data-i18n="extensions">Ray Extensions</span>
+                    <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                        <input type="checkbox" name="toggleExt" id="toggleExt" checked class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 border-slate-600 appearance-none cursor-pointer transition-transform duration-200 z-10 top-0 left-0"/>
+                        <label for="toggleExt" class="toggle-label block overflow-hidden h-5 rounded-full bg-slate-600 cursor-pointer"></label>
+                    </div>
+                </div>
+
+                <!-- Individual Ray Toggles -->
+                <div class="pt-2 border-t border-white/10 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-slate-300" data-i18n="ray1">Ray 1 (Parallel)</span>
+                        <div class="relative inline-block w-8 mr-2 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" id="toggleRay1" checked class="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-4 border-slate-600 appearance-none cursor-pointer transition-transform duration-200 z-10 top-0 left-0"/>
+                            <label for="toggleRay1" class="toggle-label block overflow-hidden h-4 rounded-full bg-slate-600 cursor-pointer"></label>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-slate-300" data-i18n="ray2">Ray 2 (Through Focus)</span>
+                        <div class="relative inline-block w-8 mr-2 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" id="toggleRay2" checked class="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-4 border-slate-600 appearance-none cursor-pointer transition-transform duration-200 z-10 top-0 left-0"/>
+                            <label for="toggleRay2" class="toggle-label block overflow-hidden h-4 rounded-full bg-slate-600 cursor-pointer"></label>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-slate-300" data-i18n="ray3">Ray 3 (Through Center)</span>
+                        <div class="relative inline-block w-8 mr-2 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" id="toggleRay3" checked class="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-4 border-slate-600 appearance-none cursor-pointer transition-transform duration-200 z-10 top-0 left-0"/>
+                            <label for="toggleRay3" class="toggle-label block overflow-hidden h-4 rounded-full bg-slate-600 cursor-pointer"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-2 border-t border-white/10">
+                    <span class="text-sm text-slate-300" data-i18n="compareMode">Comparison Mode</span>
+                    <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                        <input type="checkbox" name="toggleCompare" id="toggleCompare" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 border-slate-600 appearance-none cursor-pointer transition-transform duration-200 z-10 top-0 left-0"/>
+                        <label for="toggleCompare" class="toggle-label block overflow-hidden h-5 rounded-full bg-slate-600 cursor-pointer"></label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="mt-auto grid grid-cols-2 gap-2 pt-4">
+                <button id="btnAnimate" class="btn-glowing bg-teal-600 hover:bg-teal-500 text-white py-2 rounded-md font-semibold flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+                    <span data-i18n="play">Animate Rays</span>
+                </button>
+                <button id="btnReset" class="btn-glowing bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-md font-semibold flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    <span data-i18n="reset">Reset</span>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 relative bg-transparent" id="canvasContainer">
+        <!-- Title overlay -->
+        <div class="absolute top-4 left-0 w-full text-center pointer-events-none z-10">
+            <h1 class="text-2xl md:text-3xl font-bold text-white/40 tracking-wider uppercase" data-i18n="title">Mirror Reflection Simulation</h1>
+        </div>
+        <canvas id="simCanvas" class="absolute inset-0 w-full h-full cursor-crosshair"></canvas>
+        <!-- Drag instructions -->
+        <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/50 px-4 py-2 rounded-full text-sm text-white/70 pointer-events-none backdrop-blur-sm shadow-lg border border-white/10 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+            <span data-i18n="dragHint">Drag the red arrow to move the object</span>
+        </div>
+    </main>
+
+    <aside class="glass-panel w-full md:w-80 h-1/3 md:h-full flex flex-col z-10 overflow-y-auto shrink-0 border-l border-white/10">
+        <div class="p-5 flex flex-col h-full">
+            <h2 class="text-xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-teal-300 to-blue-400" data-i18n="infoPanel">Information Panel</h2>
+            
+            <div class="bg-white/5 rounded-lg p-4 space-y-1 mb-4 border border-white/10 shadow-inner">
+                <div class="data-row">
+                    <span class="data-label" data-i18n="posObject">Object (u)</span>
+                    <span class="data-value text-red-300" id="outU">-250 cm</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label" data-i18n="posImage">Image (v)</span>
+                    <span class="data-value text-blue-300" id="outV">-150 cm</span>
+                </div>
+                <div class="data-row border-none pb-0">
+                    <span class="data-label" data-i18n="magnification">Magnification (m)</span>
+                    <span class="data-value text-teal-300" id="outM">-0.6</span>
+                </div>
+            </div>
+
+            <div class="bg-white/5 rounded-lg p-4 space-y-2 border border-white/10 shadow-inner flex-1">
+                <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wide mb-2" data-i18n="nature">Characteristics</h3>
+                
+                <div class="flex items-center gap-2 mb-1">
+                    <div class="w-2 h-2 rounded-full" id="dotType"></div>
+                    <span class="font-semibold text-gray-200" id="outType">Real / Virtual</span>
+                </div>
+                <div class="flex items-center gap-2 mb-1">
+                    <div class="w-2 h-2 rounded-full" id="dotOrientation"></div>
+                    <span class="font-semibold text-gray-200" id="outOrientation">Inverted / Erect</span>
+                </div>
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-2 h-2 rounded-full" id="dotSize"></div>
+                    <span class="font-semibold text-gray-200" id="outSize">Diminished / Magnified</span>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-white/10">
+                    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wide mb-2" data-i18n="explanation">Explanation</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed italic" id="outExplanation">
+                        Explanation text will appear here based on the object's position.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <script>
+        // --- Translations Dictionary ---
+        const i18n = {
+            en: {
+                title: "Mirror Reflection Simulation",
+                controlPanel: "Control Panel",
+                mirrorType: "Mirror Type",
+                concave: "Concave",
+                convex: "Convex",
+                objectPos: "Object Pos (u)",
+                objectHeight: "Object Height",
+                labels: "Show Labels",
+                extensions: "Ray Extensions",
+                play: "Animate Rays",
+                reset: "Reset",
+                compareMode: "Comparison Mode",
+                dragHint: "Drag the red arrow to move the object",
+                infoPanel: "Information Panel",
+                posObject: "Object (u)",
+                posImage: "Image (v)",
+                magnification: "Magnification (m)",
+                nature: "Characteristics",
+                explanation: "Explanation",
+                
+                // Dynamic Values
+                real: "Real",
+                virtual: "Virtual",
+                inverted: "Inverted",
+                erect: "Erect",
+                diminished: "Diminished",
+                magnified: "Magnified",
+                sameSize: "Same Size",
+                infinity: "Infinity",
+                highlyEnlarged: "Highly Enlarged",
+                
+                // Labels
+                objLabel: "Object",
+                imgLabel: "Image",
+                pole: "Pole (P)",
+                focus: "Focus (F)",
+                center: "Center (C)",
+
+                // Presets & Rays
+                posPreset: "Position Preset",
+                posInfinity: "1. At Infinity",
+                posBeyondC: "2. Beyond C",
+                posAtC: "3. At C",
+                posBetweenCF: "4. Between C and F",
+                posAtF: "5. At F",
+                posBetweenPF: "6. Between P and F",
+                posCustom: "Custom",
+                ray1: "Ray 1 (Parallel)",
+                ray2: "Ray 2 (Through Focus)",
+                ray3: "Ray 3 (Through Center)",
+
+                // Explanations Concave
+                expInfinity: "The object is at infinity. The incoming rays are parallel. The image forms at the principal focus (F). It is real, inverted, and highly diminished (point-sized).",
+                expBeyondC: "The object is beyond the center of curvature. The image forms between C and F. It is real, inverted, and smaller than the object.",
+                expAtC: "The object is exactly at the center of curvature. The image forms at C. It is real, inverted, and the exact same size as the object.",
+                expBetweenCF: "The object is between C and F. The image forms beyond C. It is real, inverted, and larger than the object.",
+                expAtF: "The object is at the principal focus. The reflected rays are parallel, meaning the image forms at infinity and is highly enlarged.",
+                expBetweenFP: "The object is between the focus and the pole. The rays diverge after reflection, forming a virtual, erect, and magnified image behind the mirror.",
+                
+                // Explanations Convex
+                expConvex: "For a convex mirror, the reflecting surface curves outward. Regardless of the object's position, the image always forms behind the mirror (between P and F). It is always virtual, erect, and diminished."
+            },
+            np: {
+                title: "ऐनामा प्रकाशको परावर्तन सिमुलेशन",
+                controlPanel: "नियन्त्रण प्यानल",
+                mirrorType: "ऐनाको प्रकार",
+                concave: "अवतल (Concave)",
+                convex: "उत्तल (Convex)",
+                objectPos: "वस्तुको स्थान (u)",
+                objectHeight: "वस्तुको उचाइ",
+                labels: "नामहरू देखाउनुहोस्",
+                extensions: "किरण विस्तारहरू",
+                play: "किरण एनिमेट",
+                reset: "पुनःसेट",
+                compareMode: "तुलना मोड",
+                dragHint: "वस्तु सार्न रातो तीर तान्नुहोस्",
+                infoPanel: "जानकारी प्यानल",
+                posObject: "वस्तुको स्थान (u)",
+                posImage: "प्रतिबिम्ब (v)",
+                magnification: "आवर्धन (m)",
+                nature: "विशेषताहरु",
+                explanation: "व्याख्या",
+                
+                real: "वास्तविक",
+                virtual: "आभासी",
+                inverted: "उल्टो",
+                erect: "सुल्टो",
+                diminished: "सानो",
+                magnified: "ठूलो",
+                sameSize: "बराबर",
+                infinity: "अनन्तमा",
+                highlyEnlarged: "धेरै ठूलो",
+
+                objLabel: "वस्तु",
+                imgLabel: "प्रतिबिम्ब",
+                pole: "ध्रुव (P)",
+                focus: "फोकस (F)",
+                center: "केन्द्र (C)",
+
+                // Presets & Rays (Nepali)
+                posPreset: "स्थान छनौट",
+                posInfinity: "१. अनन्त (Infinity) मा",
+                posBeyondC: "२. C भन्दा पर",
+                posAtC: "३. C मा",
+                posBetweenCF: "४. C र F को बीचमा",
+                posAtF: "५. F मा",
+                posBetweenPF: "६. P र F को बीचमा",
+                posCustom: "अनुकूलन (Custom)",
+                ray1: "किरण १ (समानान्तर)",
+                ray2: "किरण २ (फोकस हुँदै)",
+                ray3: "किरण ३ (केन्द्र हुँदै)",
+
+                expInfinity: "वस्तु अनन्त (Infinity) मा छ। आपतित किरणहरू समानान्तर हुन्छन्। प्रतिबिम्ब फोकस (F) मा बन्छ। यो वास्तविक, उल्टो र अत्यधिक सानो (बिन्दु जत्रो) हुन्छ।",
+                expBeyondC: "वस्तु वक्रता केन्द्र (C) भन्दा पर छ। प्रतिबिम्ब C र F को बीचमा बन्छ। यो वास्तविक, उल्टो र वस्तुभन्दा सानो हुन्छ।",
+                expAtC: "वस्तु वक्रता केन्द्र (C) मा छ। प्रतिबिम्ब C मा नै बन्छ। यो वास्तविक, उल्टो र वस्तु जत्रै हुन्छ।",
+                expBetweenCF: "वस्तु C र F को बीचमा छ। प्रतिबिम्ब C भन्दा पर बन्छ। यो वास्तविक, उल्टो र ठूलो हुन्छ।",
+                expAtF: "वस्तु फोकस (F) मा छ। परावर्तित किरणहरू समानान्तर हुन्छन्, प्रतिबिम्ब अनन्तमा धेरै ठूलो बन्छ।",
+                expBetweenFP: "वस्तु F र ध्रुव (P) को बीचमा छ। प्रतिबिम्ब ऐनाको पछाडि बन्छ। यो आभासी, सुल्टो र ठूलो हुन्छ।",
+                
+                expConvex: "उत्तल ऐनाको लागि, प्रतिबिम्ब सधैं ऐनाको पछाडि (P र F को बीचमा) बन्छ। यो सधैं आभासी, सुल्टो र सानो हुन्छ।"
+            }
+        };
+
+        // --- State Management ---
+        const state = {
+            lang: 'en',
+            mirror: 'concave', // 'concave' or 'convex'
+            mode: 'single', // 'single' or 'compare'
+            u: -250, // Object position (negative)
+            h: 50,   // Object height
+            f_mag: 150, // Focal length magnitude in logical units
+            showLabels: true,
+            showExt: true,
+            showRay1: true,
+            showRay2: true,
+            showRay3: true,
+            animProgress: 1, // 0 to 1 for drawing rays
+            isAnimating: false,
+            isDragging: false,
+            // Calculated values
+            v: 0,
+            hi: 0,
+            m: 0,
+            zone: ''
+        };
+
+        // --- DOM Elements ---
+        const ui = {
+            canvas: document.getElementById('simCanvas'),
+            container: document.getElementById('canvasContainer'),
+            ctx: document.getElementById('simCanvas').getContext('2d'),
+            
+            langToggle: document.getElementById('langToggle'),
+            presetPos: document.getElementById('presetPos'),
+            btnConcave: document.getElementById('btnConcave'),
+            btnConvex: document.getElementById('btnConvex'),
+            sliderPos: document.getElementById('sliderPos'),
+            sliderHeight: document.getElementById('sliderHeight'),
+            valPos: document.getElementById('valPos'),
+            valHeight: document.getElementById('valHeight'),
+            
+            toggleLabels: document.getElementById('toggleLabels'),
+            toggleExt: document.getElementById('toggleExt'),
+            toggleRay1: document.getElementById('toggleRay1'),
+            toggleRay2: document.getElementById('toggleRay2'),
+            toggleRay3: document.getElementById('toggleRay3'),
+            toggleCompare: document.getElementById('toggleCompare'),
+            btnAnimate: document.getElementById('btnAnimate'),
+            btnReset: document.getElementById('btnReset'),
+            
+            outU: document.getElementById('outU'),
+            outV: document.getElementById('outV'),
+            outM: document.getElementById('outM'),
+            outType: document.getElementById('outType'),
+            outOrientation: document.getElementById('outOrientation'),
+            outSize: document.getElementById('outSize'),
+            outExplanation: document.getElementById('outExplanation'),
+            
+            dotType: document.getElementById('dotType'),
+            dotOrientation: document.getElementById('dotOrientation'),
+            dotSize: document.getElementById('dotSize'),
+        };
+
+        function updatePhysics() {
+            let f = state.mirror === 'concave' ? -state.f_mag : state.f_mag;
+            let u = state.u;
+
+            // Edge case: Object at infinity (u <= -800)
+            if (u <= -800) {
+                state.v = f;
+                state.m = 0; // Image is point-sized
+                state.hi = 0;
+                state.zone = 'infinity';
+                return;
+            }
+            
+            // Edge case: exactly at focus
+            if (Math.abs(u - f) < 1) {
+                state.v = Infinity;
+                state.m = Infinity;
+                state.hi = Infinity;
+                state.zone = 'atF';
+                return;
+            }
+
+            // Mirror Formula: 1/f = 1/v + 1/u => v = (u * f) / (u - f)
+            state.v = (u * f) / (u - f);
+            
+            // Magnification: m = -v / u
+            state.m = -state.v / u;
+            
+            // Image Height: hi = m * ho
+            state.hi = state.m * state.h;
+
+            // Determine Zone for Explanation
+            if (state.mirror === 'concave') {
+                let c = -2 * state.f_mag;
+                let focus = -state.f_mag;
+                
+                if (u <= -800) state.zone = 'infinity';
+                else if (u < c - 2) state.zone = 'beyondC';
+                else if (Math.abs(u - c) <= 2) state.zone = 'atC';
+                else if (u > c + 2 && u < focus - 2) state.zone = 'betweenCF';
+                else if (u > focus + 2 && u < 0) state.zone = 'betweenFP';
+                else state.zone = 'unknown';
+            } else {
+                state.zone = 'convex';
+            }
+        }
+
+        function t(key) { return i18n[state.lang][key]; }
+
+        function updateUI() {
+            // Update Text Nodes via data-i18n
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                let key = el.getAttribute('data-i18n');
+                if (i18n[state.lang][key]) {
+                    if (el.tagName === 'INPUT' && el.type === 'button') el.value = t(key);
+                    else el.textContent = t(key);
+                }
+            });
+
+            // Update Mirror Buttons Active State
+            if (state.mirror === 'concave') {
+                ui.btnConcave.className = "bg-blue-600 text-white py-2 rounded-md transition shadow-[0_0_10px_rgba(37,99,235,0.5)] border border-blue-400";
+                ui.btnConvex.className = "bg-white/10 hover:bg-white/20 text-white py-2 rounded-md transition border border-white/10";
+            } else {
+                ui.btnConvex.className = "bg-teal-600 text-white py-2 rounded-md transition shadow-[0_0_10px_rgba(13,148,136,0.5)] border border-teal-400";
+                ui.btnConcave.className = "bg-white/10 hover:bg-white/20 text-white py-2 rounded-md transition border border-white/10";
+            }
+
+            // Update Values Display
+            ui.valPos.textContent = state.u + " cm";
+            ui.valHeight.textContent = state.h + " cm";
+            ui.sliderPos.value = state.u;
+            ui.sliderHeight.value = state.h;
+
+            // Sync Preset Dropdown
+            if (state.u <= -800) ui.presetPos.value = "-1000";
+            else if (Math.abs(state.u - (-450)) < 5) ui.presetPos.value = "-450";
+            else if (Math.abs(state.u - (-300)) < 5) ui.presetPos.value = "-300";
+            else if (Math.abs(state.u - (-225)) < 5) ui.presetPos.value = "-225";
+            else if (Math.abs(state.u - (-150)) < 5) ui.presetPos.value = "-150";
+            else if (Math.abs(state.u - (-75)) < 5) ui.presetPos.value = "-75";
+            else ui.presetPos.value = "custom";
+
+            // Update Info Panel Math
+            ui.outU.textContent = state.u + " cm";
+            if (state.v === Infinity) {
+                ui.outV.textContent = "∞ (" + t('infinity') + ")";
+                ui.outM.textContent = "∞";
+            } else {
+                ui.outV.textContent = state.v.toFixed(1) + " cm";
+                ui.outM.textContent = state.m.toFixed(2);
+            }
+
+            // Update Characteristics
+            if (state.v === Infinity) {
+                ui.outType.textContent = "-";
+                ui.outOrientation.textContent = "-";
+                ui.outSize.textContent = t('highlyEnlarged');
+                ui.dotType.className = "w-2 h-2 rounded-full bg-gray-500";
+                ui.dotOrientation.className = "w-2 h-2 rounded-full bg-gray-500";
+                ui.dotSize.className = "w-2 h-2 rounded-full bg-blue-500";
+            } else {
+                let isReal = state.v < 0;
+                let isInverted = state.m < 0;
+                let sizeMag = Math.abs(state.m);
+
+                ui.outType.textContent = isReal ? t('real') : t('virtual');
+                ui.dotType.className = "w-2 h-2 rounded-full " + (isReal ? "bg-blue-500 shadow-[0_0_8px_#3b82f6]" : "bg-purple-400 shadow-[0_0_8px_#c084fc]");
+
+                ui.outOrientation.textContent = isInverted ? t('inverted') : t('erect');
+                ui.dotOrientation.className = "w-2 h-2 rounded-full " + (isInverted ? "bg-orange-500 shadow-[0_0_8px_#f97316]" : "bg-green-400 shadow-[0_0_8px_#4ade80]");
+
+                if (Math.abs(sizeMag - 1) < 0.05) {
+                    ui.outSize.textContent = t('sameSize');
+                    ui.dotSize.className = "w-2 h-2 rounded-full bg-yellow-400";
+                } else if (sizeMag < 1) {
+                    ui.outSize.textContent = t('diminished');
+                    ui.dotSize.className = "w-2 h-2 rounded-full bg-pink-400";
+                } else {
+                    ui.outSize.textContent = t('magnified');
+                    ui.dotSize.className = "w-2 h-2 rounded-full bg-teal-400";
+                }
+            }
+
+            // Update Explanation
+            let expKey = "";
+            switch (state.zone) {
+                case 'infinity': expKey = 'expInfinity'; break;
+                case 'beyondC': expKey = 'expBeyondC'; break;
+                case 'atC': expKey = 'expAtC'; break;
+                case 'betweenCF': expKey = 'expBetweenCF'; break;
+                case 'atF': expKey = 'expAtF'; break;
+                case 'betweenFP': expKey = 'expBetweenFP'; break;
+                case 'convex': expKey = 'expConvex'; break;
+                default: expKey = 'expBeyondC';
+            }
+            ui.outExplanation.textContent = t(expKey);
+        }
+
+        let width, height, scale = 1;
+        
+        function resizeCanvas() {
+            const rect = ui.container.getBoundingClientRect();
+            // Handle HiDPI displays
+            const dpr = window.devicePixelRatio || 1;
+            ui.canvas.width = rect.width * dpr;
+            ui.canvas.height = rect.height * dpr;
+            width = ui.canvas.width;
+            height = ui.canvas.height;
+            ui.ctx.scale(dpr, dpr);
+            width /= dpr; // logical width
+            height /= dpr; // logical height
+            
+            // Adjust scale slightly based on screen width for responsiveness
+            if (width < 600) scale = 0.8;
+            else scale = 1.0;
+            
+            requestRender();
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        const draw = {
+            line: (x1, y1, x2, y2, color, width=2, dash=[]) => {
+                ui.ctx.beginPath();
+                ui.ctx.setLineDash(dash);
+                ui.ctx.moveTo(x1, y1);
+                ui.ctx.lineTo(x2, y2);
+                ui.ctx.strokeStyle = color;
+                ui.ctx.lineWidth = width;
+                ui.ctx.stroke();
+                ui.ctx.setLineDash([]);
+            },
+            arrow: (x, y, h, color, isDashed=false, label="") => {
+                let tipY = y - h;
+                ui.ctx.beginPath();
+                ui.ctx.setLineDash(isDashed ? [5, 5] : []);
+                ui.ctx.moveTo(x, y);
+                ui.ctx.lineTo(x, tipY);
+                ui.ctx.strokeStyle = color;
+                ui.ctx.lineWidth = 4;
+                ui.ctx.stroke();
+                ui.ctx.setLineDash([]);
+
+                // Arrow head
+                ui.ctx.beginPath();
+                ui.ctx.moveTo(x, tipY);
+                let dir = h > 0 ? 1 : -1;
+                ui.ctx.lineTo(x - 6, tipY + dir * 10);
+                ui.ctx.lineTo(x + 6, tipY + dir * 10);
+                ui.ctx.fillStyle = color;
+                ui.ctx.fill();
+
+                if (state.showLabels && label) {
+                    ui.ctx.font = "12px Inter, sans-serif";
+                    ui.ctx.fillStyle = "rgba(255,255,255,0.8)";
+                    ui.ctx.textAlign = "center";
+                    let textY = h > 0 ? tipY - 15 : tipY + 25;
+                    ui.ctx.fillText(label, x, textY);
+                }
+            },
+            point: (x, y, color, label) => {
+                ui.ctx.beginPath();
+                ui.ctx.arc(x, y, 4, 0, Math.PI * 2);
+                ui.ctx.fillStyle = color;
+                ui.ctx.fill();
+                ui.ctx.shadowBlur = 10;
+                ui.ctx.shadowColor = color;
+                ui.ctx.fill(); // double fill for glow
+                ui.ctx.shadowBlur = 0;
+
+                if (state.showLabels && label) {
+                    ui.ctx.font = "bold 14px Inter, sans-serif";
+                    ui.ctx.fillStyle = "rgba(255,255,255,0.9)";
+                    ui.ctx.textAlign = "center";
+                    ui.ctx.fillText(label, x, y + 20);
+                }
+            },
+            rayWithArrow: (x1, y1, x2, y2, color, width, dash=[], animPhase = 1) => {
+                // animPhase 0 = start, 1 = fully drawn
+                if (animPhase <= 0) return;
+                let curX = x1 + (x2 - x1) * animPhase;
+                let curY = y1 + (y2 - y1) * animPhase;
+                
+                draw.line(x1, y1, curX, curY, color, width, dash);
+
+                // Add arrow halfway along the visible segment if mostly drawn
+                if (animPhase > 0.5 && dash.length === 0) {
+                    let mx = x1 + (x2 - x1) * 0.5;
+                    let my = y1 + (y2 - y1) * 0.5;
+                    let angle = Math.atan2(y2 - y1, x2 - x1);
+                    ui.ctx.beginPath();
+                    ui.ctx.moveTo(mx, my);
+                    ui.ctx.lineTo(mx - 8 * Math.cos(angle - Math.PI/6), my - 8 * Math.sin(angle - Math.PI/6));
+                    ui.ctx.lineTo(mx - 8 * Math.cos(angle + Math.PI/6), my - 8 * Math.sin(angle + Math.PI/6));
+                    ui.ctx.fillStyle = color;
+                    ui.ctx.fill();
+                }
+            }
+        };
+
+        function renderScene(mirrorType, viewportX, viewportY, viewportW, viewportH) {
+            let cx = viewportX + viewportW * 0.7; // Pole position (towards right)
+            let cy = viewportY + viewportH * 0.5; // Vertical center
+            
+            // Apply global scale to logic coordinates
+            let f_px = state.f_mag * scale;
+            let u_px = state.u * scale;
+            let h_px = state.h * scale;
+
+            // Calculate local scene values (crucial for Compare Mode to prevent sharing Infinity)
+            let local_f = mirrorType === 'concave' ? -state.f_mag : state.f_mag;
+            let local_v, local_hi;
+            if (state.u <= -800) {
+                local_v = local_f;
+                local_hi = 0;
+            } else if (Math.abs(state.u - local_f) < 1) {
+                local_v = Infinity;
+                local_hi = Infinity;
+            } else {
+                local_v = (state.u * local_f) / (state.u - local_f);
+                local_hi = (-local_v / state.u) * state.h;
+            }
+            
+            let v_px = local_v * scale;
+            let hi_px = local_hi * scale;
+            
+            let f_val = mirrorType === 'concave' ? -f_px : f_px;
+            let c_val = 2 * f_val;
+
+            ui.ctx.save();
+            
+            // Clip region for Compare Mode
+            ui.ctx.beginPath();
+            ui.ctx.rect(viewportX, viewportY, viewportW, viewportH);
+            ui.ctx.clip();
+
+            // Draw Principal Axis
+            draw.line(viewportX, cy, viewportX + viewportW, cy, "rgba(255,255,255,0.3)", 2, [5, 5]);
+            
+            // Draw Points
+            draw.point(cx, cy, "#94a3b8", t('pole'));
+            draw.point(cx + f_val, cy, "#38bdf8", t('focus'));
+            draw.point(cx + c_val, cy, "#a78bfa", t('center'));
+
+            // Draw Mirror Arc
+            ui.ctx.beginPath();
+            let R = Math.abs(c_val);
+            let arcCenter = cx + c_val;
+            let angle = Math.asin((viewportH * 0.4) / R); // Fit arc to height
+            
+            if (mirrorType === 'concave') {
+                ui.ctx.arc(arcCenter, cy, R, -angle, angle);
+            } else {
+                ui.ctx.arc(arcCenter, cy, R, Math.PI - angle, Math.PI + angle);
+            }
+            
+            ui.ctx.strokeStyle = mirrorType === 'concave' ? "#60a5fa" : "#2dd4bf"; // Blue vs Teal
+            ui.ctx.lineWidth = 4;
+            // Glow effect
+            ui.ctx.shadowBlur = 15;
+            ui.ctx.shadowColor = ui.ctx.strokeStyle;
+            ui.ctx.stroke();
+            ui.ctx.shadowBlur = 0;
+
+            // Hatch marks (non-reflecting side)
+            let numHatches = 20;
+            ui.ctx.beginPath();
+            for (let i = -numHatches/2; i <= numHatches/2; i++) {
+                let a = i * (angle / (numHatches/2));
+                let baseAngle = mirrorType === 'concave' ? a : Math.PI + a;
+                let xOnArc = arcCenter + R * Math.cos(baseAngle);
+                let yOnArc = cy + R * Math.sin(baseAngle);
+                // direction outward relative to mirror face
+                let dir = mirrorType === 'concave' ? 1 : -1;
+                let hLen = 8;
+                ui.ctx.moveTo(xOnArc, yOnArc);
+                ui.ctx.lineTo(xOnArc + hLen * Math.cos(baseAngle) * dir, yOnArc + hLen * Math.sin(baseAngle) * dir);
+            }
+            ui.ctx.strokeStyle = "rgba(255,255,255,0.4)";
+            ui.ctx.lineWidth = 1;
+            ui.ctx.stroke();
+
+            // Draw Rays (Only if progress > 0)
+            if (state.animProgress > 0) {
+                let extLen = 1500;
+                let p = state.animProgress;
+                let pInc = Math.min(1, p * 2);
+                let pRef = Math.max(0, (p - 0.5) * 2);
+
+                let O = {x: cx + u_px, y: cy - h_px}; // Object tip
+
+                // Helper: find where a ray from (ox,oy) in direction (dx,dy) hits the concave mirror arc.
+                const hitOnArc = (ox, oy, dx, dy) => {
+                    let R_arc = Math.abs(c_val);
+                    let ax = cx + c_val;
+                    let fx2 = ox - ax, fy2 = oy - cy;
+                    let qa = dx*dx + dy*dy;
+                    let qb = 2*(fx2*dx + fy2*dy);
+                    let qc = fx2*fx2 + fy2*fy2 - R_arc*R_arc;
+                    let disc2 = qb*qb - 4*qa*qc;
+                    if (disc2 < 0) return {x: cx, y: oy};
+                    let sqrtD2 = Math.sqrt(disc2);
+                    let qt1 = (-qb - sqrtD2) / (2*qa);
+                    let qt2 = (-qb + sqrtD2) / (2*qa);
+                    let qt_use = null;
+                    [qt1, qt2].forEach(qt => {
+                        if (qt > 0.01) {
+                            let hx2 = ox + qt*dx;
+                            if (hx2 >= ax) {
+                                if (qt_use === null || qt < qt_use) qt_use = qt;
+                            }
+                        }
+                    });
+                    if (qt_use === null) return {x: cx, y: oy};
+                    return {x: ox + qt_use*dx, y: oy + qt_use*dy};
+                };
+
+                // Detect special cases
+                let isAtFocus = Math.abs(state.u - local_f) < 1;
+                // Infinity: object position <= -800 (the slider minimum meaningful far position)
+                let isInfinity = state.u <= -800;
+
+                ui.ctx.shadowBlur = 5;
+                ui.ctx.shadowColor = "#fcd34d";
+
+                if (isAtFocus && mirrorType === 'concave') {
+                    // ── OBJECT AT FOCUS ────────────────────────────────────────────────
+                    let F = {x: cx + f_val, y: cy};
+
+                    // Ray 1: Parallel to axis from object tip → hits arc → reflects THROUGH F
+                    if (state.showRay1) {
+                        let H1 = hitOnArc(O.x, O.y, 1, 0); // horizontal ray going right to mirror
+                        draw.rayWithArrow(O.x, O.y, H1.x, H1.y, "rgba(250, 204, 21, 0.8)", 2, [], pInc);
+                        if (pRef > 0) {
+                            let dirX = F.x - H1.x, dirY = F.y - H1.y;
+                            let dlen = Math.hypot(dirX, dirY);
+                            dirX /= dlen; dirY /= dlen;
+                            let endX1 = H1.x + dirX * extLen;
+                            let endY1 = H1.y + dirY * extLen;
+                            draw.rayWithArrow(H1.x, H1.y, endX1, endY1, "rgba(249, 115, 22, 0.8)", 2, [], pRef);
+                        }
+                    }
+
+                    // Ray 2: From object tip to Pole P → reflects symmetrically about principal axis
+                    if (state.showRay2) {
+                        let P = {x: cx, y: cy};
+                        let dx2 = P.x - O.x, dy2 = P.y - O.y;
+                        let len2 = Math.hypot(dx2, dy2);
+                        dx2 /= len2; dy2 /= len2;
+                        draw.rayWithArrow(O.x, O.y, P.x, P.y, "rgba(250, 204, 21, 0.8)", 2, [], pInc);
+                        if (pRef > 0) {
+                            let rx2 = -dx2;
+                            let ry2 = dy2;
+                            let endX2 = P.x + rx2 * extLen;
+                            let endY2 = P.y + ry2 * extLen;
+                            draw.rayWithArrow(P.x, P.y, endX2, endY2, "rgba(249, 115, 22, 0.8)", 2, [], pRef);
+                        }
+                    }
+
+                    // Ray 3: Through Centre of Curvature C → hits mirror face → retro-reflects back same path
+                    if (state.showRay3) {
+                        let C = {x: cx + c_val, y: cy};
+                        let dx3 = C.x - O.x, dy3 = C.y - O.y;
+
+                        // Where does line O→C cross the mirror face at x = cx?
+                        let t3hit = (cx - O.x) / dx3;
+                        let H3 = {x: cx, y: O.y + t3hit * dy3};
+
+                        // Incident ray: O → H3 (stops at mirror face)
+                        draw.rayWithArrow(O.x, O.y, H3.x, H3.y, "rgba(250, 204, 21, 0.8)", 2, [], pInc);
+
+                        if (pRef > 0) {
+                            // Reflected ray retraces exactly: H3 → back through C → back through O → beyond
+                            let rDirX = C.x - H3.x;
+                            let rDirY = C.y - H3.y;
+                            let rLen = Math.hypot(rDirX, rDirY);
+                            rDirX /= rLen; rDirY /= rLen;
+                            let endX3 = H3.x + rDirX * extLen;
+                            let endY3 = H3.y + rDirY * extLen;
+                            
+                            draw.rayWithArrow(H3.x, H3.y, endX3, endY3, "rgba(249, 115, 22, 0.8)", 2, [], pRef);
+                        }
+                    }
+
+                    // Label: image at infinity
+                    if (pRef > 0.5 && state.showLabels) {
+                        let alpha = Math.min(1, (pRef - 0.5) * 4);
+                        ui.ctx.globalAlpha = alpha;
+                        ui.ctx.font = "bold 13px Inter, sans-serif";
+                        ui.ctx.fillStyle = "rgba(249,115,22,0.9)";
+                        ui.ctx.textAlign = "left";
+                        ui.ctx.fillText("Image @ \u221E below principal axis (Rays diverge \u2192 \u221E)", viewportX + 10, cy + h_px + 30);
+                        ui.ctx.globalAlpha = 1.0;
+                    }
+
+                } else if (isInfinity && mirrorType === 'concave') {
+                    // ── INFINITY CASE ──────────────────────────────────────────────────
+                    let F = {x: cx + f_val, y: cy}; // Focus point
+
+                    let rayHeights = [];
+                    if (state.showRay1) rayHeights.push(cy - h_px);        // full tip height
+                    if (state.showRay2) rayHeights.push(cy - h_px * 0.5);  // half height
+
+                    rayHeights.forEach((rayY) => {
+                        let R_arc = Math.abs(c_val);
+                        let arcCx = cx + c_val;
+                        let dy = rayY - cy;
+
+                        let dx2 = R_arc * R_arc - dy * dy;
+                        let hitX;
+                        if (dx2 >= 0) {
+                            hitX = arcCx + Math.sqrt(dx2);
+                        } else {
+                            hitX = cx; 
+                        }
+                        let hitY = rayY;
+
+                        let incStartX = viewportX - 20;
+                        draw.rayWithArrow(incStartX, hitY, hitX, hitY, "rgba(250, 204, 21, 0.8)", 2, [], pInc);
+
+                        if (pRef > 0) {
+                            let dirX = F.x - hitX;
+                            let dirY = F.y - hitY;
+                            let len = Math.hypot(dirX, dirY);
+                            if (len > 0) { dirX /= len; dirY /= len; }
+
+                            let endX = hitX + dirX * extLen;
+                            let endY = hitY + dirY * extLen;
+                            draw.rayWithArrow(hitX, hitY, endX, endY, "rgba(249, 115, 22, 0.8)", 2, [], pRef);
+                        }
+                    });
+
+                    if (pRef > 0.5) {
+                        let alpha = Math.min(1, (pRef - 0.5) * 4);
+                        ui.ctx.globalAlpha = alpha;
+                        ui.ctx.beginPath();
+                        ui.ctx.arc(F.x, F.y, 7, 0, Math.PI * 2);
+                        ui.ctx.fillStyle = "#fb923c";
+                        ui.ctx.shadowBlur = 20;
+                        ui.ctx.shadowColor = "#fb923c";
+                        ui.ctx.fill();
+                        ui.ctx.shadowBlur = 0;
+                        if (state.showLabels) {
+                            ui.ctx.font = "bold 13px Inter, sans-serif";
+                            ui.ctx.fillStyle = "rgba(255,180,100,0.95)";
+                            ui.ctx.textAlign = "center";
+                            ui.ctx.fillText("Image @ F", F.x, F.y + 24);
+                        }
+                        ui.ctx.globalAlpha = 1.0;
+                    }
+
+                } else {
+                    // ── NORMAL CASE (non-infinity) ─────────────────────────────────────
+                    let rays = [];
+
+                    // Ray 1: Parallel to axis → reflects through F
+                    if (state.showRay1) {
+                        let H1 = {x: cx, y: cy - h_px};
+                        rays.push({ start: O, hit: H1 });
+                    }
+
+                    // Ray 2: Towards Focus → reflects parallel to axis
+                    if (state.showRay2 && !isAtFocus) {
+                        let H2y = cy - (h_px * (-f_val) / (u_px - f_val));
+                        let H2 = {x: cx, y: H2y};
+                        rays.push({ start: O, hit: H2 });
+                    }
+
+                    // Ray 3: Towards Center → reflects back on itself
+                    if (state.showRay3) {
+                        let H3y = cy - (h_px * (-c_val) / (u_px - c_val));
+                        let H3 = {x: cx, y: H3y};
+                        rays.push({ start: O, hit: H3 });
+                    }
+
+                    let I = {x: cx + v_px, y: cy - hi_px};
+
+                    rays.forEach((ray) => {
+                        draw.rayWithArrow(ray.start.x, ray.start.y, ray.hit.x, ray.hit.y, "rgba(250, 204, 21, 0.8)", 2, [], pInc);
+
+                        if (pRef > 0) {
+                            let dirX = I.x - ray.hit.x;
+                            let dirY = I.y - ray.hit.y;
+                            if (dirX > 0) { dirX = -dirX; dirY = -dirY; }
+
+                            let len = Math.hypot(dirX, dirY);
+                            if (len > 0) { dirX /= len; dirY /= len; }
+
+                            let endX = ray.hit.x + dirX * extLen;
+                            let endY = ray.hit.y + dirY * extLen;
+
+                            draw.rayWithArrow(ray.hit.x, ray.hit.y, endX, endY, "rgba(249, 115, 22, 0.8)", 2, [], pRef);
+
+                            // Use local_v here to safely check against the specific mirror
+                            if (local_v > 0 && state.showExt) {
+                                draw.rayWithArrow(ray.hit.x, ray.hit.y, I.x, I.y, "rgba(255, 255, 255, 0.4)", 1.5, [5, 5], pRef);
+                            }
+                        }
+                    });
+                }
+
+                ui.ctx.shadowBlur = 0;
+            }
+
+            let isInfinityDraw = state.u <= -800;
+            if (!isInfinityDraw) {
+                draw.arrow(cx + u_px, cy, h_px, "#ef4444", false, t('objLabel'));
+            } else if (state.showLabels) {
+                ui.ctx.font = "bold 15px Inter, sans-serif";
+                ui.ctx.fillStyle = "rgba(239,68,68,0.75)";
+                ui.ctx.textAlign = "left";
+                ui.ctx.fillText("\u2190 " + t('objLabel') + " (\u221E)", viewportX + 10, cy - h_px - 8);
+            }
+
+            // Draw Image (Check local_v instead of global state.v)
+            if (state.animProgress > 0.8 && Math.abs(local_v) !== Infinity && !isInfinityDraw) {
+                let isVirtual = local_v > 0;
+                let color = isVirtual ? "#c084fc" : "#3b82f6";
+                let imgAlpha = Math.min(1, (state.animProgress - 0.8) * 5);
+                ui.ctx.globalAlpha = imgAlpha;
+                draw.arrow(cx + v_px, cy, hi_px, color, isVirtual, t('imgLabel'));
+                ui.ctx.globalAlpha = 1.0;
+            }
+
+            ui.ctx.restore();
+        }
+
+        let renderRequested = false;
+        function requestRender() {
+            if (!renderRequested) {
+                renderRequested = true;
+                requestAnimationFrame(drawCanvas);
+            }
+        }
+
+        let lastTime = 0;
+        function drawCanvas(timestamp) {
+            renderRequested = false;
+            
+            if (!timestamp) timestamp = performance.now();
+            let dt = timestamp - lastTime;
+            if (dt > 100) dt = 16; // Prevent massive jumps if tab was inactive
+            lastTime = timestamp;
+            
+            // Clear canvas
+            ui.ctx.clearRect(0, 0, width, height);
+
+            if (state.mode === 'compare') {
+                // Split Screen Horizontal line
+                draw.line(0, height/2, width, height/2, "rgba(255,255,255,0.2)", 1);
+                
+                // Top: Concave
+                ui.ctx.fillStyle = "rgba(255,255,255,0.1)";
+                ui.ctx.font = "bold 16px Inter";
+                ui.ctx.textAlign = "left";
+                ui.ctx.fillText(t('concave'), 20, 30);
+                renderScene('concave', 0, 0, width, height / 2);
+                
+                // Bottom: Convex
+                ui.ctx.fillText(t('convex'), 20, height/2 + 30);
+                renderScene('convex', 0, height / 2, width, height / 2);
+            } else {
+                renderScene(state.mirror, 0, 0, width, height);
+            }
+
+            // Animation Loop logic
+            if (state.isAnimating) {
+                state.animProgress += dt * 0.0003; // Smooth, slow animation (based on time)
+                if (state.animProgress > 1.2) { // Allow brief hold at end
+                    state.isAnimating = false;
+                    state.animProgress = 1;
+                    ui.btnAnimate.innerHTML = `<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path></svg><span data-i18n="play">${t('play')}</span>`; // Replay icon
+                }
+                requestRender(); // Loop
+            }
+        }
+
+        function onStateChange() {
+            updatePhysics();
+            updateUI();
+            if (!state.isAnimating && state.animProgress === 1) {
+                // If moving while fully drawn, snap drawing to new position
+                requestRender();
+            } else {
+                // Reset animation if dragged while drawing
+                state.animProgress = 1; 
+                state.isAnimating = false;
+                requestRender();
+            }
+        }
+
+        // Sliders
+        ui.sliderPos.addEventListener('input', (e) => {
+            state.u = parseInt(e.target.value);
+            onStateChange();
+        });
+        ui.sliderHeight.addEventListener('input', (e) => {
+            state.h = parseInt(e.target.value);
+            onStateChange();
+        });
+
+        // Preset Dropdown
+        ui.presetPos.addEventListener('change', (e) => {
+            if (e.target.value !== 'custom') {
+                state.u = parseInt(e.target.value);
+                onStateChange();
+            }
+        });
+
+        // Buttons
+        ui.btnConcave.addEventListener('click', () => { state.mirror = 'concave'; onStateChange(); });
+        ui.btnConvex.addEventListener('click', () => { state.mirror = 'convex'; onStateChange(); });
+        
+        ui.langToggle.addEventListener('click', () => {
+            state.lang = state.lang === 'en' ? 'np' : 'en';
+            ui.langToggle.textContent = state.lang === 'en' ? 'नेपाली' : 'English';
+            updateUI();
+            requestRender();
+        });
+
+        // Toggles
+        ui.toggleLabels.addEventListener('change', (e) => { state.showLabels = e.target.checked; requestRender(); });
+        ui.toggleExt.addEventListener('change', (e) => { state.showExt = e.target.checked; requestRender(); });
+        ui.toggleRay1.addEventListener('change', (e) => { state.showRay1 = e.target.checked; requestRender(); });
+        ui.toggleRay2.addEventListener('change', (e) => { state.showRay2 = e.target.checked; requestRender(); });
+        ui.toggleRay3.addEventListener('change', (e) => { state.showRay3 = e.target.checked; requestRender(); });
+        ui.toggleCompare.addEventListener('change', (e) => { 
+            state.mode = e.target.checked ? 'compare' : 'single';
+            requestRender(); 
+        });
+
+        // Animation Controls
+        ui.btnAnimate.addEventListener('click', () => {
+            if (!state.isAnimating) {
+                state.animProgress = 0;
+                state.isAnimating = true;
+                lastTime = performance.now(); // Reset animation timer
+                ui.btnAnimate.innerHTML = `<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span data-i18n="pause">Animating...</span>`;
+                requestRender();
+            }
+        });
+
+        ui.btnReset.addEventListener('click', () => {
+            state.u = -250;
+            state.h = 50;
+            state.mirror = 'concave';
+            state.mode = 'single';
+            state.animProgress = 1;
+            state.isAnimating = false;
+            
+            ui.sliderPos.value = state.u;
+            ui.sliderHeight.value = state.h;
+            ui.toggleCompare.checked = false;
+            ui.btnAnimate.innerHTML = `<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" fill-rule="evenodd"></path></svg><span data-i18n="play">${t('play')}</span>`;
+            
+            onStateChange();
+        });
+
+        // Mouse/Touch Dragging Logic
+        let isDraggingObj = false;
+
+        function getMousePos(evt) {
+            const rect = ui.canvas.getBoundingClientRect();
+            // Map screen coordinates back to logical coordinates based on viewport config
+            let clientX = evt.clientX || (evt.touches && evt.touches[0].clientX);
+            let rawX = (clientX - rect.left) / scale;
+            
+            // cx was defined as viewportX + viewportW * 0.7
+            let viewportW = width;
+            let cx = viewportW * 0.7;
+            
+            return { x: rawX - cx };
+        }
+
+        function handlePointerDown(e) {
+            const pos = getMousePos(e);
+            if (Math.abs(pos.x - state.u) < 30) {
+                isDraggingObj = true;
+                state.animProgress = 1; // Snap to full draw when dragging starts
+                ui.canvas.style.cursor = 'ew-resize';
+                e.preventDefault();
+            }
+        }
+
+        function handlePointerMove(e) {
+            if (isDraggingObj) {
+                const pos = getMousePos(e);
+                // Constrain u (Object must stay on left side, not too close to mirror)
+                let newU = Math.round(pos.x);
+                if (newU > -20) newU = -20;
+                if (newU < -1000) newU = -1000;
+                
+                state.u = newU;
+                ui.sliderPos.value = state.u; // Sync slider
+                onStateChange();
+            }
+        }
+
+        function handlePointerUp() {
+            if (isDraggingObj) {
+                isDraggingObj = false;
+                ui.canvas.style.cursor = 'crosshair';
+            }
+        }
+
+        ui.canvas.addEventListener('mousedown', handlePointerDown);
+        window.addEventListener('mousemove', handlePointerMove);
+        window.addEventListener('mouseup', handlePointerUp);
+        
+        // Touch events
+        ui.canvas.addEventListener('touchstart', handlePointerDown, {passive: false});
+        window.addEventListener('touchmove', handlePointerMove, {passive: false});
+        window.addEventListener('touchend', handlePointerUp);
+
+        function init() {
+            updatePhysics();
+            updateUI();
+            resizeCanvas(); // Will trigger first render
+        }
+
+        // Boot
+        window.onload = init;
+
+    </script>
+</body>
+</html>
