@@ -292,7 +292,7 @@ const simulations = [
         title: "Addition and Subtraction Of Fractions Simulation",
         description: "Interactive simulation of addition and subtraction of fractions",
         subject: "Mathematics",
-        url: "/simulations/fraction_simulation.html",
+        url: "/simulations/fractions_simulator.html",
         type: "html",
         created_at: "2026-06-20T19:54:00.000Z"
     }

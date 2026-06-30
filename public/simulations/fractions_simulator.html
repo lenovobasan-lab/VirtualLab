@@ -88,13 +88,13 @@
         .speed-control input[type="range"] { flex: 1 1 auto; min-width: 0; accent-color: var(--color-whole); cursor: pointer; }
         .speed-control #speed-label { font-weight: 700; color: var(--color-whole); min-width: 38px; text-align: center; }
 
-        .vis-row { display: flex; gap: 20px; margin-bottom: 20px; align-items: stretch; }
+        .vis-row { display: flex; gap: 20px; margin-bottom: 20px; align-items: center; }
 
-        .visualization-container { flex: 1 1 70%; min-width: 0; height: 700px; background: #ffffff; border-radius: 15px; position: relative; overflow: hidden; }
+        .visualization-container { flex: 1 1 100%; min-width: 0; height: 700px; background: #ffffff; border-radius: 15px; position: relative; overflow: hidden; }
 
         svg { width: 100%; height: 100%; display: block; }
 
-        .working-sidebar { flex: 0 0 280px; height: 700px; background: rgba(255,255,255,0.6); border-radius: 15px; padding: 18px; border: 1px solid rgba(255,255,255,0.8); display: flex; flex-direction: column; overflow: hidden; }
+        .working-sidebar { flex: 0 0 200px; height: 700px; background: rgba(255,255,255,0.6); border-radius: 15px; padding: 18px; border: 1px solid rgba(255,255,255,0.8); display: flex; flex-direction: column; overflow: hidden; }
         .working-sidebar .panel-title { flex: 0 0 auto; }
         .working-sidebar .math-working { flex: 1 1 auto; overflow-y: auto; justify-content: flex-start; padding-top: 10px; }
 
@@ -164,7 +164,8 @@
             <div class="glass-card">
                 <div class="vis-row">
                     <div class="visualization-container" id="vis-container">
-                        <svg id="canvas" viewBox="0 0 1250 700" preserveAspectRatio="xMidYMid meet"></svg>
+                        <!-- Dynamic ViewBox limits clipping horizontally and scales dynamically -->
+                        <svg id="canvas" viewBox="0 0 1200 850" preserveAspectRatio="xMidYMid meet"></svg>
                         <div id="tooltip" class="tooltip"></div>
                     </div>
                     <div class="working-sidebar">
@@ -190,6 +191,17 @@
             },
             toImproper: (w, n, d) => ({ n: (w * d) + n, d: d }),
             toMixed: (n, d) => ({ w: Math.floor(n / d), n: n % d, d: d })
+        };
+
+        // Layout constants to easily adjust spacing, sizing, and grid wrapping logic
+        const LAYOUT = {
+            maxPerRow: 5,     // Wrap to a new row after 5 circles
+            spacingX: 210,    // Horizontal space between circle centers
+            spacingY: 220,    // Vertical space between rows
+            radius: 85,       // Circle radius
+            startX: 180,      // Starting X position for all fraction rows
+            f1Y: 160,         // Default Y position for Fraction 1
+            labelOffset: 105  // Y distance above the first circle's center for labels
         };
 
         class Fraction {
@@ -226,16 +238,12 @@
                 if(endAngle - startAngle >= 359.9) return `M ${cx} ${cy - r} A ${r} ${r} 0 1 1 ${cx} ${cy + r} A ${r} ${r} 0 1 1 ${cx} ${cy - r}`;
                 return `M ${start.x} ${start.y} A ${r} ${r} 0 ${large} 0 ${end.x} ${end.y} L ${cx} ${cy} Z`;
             },
-            // SVG <text> elements can't render HTML tags - a string like "<sup>1</sup>&frasl;<sub>2</sub>"
-            // assigned via textContent shows the literal tags instead of a stacked fraction. This walks the
-            // markup (sup/sub + plain text/entities) and rebuilds it as <tspan>s with baseline shifts so
-            // fraction labels render correctly inside SVG.
             setFractionLabel: (textEl, htmlString) => {
                 while (textEl.firstChild) textEl.removeChild(textEl.firstChild);
                 const SHIFT = 10;
                 const temp = document.createElement('div');
                 temp.innerHTML = htmlString;
-                let level = 0; // 0 = baseline, 1 = superscript, -1 = subscript
+                let level = 0;
                 const levelOf = tag => tag === 'sup' ? 1 : (tag === 'sub' ? -1 : 0);
                 const addPiece = (text, lvl) => {
                     if (text === '') return;
@@ -283,7 +291,6 @@
 
         const engine = new TweenEngine();
 
-        // Parse a hex color (#rgb or #rrggbb) into {r,g,b}. Falls back gracefully for non-hex (e.g. named) colors.
         function parseColor(c) {
             if (!c) return { r: 226, g: 232, b: 240 };
             if (c[0] === '#') {
@@ -292,7 +299,6 @@
                 const num = parseInt(hex, 16);
                 return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
             }
-            // unknown format, just return a neutral grey
             return { r: 226, g: 232, b: 240 };
         }
         function lerpColor(c1, c2, p) {
@@ -317,9 +323,6 @@
                 this.el.setAttribute("transform", `translate(${s.x}, ${s.y}) rotate(${s.rot}, ${s.cx}, ${s.cy}) scale(${s.scale})`);
                 this.el.setAttribute("opacity", s.opacity);
             }
-            // Smoothly animate this slice's fill color, opacity, and (optionally) scale to new values over `duration` ms.
-            // Color is interpolated channel-by-channel (not a plain number), so this drives its own
-            // small rAF loop rather than going through TweenEngine.to().
             animateTo(color, opacity, duration, scale) {
                 duration = Math.max(16, duration / speedFactor);
                 const fromColor = this.state.color;
@@ -331,7 +334,7 @@
                     const start = performance.now();
                     function step(now) {
                         const p = Math.min((now - start) / duration, 1);
-                        const eased = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2; // easeInOutQuad
+                        const eased = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
                         slice.state.color = lerpColor(fromColor, color, eased);
                         slice.state.opacity = fromOpacity + (opacity - fromOpacity) * eased;
                         slice.state.scale = fromScale + (toScale - fromScale) * eased;
@@ -342,10 +345,6 @@
                     requestAnimationFrame(step);
                 });
             }
-            // Fly this slice from its current on-screen position to a brand-new pie-center/angle/color, tracing
-            // a gentle arc (via a lifted midpoint) so the motion reads as a deliberate "joining" hop rather than
-            // a straight slide. Also re-targets the slice's own cx/cy/sa/ea so future renders use the new geometry.
-            // `liftY` controls how high the arc rises above the straight line (negative = rises upward).
             flyTo({ cx, cy, sa, ea, color, opacity, duration, liftY = -70 }) {
                 duration = Math.max(16, duration / speedFactor);
                 const s = this.state;
@@ -358,8 +357,7 @@
                     const start = performance.now();
                     function step(now) {
                         const p = Math.min((now - start) / duration, 1);
-                        const eased = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2; // easeInOutQuad
-                        // arc lift uses a separate sine-shaped curve peaking at the midpoint of travel
+                        const eased = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
                         const arc = Math.sin(eased * Math.PI) * liftY;
                         s.cx = fromCx + (cx - fromCx) * eased;
                         s.cy = fromCy + (cy - fromCy) * eased + arc;
@@ -386,27 +384,24 @@
                 this.svg = svg; this.startX = x; this.startY = y; this.denom = denom; this.color = color;
                 this.group = SVGUtils.createEl("g", {}); this.svg.appendChild(this.group); this.slices = [];
                 if (label) {
-                    this.labelEl = SVGUtils.createEl("text", { x: x, y: y - 115, "text-anchor": "middle", "font-size": "26", "font-weight": "bold", fill: "#475569" });
+                    this.labelEl = SVGUtils.createEl("text", { x: x, y: y - LAYOUT.labelOffset, "text-anchor": "middle", "font-size": "26", "font-weight": "bold", fill: "#475569" });
                     SVGUtils.setFractionLabel(this.labelEl, label);
                     this.group.appendChild(this.labelEl);
                 }
             }
-            // Geometry for slot `idx` (0-based, across however many circles are needed) given a denom and an
-            // anchor position. Shared by build() and by the join/detach fly animations in Step 3.
+            // Updated to handle wrapping circles seamlessly across rows
             static slotFor(startX, startY, denom, idx) {
                 const c = Math.floor(idx / denom);
                 const i = idx % denom;
-                const cx = startX + c * 230;
+                const row = Math.floor(c / LAYOUT.maxPerRow);
+                const col = c % LAYOUT.maxPerRow;
+                const cx = startX + col * LAYOUT.spacingX;
+                const cy = startY + row * LAYOUT.spacingY;
                 const sa = i * (360 / denom), ea = (i + 1) * (360 / denom);
-                return { cx, cy: startY, sa, ea };
+                return { cx, cy, sa, ea };
             }
-            // build slices representing `total` filled slices out of denom-per-circle, with `wholeCount` full blue circles.
-            // Returns a Promise that resolves once all slice animations finish, so callers can await it for smooth pacing.
             build(total, wholeCount, color) {
                 const d = this.denom;
-
-                // If the denominator (slice angle per piece) changed since the last build, old slice
-                // geometry is no longer valid (different arc widths) - rebuild fresh instead of reusing.
                 if (this._lastDenom !== undefined && this._lastDenom !== d) {
                     this.slices.forEach(s => s.destroy());
                     this.slices = [];
@@ -418,7 +413,11 @@
                 const animations = [];
 
                 for (let c = 0; c < circlesNeeded; c++) {
-                    let cx = this.startX + c * 230;
+                    const row = Math.floor(c / LAYOUT.maxPerRow);
+                    const col = c % LAYOUT.maxPerRow;
+                    let cx = this.startX + col * LAYOUT.spacingX;
+                    let cy = this.startY + row * LAYOUT.spacingY;
+                    
                     for (let i = 0; i < d; i++) {
                         const idx = c * d + i;
                         const filled = idx < total;
@@ -426,16 +425,14 @@
                         const sa = i * (360 / d), ea = (i + 1) * (360 / d);
                         const fillColor = !filled ? '#e2e8f0' : (isWhole ? Colors.whole : (color || this.color));
                         const targetOpacity = !filled ? 0.35 : 1;
-                        const delay = idx * 25; // gentle stagger so the change sweeps across slices rather than popping at once
+                        const delay = idx * 25; 
 
                         let slice = this.slices[idx];
                         if (slice) {
-                            // existing slice: smoothly transition its color/opacity in place
                             const anim = engine.wait(delay).then(() => slice.animateTo(fillColor, targetOpacity, 550));
                             animations.push(anim);
                         } else {
-                            // new slice (e.g. a newly needed circle): create it small/transparent then grow + fade in
-                            slice = new RenderSlice(this.group, cx, this.startY, 95, sa, ea, fillColor);
+                            slice = new RenderSlice(this.group, cx, cy, LAYOUT.radius, sa, ea, fillColor);
                             slice.state.opacity = 0;
                             slice.state.scale = 0.4;
                             slice.render();
@@ -446,7 +443,6 @@
                     }
                 }
 
-                // remove any leftover slices beyond what's now needed (e.g. result group shrank)
                 for (let idx = targetCount; idx < this.slices.length; idx++) {
                     if (this.slices[idx]) this.slices[idx].destroy();
                 }
@@ -455,16 +451,11 @@
                 return Promise.all(animations).then(() => circlesNeeded);
             }
             moveLabel(text) { if (this.labelEl) SVGUtils.setFractionLabel(this.labelEl, text); }
-            // Remove slice `idx` from this group's bookkeeping WITHOUT destroying its DOM element or resetting
-            // its visual state - used when a slice is being handed off to another group (e.g. flying into Result).
-            // The element keeps rendering wherever its <g> currently lives until the caller re-parents it.
             takeSlice(idx) {
                 const slice = this.slices[idx];
                 this.slices[idx] = null;
                 return slice;
             }
-            // Re-parent an externally-owned RenderSlice's DOM element into this group's <g>, without touching
-            // its current animated state (position/color/opacity carry over so the fly animation looks continuous).
             adoptSlice(slice) {
                 this.group.appendChild(slice.el);
             }
@@ -477,13 +468,17 @@
                 this.steps = [];
                 this.stepIndex = -1;
                 this.playing = false;
+                
+                // Track dynamic layout positions
+                this.f1Y = LAYOUT.f1Y;
+                this.f2Y = LAYOUT.f1Y + LAYOUT.spacingY;
+                this.resultY = this.f2Y + LAYOUT.spacingY;
+
                 engine.start();
             }
 
             clearCanvas() { this.svg.innerHTML = ''; }
-
             setExplanation(html) { document.getElementById('explanation-text').innerHTML = html; }
-
             addMathLine(html) {
                 const container = document.getElementById('math-working');
                 const line = document.createElement('div');
@@ -492,7 +487,6 @@
                 container.appendChild(line);
                 requestAnimationFrame(() => requestAnimationFrame(() => line.classList.add('visible')));
             }
-
             clearMath() { document.getElementById('math-working').innerHTML = ''; }
 
             readInputs() {
@@ -502,10 +496,9 @@
                 return { f1, f2, op };
             }
 
-            // Build the ordered list of step functions (each returns a Promise) for the current inputs.
             buildSteps() {
                 const { f1, f2, op } = this.readInputs();
-                const imp1 = f1.improper; // {n, d}
+                const imp1 = f1.improper;
                 const imp2 = f2.improper;
                 const lcd = MathUtils.lcm(imp1.d, imp2.d);
                 const n1 = imp1.n * (lcd / imp1.d);
@@ -515,13 +508,30 @@
                 const isNegative = resultNumerator < 0;
                 const mixedResult = MathUtils.toMixed(simplified.n, simplified.d);
 
+                // Dynamically calculate stacked layout & viewBox height to PREVENT clipping
+                const f1Circles = Math.max(1, Math.ceil(f1.totalSlices / f1.d));
+                const f1Rows = Math.ceil(f1Circles / LAYOUT.maxPerRow);
+                
+                const f2Circles = Math.max(1, Math.ceil(f2.totalSlices / f2.d));
+                const f2Rows = Math.ceil(f2Circles / LAYOUT.maxPerRow);
+                
+                this.f1Y = LAYOUT.f1Y;
+                this.f2Y = this.f1Y + (f1Rows * LAYOUT.spacingY) + 40; 
+                this.resultY = this.f2Y + (f2Rows * LAYOUT.spacingY) + 40;
+                
+                const maxResultCircles = Math.max(1, Math.ceil(Math.abs(resultNumerator) / lcd));
+                const resultRows = Math.ceil(maxResultCircles / LAYOUT.maxPerRow);
+                
+                // Allow the SVG container to organically grow internally without cutting paths off
+                const finalHeight = Math.max(850, this.resultY + (resultRows * LAYOUT.spacingY) + 60);
+                this.svg.setAttribute("viewBox", `0 0 1200 ${finalHeight}`);
+
                 const steps = [];
 
-                // STEP 0: show original fractions
                 steps.push(() => {
                     this.clearCanvas();
-                    this.f1G = new FractionGroup(this.svg, 220, 190, f1.d, Colors.slice, `Fraction 1: ${f1.toHTML()}`);
-                    this.f2G = new FractionGroup(this.svg, 220, 490, f2.d, Colors.slice, `Fraction 2: ${f2.toHTML()}`);
+                    this.f1G = new FractionGroup(this.svg, LAYOUT.startX, this.f1Y, f1.d, Colors.slice, `Fraction 1: ${f1.toHTML()}`);
+                    this.f2G = new FractionGroup(this.svg, LAYOUT.startX, this.f2Y, f2.d, Colors.slice, `Fraction 2: ${f2.toHTML()}`);
                     const anim = Promise.all([
                         this.f1G.build(f1.totalSlices, f1.w),
                         this.f2G.build(f2.totalSlices, f2.w)
@@ -532,7 +542,6 @@
                     return anim.then(() => engine.wait(500));
                 });
 
-                // STEP 1: convert to improper fractions (if needed)
                 if (f1.w !== 0 || f2.w !== 0) {
                     steps.push(() => {
                         this.f1G.moveLabel(`Fraction 1: ${imp1.n}/${imp1.d}`);
@@ -547,7 +556,6 @@
                     });
                 }
 
-                // STEP 2: find common denominator (if needed)
                 if (imp1.d !== imp2.d) {
                     steps.push(() => {
                         this.f1G.moveLabel(`Fraction 1: ${n1}/${lcd}`);
@@ -564,21 +572,16 @@
                     });
                 }
 
-                // STEP 3: physically move slices into a result group - addition slices fly in and JOIN;
-                // for subtraction, the minuend's slices land first, then the subtracted slices DETACH and
-                // drift away while the remaining slices consolidate into place.
                 steps.push(() => {
-                    const FLY_DURATION = 1100;   // slower than before per request - each slice's flight time
-                    const STAGGER = 90;           // gap between each slice starting its flight
-                    const SETTLE_PAUSE = 700;     // breathing room after all motion finishes
+                    const FLY_DURATION = 1100;
+                    const STAGGER = 90;
+                    const SETTLE_PAUSE = 700;
 
-                    this.resultG = new FractionGroup(this.svg, 620, 340, lcd, Colors.result, op === '+' ? 'Joining the slices…' : 'Result');
+                    this.resultG = new FractionGroup(this.svg, LAYOUT.startX, this.resultY, lcd, Colors.result, op === '+' ? 'Joining the slices…' : 'Result');
                     const opWord = op === '+' ? 'Combine' : 'Take away';
                     this.setExplanation(`${opWord} the slices: ${n1} ${op === '+' ? '+' : '-'} ${n2} = <b>${resultNumerator}</b> slice${Math.abs(resultNumerator) === 1 ? '' : 's'} out of ${lcd}.`);
                     this.addMathLine(`= ${isNegative ? '-' : ''}${Math.abs(resultNumerator)}/${lcd}`);
 
-                    // Grab the actual filled RenderSlice instances from f1G and f2G (indices 0..n-1 are filled,
-                    // since build() always fills the lowest indices first).
                     const f1Filled = []; for (let i = 0; i < n1; i++) f1Filled.push(this.f1G.takeSlice(i));
                     const f2Filled = []; for (let i = 0; i < n2; i++) f2Filled.push(this.f2G.takeSlice(i));
 
@@ -586,11 +589,9 @@
                     let delay = 0;
 
                     if (op === '+') {
-                        // ADDITION: every filled slice from both fractions flies into consecutive result
-                        // slots and joins the result color - a literal merge of the two piles.
                         const incoming = [...f1Filled, ...f2Filled];
                         incoming.forEach((slice, k) => {
-                            const slot = FractionGroup.slotFor(620, 340, lcd, k);
+                            const slot = FractionGroup.slotFor(LAYOUT.startX, this.resultY, lcd, k);
                             this.resultG.adoptSlice(slice);
                             this.resultG.slices[k] = slice;
                             const d = delay;
@@ -600,9 +601,8 @@
                             delay += STAGGER;
                         });
                     } else {
-                        // SUBTRACTION: f1's slices fly into the result first, landing in order...
                         f1Filled.forEach((slice, k) => {
-                            const slot = FractionGroup.slotFor(620, 340, lcd, k);
+                            const slot = FractionGroup.slotFor(LAYOUT.startX, this.resultY, lcd, k);
                             this.resultG.adoptSlice(slice);
                             this.resultG.slices[k] = slice;
                             const d = delay;
@@ -613,8 +613,6 @@
                         });
                     }
 
-                    // f2's now-empty/unused slices (the leftover slots beyond n2 in f2G) and f1's leftover
-                    // empty slots just fade away quietly in place - they were never filled, so no flight needed.
                     const fadeAnims = [];
                     for (let i = n1; i < this.f1G.slices.length; i++) {
                         const s = this.f1G.slices[i];
@@ -631,8 +629,6 @@
                     });
 
                     if (op === '-') {
-                        // ...then, once landed, the last n2 of those slices DETACH from the result: they shrink,
-                        // fade, and drift downward off the pie, like pieces being physically removed.
                         sequence = sequence.then(() => engine.wait(250)).then(() => {
                             this.resultG.moveLabel('Taking slices away…');
                             const detachAnims = [];
@@ -651,11 +647,10 @@
                             }
                             return Promise.all(detachAnims);
                         }).then(() => engine.wait(200)).then(() => {
-                            // remaining slices consolidate into the front slots so there's no visible gap
                             const remaining = this.resultG.slices.slice(0, n1 - n2).filter(Boolean);
                             this.resultG.slices.length = 0;
                             const consolidateAnims = remaining.map((slice, k) => {
-                                const slot = FractionGroup.slotFor(620, 340, lcd, k);
+                                const slot = FractionGroup.slotFor(LAYOUT.startX, this.resultY, lcd, k);
                                 this.resultG.slices[k] = slice;
                                 return slice.flyTo({ ...slot, color: Colors.result, opacity: 1, duration: 650, liftY: -35 });
                             });
@@ -666,8 +661,6 @@
                         sequence = sequence.then(() => { this.resultG.moveLabel('Result'); });
                     }
 
-                    // finally, ensure the result group's bookkeeping (denom/empty slots beyond resultNumerator)
-                    // is consistent so the next step (simplify) can build() on top of it correctly.
                     sequence = sequence.then(() => {
                         this.resultG._lastDenom = lcd;
                         return this.resultG.build(Math.abs(resultNumerator), 0, Colors.result);
@@ -676,7 +669,6 @@
                     return sequence.then(() => engine.wait(SETTLE_PAUSE));
                 });
 
-                // STEP 4: simplify (if applicable)
                 if (simplified.d !== lcd || simplified.n !== Math.abs(resultNumerator)) {
                     steps.push(() => {
                         this.resultG.denom = simplified.d;
@@ -688,7 +680,6 @@
                     });
                 }
 
-                // STEP 5: convert to mixed number (if applicable)
                 if (mixedResult.w > 0 && mixedResult.n > 0) {
                     steps.push(() => {
                         const finalFrac = new Fraction(mixedResult.w, mixedResult.n, mixedResult.d);
@@ -699,7 +690,7 @@
                 } else {
                     steps.push(() => {
                         const finalDisplay = simplified.n === 0 ? '0' : (simplified.d === 1 ? `${simplified.n}` : `${simplified.n}/${simplified.d}`);
-                        this.setExplanation(`Final answer: <b>${isNegative ? '-' : ''}${finalDisplay}</b>.`);
+                        this.setExplanation(` <b>${isNegative ? '-' : ''}${finalDisplay}</b>.`);
                         this.addMathLine(`= <b>${isNegative ? '-' : ''}${finalDisplay}</b>`);
                         return engine.wait(300);
                     });
@@ -723,7 +714,7 @@
                     this.stepIndex++;
                 } else {
                     this.updateButtons();
-                    return; // already at end
+                    return; 
                 }
                 this.updateButtons();
                 await this.steps[this.stepIndex]();
@@ -756,6 +747,7 @@
                 this.clearCanvas();
                 this.clearMath();
                 this.setExplanation('Enter fractions and click Play or Next Step.');
+                this.svg.setAttribute("viewBox", "0 0 1200 850");
                 this.updateButtons();
             }
         }
