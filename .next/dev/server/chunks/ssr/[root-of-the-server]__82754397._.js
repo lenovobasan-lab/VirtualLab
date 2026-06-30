@@ -286,6 +286,15 @@ const simulations = [
         url: "/simulations/mirror_simulation.html",
         type: "html",
         created_at: "2026-06-20T19:54:00.000Z"
+    },
+    {
+        id: "sim-12",
+        title: "Addition and Subtraction Of Fractions Simulation",
+        description: "Interactive simulation of addition and subtraction of fractions",
+        subject: "Mathematics",
+        url: "/simulations/fraction_simulation.html",
+        type: "html",
+        created_at: "2026-06-20T19:54:00.000Z"
     }
 ];
 }),
