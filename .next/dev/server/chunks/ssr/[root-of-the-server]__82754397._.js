@@ -295,6 +295,24 @@ const simulations = [
         url: "/simulations/fractions_simulator.html",
         type: "html",
         created_at: "2026-06-20T19:54:00.000Z"
+    },
+    {
+        id: "sim-13",
+        title: "Fraction Builder and Visualizer Simulation",
+        description: "Interactive simulation of fraction building and visualization",
+        subject: "Mathematics",
+        url: "/simulations/fraction-finder.html",
+        type: "html",
+        created_at: "2026-06-20T19:54:00.000Z"
+    },
+    {
+        id: "sim-14",
+        title: "Integer Number Line Operations Simulation",
+        description: "Interactive simulation of integer operations",
+        subject: "Mathematics",
+        url: "/simulations/integer_number_line.html",
+        type: "html",
+        created_at: "2026-06-20T19:54:00.000Z"
     }
 ];
 }),
