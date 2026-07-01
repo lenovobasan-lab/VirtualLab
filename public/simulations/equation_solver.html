@@ -304,72 +304,150 @@
 
     // axis labels
     ctx.fillStyle = text;
-    ctx.font = '11px Segoe UI, Arial';
+    ctx.font = '15px Segoe UI, Arial';
     ctx.textBaseline = 'top';
     for(let x = startX; x <= xMaxW; x += step){
       if(Math.abs(x) < step/1000) continue;
       const [sx] = worldToScreen(x,0);
-      ctx.fillText(fmtNum(x), sx+3, oy+4);
+      ctx.fillText(fmtNum(x), sx+4, oy+6);
     }
     ctx.textBaseline = 'bottom';
     for(let y = startY; y <= yMaxW; y += step){
       if(Math.abs(y) < step/1000) continue;
       const [, sy] = worldToScreen(0,y);
-      ctx.fillText(fmtNum(y), ox+4, sy-2);
+      ctx.fillText(fmtNum(y), ox+6, sy-3);
     }
     // origin label
-    ctx.fillText('0', ox+4, oy+4);
+    ctx.fillText('0', ox+6, oy+6);
 
     // arrows + axis names
     ctx.fillStyle = text;
-    ctx.font = '13px Segoe UI, Arial';
-    ctx.fillText('x', w-16, oy+6);
-    ctx.fillText('y', ox+6, 6);
+    ctx.font = 'bold 18px Segoe UI, Arial';
+    ctx.fillText('x', w-22, oy+8);
+    ctx.fillText('y', ox+8, 8);
   }
 
-  function drawLine(a,b,c,color){
+  function drawLabelChip(x, y, text, color){
+    // Draws a rounded background chip with colored border and bold text, clamped inside canvas.
+    const w = canvas.width, h = canvas.height;
+    ctx.font = 'bold 24px Segoe UI, Arial';
+    const padX = 10, padY = 8;
+    const tw = ctx.measureText(text).width;
+    const boxW = tw + padX*2, boxH = 24 + padY*2;
+
+    let lx = x - boxW/2, ly = y - boxH/2;
+    // clamp so the label stays fully on screen
+    lx = Math.max(4, Math.min(w - boxW - 4, lx));
+    ly = Math.max(4, Math.min(h - boxH - 4, ly));
+
+    const card = cssVar('--card');
+    ctx.globalAlpha = 0.92;
+    ctx.fillStyle = card;
+    if(ctx.roundRect){
+      ctx.beginPath();
+      ctx.roundRect(lx, ly, boxW, boxH, 8);
+      ctx.fill();
+    } else {
+      ctx.fillRect(lx, ly, boxW, boxH);
+    }
+    ctx.globalAlpha = 1;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = color;
+    if(ctx.roundRect){
+      ctx.beginPath();
+      ctx.roundRect(lx, ly, boxW, boxH, 8);
+      ctx.stroke();
+    } else {
+      ctx.strokeRect(lx, ly, boxW, boxH);
+    }
+
+    ctx.fillStyle = color;
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'left';
+    ctx.fillText(text, lx + padX, ly + boxH/2 + 1);
+    ctx.textAlign = 'start'; // reset default
+  }
+
+  function drawLine(a,b,c,color,label){
     // a x + b y = c  => for given x range, compute y, or vertical line if b=0
     const w = canvas.width, h = canvas.height;
     ctx.strokeStyle = color;
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 4;
     ctx.beginPath();
 
+    let sx0,sy0,sx1,sy1;
     if(Math.abs(b) > 1e-9){
       const [x0w] = screenToWorld(0,0);
       const [x1w] = screenToWorld(w,0);
       const y0 = (c - a*x0w)/b;
       const y1 = (c - a*x1w)/b;
-      const [sx0,sy0] = worldToScreen(x0w,y0);
-      const [sx1,sy1] = worldToScreen(x1w,y1);
+      [sx0,sy0] = worldToScreen(x0w,y0);
+      [sx1,sy1] = worldToScreen(x1w,y1);
       ctx.moveTo(sx0,sy0); ctx.lineTo(sx1,sy1);
     } else if(Math.abs(a) > 1e-9){
       // vertical line x = c/a
       const xVal = c/a;
       const [sx] = worldToScreen(xVal,0);
+      sx0=sx; sy0=0; sx1=sx; sy1=h;
       ctx.moveTo(sx,0); ctx.lineTo(sx,h);
     }
     ctx.stroke();
+
+    // Label the line with its equation, placed near one end but kept on-screen
+    if(label && sx0 !== undefined){
+      // prefer a point ~15% along the segment from the first endpoint, biased toward
+      // whichever end is more likely to be on-screen
+      const t = 0.18;
+      let lx = sx0 + (sx1-sx0)*t;
+      let ly = sy0 + (sy1-sy0)*t;
+      // if that point is off-screen, try the other end
+      if(lx < 0 || lx > w || ly < 0 || ly > h){
+        lx = sx0 + (sx1-sx0)*(1-t);
+        ly = sy0 + (sy1-sy0)*(1-t);
+      }
+      drawLabelChip(lx, ly, label, color);
+    }
   }
 
   function drawPoint(x,y,color,labelText){
     const [sx,sy] = worldToScreen(x,y);
+
+    // outer glow ring to make the intersection pop
     ctx.beginPath();
-    ctx.arc(sx,sy,7,0,Math.PI*2);
+    ctx.arc(sx,sy,26,0,Math.PI*2);
+    ctx.fillStyle = color;
+    ctx.globalAlpha = 0.16;
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    ctx.beginPath();
+    ctx.arc(sx,sy,18,0,Math.PI*2);
+    ctx.fillStyle = color;
+    ctx.globalAlpha = 0.28;
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    ctx.beginPath();
+    ctx.arc(sx,sy,10,0,Math.PI*2);
     ctx.fillStyle = color;
     ctx.fill();
     ctx.strokeStyle = cssVar('--card');
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 4;
     ctx.stroke();
 
     if(labelText){
-      ctx.font = 'bold 13px Segoe UI, Arial';
+      ctx.font = 'bold 30px Segoe UI, Arial';
       const text = cssVar('--text');
       const card = cssVar('--card');
       const tw = ctx.measureText(labelText).width;
-      let lx = sx+12, ly = sy-12;
+      let lx = sx+24, ly = sy-24;
+      const boxW = tw+18, boxH = 42;
+      // keep label on-screen
+      if(lx+boxW > canvas.width) lx = sx - boxW - 24;
+      if(ly-boxH < 0) ly = sy + boxH + 10;
       ctx.fillStyle = card;
-      ctx.globalAlpha = 0.85;
-      ctx.fillRect(lx-4, ly-14, tw+8, 20);
+      ctx.globalAlpha = 0.92;
+      ctx.fillRect(lx-9, ly-boxH+9, boxW, boxH);
       ctx.globalAlpha = 1;
       ctx.fillStyle = text;
       ctx.fillText(labelText, lx, ly);
@@ -485,10 +563,12 @@
     drawGrid();
     const v = getEquationValues();
     if(isFinite(v.a1)&&isFinite(v.b1)&&isFinite(v.c1)){
-      drawLine(v.a1,v.b1,v.c1, cssVar('--line1'));
+      const label1 = `${fmtTerm(v.a1,'x',true)}${fmtTerm(v.b1,'y',false)} = ${fmtNum(v.c1)}`;
+      drawLine(v.a1,v.b1,v.c1, cssVar('--line1'), label1);
     }
     if(isFinite(v.a2)&&isFinite(v.b2)&&isFinite(v.c2)){
-      drawLine(v.a2,v.b2,v.c2, cssVar('--line2'));
+      const label2 = `${fmtTerm(v.a2,'x',true)}${fmtTerm(v.b2,'y',false)} = ${fmtNum(v.c2)}`;
+      drawLine(v.a2,v.b2,v.c2, cssVar('--line2'), label2);
     }
     if(lastSolution){
       drawPoint(lastSolution.x, lastSolution.y, cssVar('--good'),
