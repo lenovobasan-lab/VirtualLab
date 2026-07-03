@@ -363,6 +363,9 @@
   <button id="btn-daynight" title="Toggle night view">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"/><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"/></svg>
   </button>
+  <button id="btn-fullscreen" title="Toggle Fullscreen">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+  </button>
   <div id="vr-divider"></div>
   <button id="btn-vr" title="Enter VR" disabled>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="3"/><circle cx="8.5" cy="12" r="1.6"/><circle cx="15.5" cy="12" r="1.6"/><path d="M10.3 9.5h3.4"/></svg>
@@ -806,7 +809,7 @@ const PLANET_DATA = [
     type: 'Terrestrial planet',
     color: 0x9c9690,
     emissive: 0x2a2622,
-    texture: TEX_BASE + '2k_mercury.jpg',
+    texture: TEX_BASE + '8k_mercury.jpg', // Updated to 8K
     proceduralKey: 'mercury',
     radius: 0.9,
     orbitRadius: 14,
@@ -824,7 +827,7 @@ const PLANET_DATA = [
     type: 'Terrestrial planet',
     color: 0xe8c27e,
     emissive: 0x3a2c10,
-    texture: TEX_BASE + '2k_venus_surface.jpg',
+    texture: TEX_BASE + '8k_venus_surface.jpg', // Updated to 8K
     proceduralKey: 'venus',
     radius: 1.5,
     orbitRadius: 19,
@@ -842,9 +845,9 @@ const PLANET_DATA = [
     type: 'Terrestrial planet',
     color: 0x3f7cd6,
     emissive: 0x0a1730,
-    texture: TEX_BASE + '2k_earth_daymap.jpg',
+    texture: TEX_BASE + '8k_earth_daymap.jpg', // Updated to 8K
     proceduralKey: 'earth',
-    cloudsTexture: TEX_BASE + '2k_earth_clouds.jpg',
+    cloudsTexture: TEX_BASE + '8k_earth_clouds.jpg', // Updated to 8K
     proceduralCloudsKey: 'earthClouds',
     radius: 1.6,
     orbitRadius: 25,
@@ -863,7 +866,7 @@ const PLANET_DATA = [
     type: 'Terrestrial planet',
     color: 0xc1542c,
     emissive: 0x2c0f06,
-    texture: TEX_BASE + '2k_mars.jpg',
+    texture: TEX_BASE + '8k_mars.jpg', // Updated to 8K
     proceduralKey: 'mars',
     radius: 1.1,
     orbitRadius: 31,
@@ -881,7 +884,7 @@ const PLANET_DATA = [
     type: 'Gas giant',
     color: 0xcf9c6f,
     emissive: 0x2c1d10,
-    texture: TEX_BASE + '2k_jupiter.jpg',
+    texture: TEX_BASE + '8k_jupiter.jpg', // Updated to 8K
     proceduralKey: 'jupiter',
     radius: 4.2,
     orbitRadius: 42,
@@ -899,7 +902,7 @@ const PLANET_DATA = [
     type: 'Gas giant',
     color: 0xe3cd9a,
     emissive: 0x2c2613,
-    texture: TEX_BASE + '2k_saturn.jpg',
+    texture: TEX_BASE + '8k_saturn.jpg', // Updated to 8K
     proceduralKey: 'saturn',
     radius: 3.6,
     orbitRadius: 54,
@@ -914,7 +917,7 @@ const PLANET_DATA = [
     ringInner: 4.6,
     ringOuter: 7.8,
     ringColor: 0xcdb98a,
-    ringTexture: TEX_BASE + '2k_saturn_ring_alpha.png',
+    ringTexture: TEX_BASE + '2k_saturn_ring_alpha.png', // Maintained at 2K as 8K ring alpha isn't available
     proceduralRingKey: 'saturnRings'
   },
   {
@@ -923,7 +926,7 @@ const PLANET_DATA = [
     type: 'Ice giant',
     color: 0x9fd9e0,
     emissive: 0x10282a,
-    texture: TEX_BASE + '2k_uranus.jpg',
+    texture: TEX_BASE + '2k_uranus.jpg', // Maintained at 2K as SSS doesn't host 8K Uranus
     proceduralKey: 'uranus',
     radius: 2.6,
     orbitRadius: 64,
@@ -945,7 +948,7 @@ const PLANET_DATA = [
     type: 'Ice giant',
     color: 0x4d6fe0,
     emissive: 0x0c1538,
-    texture: TEX_BASE + '2k_neptune.jpg',
+    texture: TEX_BASE + '2k_neptune.jpg', // Maintained at 2K as SSS doesn't host 8K Neptune
     proceduralKey: 'neptune',
     radius: 2.5,
     orbitRadius: 73,
@@ -963,7 +966,7 @@ const SUN_DATA = {
   name: 'The Sun',
   type: 'G-type main-sequence star',
   color: 0xffd166,
-  texture: TEX_BASE + '2k_sun.jpg',
+  texture: TEX_BASE + '8k_sun.jpg', // Updated to 8K
   proceduralKey: 'sun',
   radius: 7,
   diameterKm: '1,391,000 km',
@@ -991,8 +994,8 @@ const DWARF_DATA = {
   funFact: 'Pluto was reclassified from a planet to a dwarf planet in 2006 because it shares its orbital path with other objects.'
 };
 
-const MOON_TEXTURE = TEX_BASE + '2k_moon.jpg';
-const STARS_MILKYWAY_TEXTURE = TEX_BASE + '2k_stars_milky_way.jpg';
+const MOON_TEXTURE = TEX_BASE + '8k_moon.jpg'; // Updated to 8K
+const STARS_MILKYWAY_TEXTURE = TEX_BASE + '8k_stars_milky_way.jpg'; // Updated to 8K
 
 </script>
 <script>
@@ -1699,6 +1702,17 @@ document.getElementById('btn-daynight').addEventListener('click', ()=>{
   sunLight.intensity = state.nightMode ? 1.4 : 2.4;
   renderer.toneMappingExposure = state.nightMode ? 0.8 : 1.15;
   showToast(state.nightMode ? 'Night view enabled' : 'Day view enabled');
+});
+
+// Fullscreen logic
+document.getElementById('btn-fullscreen').addEventListener('click', () => {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(err => {
+      showToast(`Fullscreen error: ${err.message}`);
+    });
+  } else {
+    document.exitFullscreen();
+  }
 });
 
 document.getElementById('btn-reset-view').addEventListener('click', ()=>{
