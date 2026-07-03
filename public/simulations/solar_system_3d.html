@@ -253,6 +253,13 @@
     display:none !important;
   }
 
+  /* ---------- Fullscreen state ---------- */
+  body.is-fullscreen #topbar,
+  body.is-fullscreen #controls-panel,
+  body.is-fullscreen #info-panel {
+    display: none !important;
+  }
+
   @media (max-width: 760px){
     #menu-btn{ display:flex; }
     #controls-panel{
@@ -1712,6 +1719,14 @@ document.getElementById('btn-fullscreen').addEventListener('click', () => {
     });
   } else {
     document.exitFullscreen();
+  }
+});
+
+document.addEventListener('fullscreenchange', () => {
+  if (document.fullscreenElement) {
+    document.body.classList.add('is-fullscreen');
+  } else {
+    document.body.classList.remove('is-fullscreen');
   }
 });
 

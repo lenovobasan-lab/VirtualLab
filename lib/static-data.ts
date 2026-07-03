@@ -148,7 +148,7 @@ export const simulations: Simulation[] = [
     title: "Solar System",
     description: "Interactive simulation of Solar System",
     subject: "Astronomy",
-    url: "/simulations/solar-system-3d.html",
+    url: "/simulations/solar_system_3d.html",
     type: "html",
     created_at: "2026-06-20T19:54:00.000Z",
   },
