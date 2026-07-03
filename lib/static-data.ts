@@ -200,4 +200,12 @@ export const simulations: Simulation[] = [
     type: "html",
     created_at: "2026-06-20T19:54:00.000Z",
   },
+  {id: "sim-15",
+    title: "Modern Periodic Table",
+    description: "Interactive simulation of the modern periodic table",
+    subject: "Chemistry",
+    url: "/simulations/modern_periodic_table.html",
+    type: "html",
+    created_at: "2026-06-20T19:54:00.000Z",
+  },
 ]
