@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en" class="light-mode">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Periodic Table | आधुनिक पिरियोडिक तालिका</title>
+    <title>Developed by Basanta</title>
+    <style>
+        :root {
+            /* Light Theme */
+            --bg-color: #f0f4f8;
+            --text-main: #1a202c;
+            --text-muted: #4a5568;
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --card-border: rgba(255, 255, 255, 0.4);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            --panel-bg: rgba(255, 255, 255, 0.95);
+            --primary: #3182ce;
+            --primary-hover: #2b6cb0;
+            --trend-arrow: rgba(0,0,0,0.6);
+            
+            /* Category Colors */
+            --cat-alkali: #ff9a9e;
+            --cat-alkaline: #fecfef;
+            --cat-transition: #a1c4fd;
+            --cat-post-transition: #84fab0;
+            --cat-metalloid: #cfd9df;
+            --cat-reactive-nonmetal: #f6d365;
+            --cat-halogen: #ffecd2;
+            --cat-noble-gas: #e0c3fc;
+            --cat-lanthanide: #ffc3a0;
+            --cat-actinide: #ffafbd;
+            --cat-unknown: #e2e8f0;
+        }
+
+        .dark-mode {
+            --bg-color: #0f172a;
+            --text-main: #f8fafc;
+            --text-muted: #cbd5e1;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            --panel-bg: rgba(15, 23, 42, 0.95);
+            --primary: #3b82f6;
+            --primary-hover: #60a5fa;
+            --trend-arrow: rgba(255,255,255,0.6);
+
+            --cat-alkali: #991b1b;
+            --cat-alkaline: #9d174d;
+            --cat-transition: #1e3a8a;
+            --cat-post-transition: #065f46;
+            --cat-metalloid: #475569;
+            --cat-reactive-nonmetal: #854d0e;
+            --cat-halogen: #7c2d12;
+            --cat-noble-gas: #5b21b6;
+            --cat-lanthanide: #9f1239;
+            --cat-actinide: #be123c;
+            --cat-unknown: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            background-image: radial-gradient(circle at 15% 50%, rgba(73, 147, 250, 0.1), transparent 25%),
+                              radial-gradient(circle at 85% 30%, rgba(250, 73, 147, 0.1), transparent 25%);
+        }
+
+        /* Views */
+        .view { display: none; padding: 20px; flex: 1; flex-direction: column; }
+        .view.active { display: flex; animation: fadeIn 0.4s ease-out; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--card-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-brand { font-size: 1.5rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .nav-controls { display: flex; gap: 15px; }
+
+        button {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            box-shadow: var(--glass-shadow);
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+        button:hover { background: var(--primary); color: white; transform: translateY(-2px); }
+        button.active-btn { background: var(--primary); color: white; }
+
+        #home-view { justify-content: center; align-items: center; text-align: center; gap: 40px; }
+        .home-title { font-size: 4rem; font-weight: 800; background: linear-gradient(45deg, var(--primary), #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .home-subtitle { font-size: 1.5rem; color: var(--text-muted); }
+        .home-actions { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+        .home-actions button { padding: 15px 30px; font-size: 1.2rem; border-radius: 30px; }
+
+        .table-container {
+            overflow-x: auto;
+            padding-bottom: 20px;
+            position: relative;
+        }
+        
+        .periodic-table {
+            display: grid;
+            grid-template-columns: repeat(18, minmax(60px, 1fr));
+            gap: 4px;
+            width: max-content;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .element {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 5px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            aspect-ratio: 1;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+        }
+
+        .element:hover {
+            transform: scale(1.4);
+            z-index: 10;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .element.dimmed { opacity: 0.15; filter: grayscale(100%); pointer-events: none; }
+
+        .el-num { font-size: 0.7rem; font-weight: bold; align-self: flex-start; }
+        .el-sym { font-size: 1.5rem; font-weight: 800; text-align: center; margin: auto 0; }
+        .el-name { font-size: 0.6rem; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .el-mass { font-size: 0.55rem; text-align: center; color: var(--text-muted); }
+
+        .tooltip {
+            position: fixed;
+            background: var(--panel-bg);
+            border: 1px solid var(--card-border);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: var(--glass-shadow);
+            backdrop-filter: blur(15px);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 1000;
+            font-size: 0.85rem;
+            min-width: 200px;
+        }
+
+        .info-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: var(--panel-bg);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid var(--card-border);
+            box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 200;
+            overflow-y: auto;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .info-panel.open { right: 0; }
+        .close-btn { align-self: flex-end; background: none; border: none; font-size: 1.5rem; box-shadow: none; padding: 0; }
+
+        .panel-header { display: flex; align-items: center; gap: 20px; border-bottom: 1px solid var(--card-border); padding-bottom: 20px; }
+        .panel-sym { font-size: 4rem; font-weight: bold; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; border-radius: 15px; box-shadow: var(--glass-shadow); }
+        .panel-name { font-size: 2rem; font-weight: 800; }
+        
+        .panel-section { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 15px; box-shadow: var(--glass-shadow); }
+        .panel-section h3 { font-size: 1.1rem; margin-bottom: 10px; color: var(--primary); border-bottom: 1px solid var(--card-border); padding-bottom: 5px; }
+        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9rem; }
+        .data-item { display: flex; flex-direction: column; }
+        .data-label { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .data-val { font-weight: 600; }
+
+        .controls-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--card-border);
+        }
+        .search-box { padding: 10px 20px; border-radius: 20px; border: 1px solid var(--card-border); background: var(--bg-color); color: var(--text-main); flex: 1; min-width: 200px; outline: none; }
+        
+        #atom-view { display: none; height: calc(100vh - 70px); }
+        #atom-view.active { display: flex; flex-direction: row; }
+        
+        .atom-list { width: 250px; overflow-y: auto; border-right: 1px solid var(--card-border); padding-right: 15px; }
+        .atom-list-item { padding: 12px; margin-bottom: 8px; border-radius: 10px; cursor: pointer; transition: 0.2s; border: 1px solid transparent; }
+        .atom-list-item:hover, .atom-list-item.selected { background: var(--card-bg); border-color: var(--primary); box-shadow: var(--glass-shadow); }
+        
+        .atom-canvas-container { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; align-items: center; justify-content: center; }
+        canvas { touch-action: none; cursor: grab; }
+        canvas:active { cursor: grabbing; }
+
+        .canvas-controls { position: absolute; bottom: 30px; display: flex; gap: 10px; background: var(--card-bg); padding: 10px 20px; border-radius: 30px; backdrop-filter: blur(10px); border: 1px solid var(--card-border); }
+
+        /* Legend */
+        .legend { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px; padding: 15px; background: var(--card-bg); border-radius: 15px; }
+        .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.8rem; cursor: pointer; padding: 5px 10px; border-radius: 20px; transition: 0.2s; }
+        .legend-item:hover { background: rgba(128,128,128,0.2); }
+        .color-box { width: 15px; height: 15px; border-radius: 4px; }
+
+        /* Trends Overlay */
+        .trend-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; display: none; }
+        .trend-layer.active { display: block; }
+        .trend-arrow { position: absolute; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--bg-color); background: var(--trend-arrow); border-radius: 20px; padding: 5px 15px; transition: 0.5s; backdrop-filter: blur(4px); }
+        .arrow-right { clip-path: polygon(0% 20%, 80% 20%, 80% 0%, 100% 50%, 80% 100%, 80% 80%, 0% 80%); }
+        .arrow-down { clip-path: polygon(20% 0%, 80% 0%, 80% 80%, 100% 80%, 50% 100%, 0% 80%, 20% 80%); }
+
+        @media (max-width: 1200px) {
+            .periodic-table { transform: scale(0.8); transform-origin: top left; }
+        }
+        @media (max-width: 800px) {
+            .periodic-table { transform: scale(0.6); }
+            #atom-view.active { flex-direction: column; }
+            .atom-list { width: 100%; height: 150px; display: flex; overflow-x: auto; overflow-y: hidden; border-right: none; border-bottom: 1px solid var(--card-border); padding: 0 0 15px 0; }
+            .atom-list-item { min-width: 120px; margin-right: 10px; margin-bottom: 0; }
+            .info-panel { width: 100%; right: -100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-brand" onclick="app.switchView('home')">
+            <svg width="30" height="30" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" stroke-width="4"/>
+                <ellipse cx="50" cy="50" rx="40" ry="12" fill="none" stroke="currentColor" stroke-width="3" transform="rotate(60 50 50)"/>
+                <ellipse cx="50" cy="50" rx="40" ry="12" fill="none" stroke="currentColor" stroke-width="3" transform="rotate(120 50 50)"/>
+                <circle cx="50" cy="50" r="8" fill="var(--primary)"/>
+            </svg>
+            <span data-i18n="appTitle">Periodic Table</span>
+        </div>
+        <div class="nav-controls">
+            <button onclick="app.switchView('table')" data-i18n="exploreBtn">Explore</button>
+            <button onclick="app.switchView('atom')" data-i18n="atomBtn">Atomic Models</button>
+            <button onclick="app.toggleLanguage()" id="lang-btn">NE</button>
+            <button onclick="app.toggleTheme()">
+                <svg id="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            </button>
+        </div>
+    </nav>
+
+    <div id="home-view" class="view active">
+        <h1 class="home-title" data-i18n="homeTitle">Modern Periodic Table</h1>
+        <h2 class="home-subtitle" data-i18n="homeSubtitle">Developed By Basanta Bhattarai</h2>
+        <div class="home-actions">
+            <button onclick="app.switchView('table')" style="background: var(--primary); color: white;" data-i18n="exploreTable">Explore Periodic Table</button>
+            <button onclick="app.switchView('atom')" data-i18n="exploreAtoms">Atomic Structure (1-20)</button>
+        </div>
+    </div>
+
+    <div id="table-view" class="view">
+        <div class="controls-bar">
+            <input type="text" id="search-input" class="search-box" placeholder="Search element..." data-i18n-ph="searchPh">
+            <select id="filter-select" onchange="app.filterTable(this.value)" style="padding: 10px; border-radius: 20px; background: var(--bg-color); color: var(--text-main); border: 1px solid var(--card-border);">
+                <option value="all" data-i18n="fAll">All Elements</option>
+                <option value="metal" data-i18n="fMetal">Metals</option>
+                <option value="nonmetal" data-i18n="fNonMetal">Non-metals</option>
+                <option value="metalloid" data-i18n="fMetalloid">Metalloids</option>
+                <option value="synthetic" data-i18n="fSynthetic">Synthetic</option>
+                <option value="radioactive" data-i18n="fRadioactive">Radioactive</option>
+            </select>
+            <select id="trend-select" onchange="app.showTrend(this.value)" style="padding: 10px; border-radius: 20px; background: var(--bg-color); color: var(--text-main); border: 1px solid var(--card-border);">
+                <option value="none" data-i18n="tNone">Periodic Trends: Off</option>
+                <option value="radius" data-i18n="tRadius">Atomic Radius</option>
+                <option value="ionization" data-i18n="tIonization">Ionization Energy</option>
+                <option value="electronegativity" data-i18n="tElectronegativity">Electronegativity</option>
+            </select>
+        </div>
+
+        <div class="table-container">
+            <div id="trend-layer" class="trend-layer">
+                <!-- Trend arrows injected via JS -->
+            </div>
+            <div id="periodic-table" class="periodic-table">
+                <!-- Elements injected via JS -->
+            </div>
+        </div>
+
+        <div id="legend" class="legend">
+            <!-- Legend injected via JS -->
+        </div>
+    </div>
+
+    <div id="atom-view" class="view">
+        <div class="atom-list" id="atom-list">
+            <!-- First 20 elements list injected via JS -->
+        </div>
+        <div class="atom-canvas-container">
+            <canvas id="atom-canvas"></canvas>
+            <div class="canvas-controls">
+                <button onclick="atomEngine.togglePlay()" id="btn-play">Pause</button>
+                <button onclick="atomEngine.reset()">Reset</button>
+                <button onclick="atomEngine.changeSpeed(0.5)">Slower</button>
+                <button onclick="atomEngine.changeSpeed(2.0)">Faster</button>
+                <button onclick="atomEngine.toggleLabels()">Toggle Labels</button>
+            </div>
+            <div style="position: absolute; top: 20px; left: 20px; background: var(--card-bg); padding: 15px; border-radius: 12px; backdrop-filter: blur(5px);">
+                <h3 id="atom-title" style="margin-bottom: 5px;">Hydrogen</h3>
+                <div id="atom-config" style="font-family: monospace; color: var(--primary);">1s1</div>
+                <div id="atom-shells" style="font-size: 0.8rem; margin-top: 5px; color: var(--text-muted);">Shells: 1</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tooltip" class="tooltip"></div>
+
+    <div id="info-panel" class="info-panel">
+        <button class="close-btn" onclick="app.closePanel()">&times;</button>
+        <div class="panel-header">
+            <div id="panel-sym" class="panel-sym" style="background: var(--cat-alkali);">H</div>
+            <div>
+                <h2 id="panel-name" class="panel-name">Hydrogen</h2>
+                <div style="color: var(--text-muted); font-size: 1.1rem;">
+                    <span data-i18n="atomicNum">Atomic Number</span>: <span id="panel-num">1</span>
+                </div>
+            </div>
+        </div>
+        <div class="panel-section">
+            <h3 data-i18n="props">Properties</h3>
+            <div class="data-grid">
+                <div class="data-item"><span class="data-label" data-i18n="mass">Atomic Mass</span><span class="data-val" id="panel-mass"></span></div>
+                <div class="data-item"><span class="data-label" data-i18n="category">Category</span><span class="data-val" id="panel-cat"></span></div>
+                <div class="data-item"><span class="data-label" data-i18n="state">State (RT)</span><span class="data-val" id="panel-state"></span></div>
+                <div class="data-item"><span class="data-label" data-i18n="config">Electron Config</span><span class="data-val" id="panel-config" style="font-family: monospace;"></span></div>
+                <div class="data-item"><span class="data-label" data-i18n="group">Group</span><span class="data-val" id="panel-group"></span></div>
+                <div class="data-item"><span class="data-label" data-i18n="period">Period</span><span class="data-val" id="panel-period"></span></div>
+                <div class="data-item"><span class="data-label" data-i18n="block">Block</span><span class="data-val" id="panel-block"></span></div>
+                <div class="data-item"><span class="data-label" data-i18n="valence">Valence Electrons</span><span class="data-val" id="panel-val"></span></div>
+                <div class="data-item"><span class="data-label" data-i18n="radius">Atomic Radius (pm)</span><span class="data-val" id="panel-rad"></span></div>
+                <div class="data-item"><span class="data-label" data-i18n="electroneg">Electronegativity</span><span class="data-val" id="panel-eneg"></span></div>
+                <div class="data-item"><span class="data-label" data-i18n="melt">Melting Point (°C)</span><span class="data-val" id="panel-melt"></span></div>
+                <div class="data-item"><span class="data-label" data-i18n="boil">Boiling Point (°C)</span><span class="data-val" id="panel-boil"></span></div>
+            </div>
+        </div>
+        <div class="panel-section">
+            <h3 data-i18n="discovery">Discovery & Uses</h3>
+            <p style="font-size: 0.9rem; margin-bottom: 10px;"><strong><span data-i18n="discYear">Discovered</span>:</strong> <span id="panel-disc"></span></p>
+            <p style="font-size: 0.9rem; margin-bottom: 10px;"><strong><span data-i18n="uses">Uses</span>:</strong> <span id="panel-uses"></span></p>
+            <p style="font-size: 0.9rem;"><strong><span data-i18n="fact">Fact</span>:</strong> <span id="panel-fact"></span></p>
+        </div>
+    </div>
+
+    <script>
+        // Data format: Z|Sym|NameEN|NameNE|Mass|Grp|Per|Blk|Cat|Config|Shells|Val|State|Rad|Dens|Melt|Boil|ENeg|Ox|Disc|UsesEN|UsesNE|FactEN|FactNE
+        const rawData = [
+"1|H|Hydrogen|हाइड्रोजन|1.008|1|1|s|reactive-nonmetal|1s1|1|1|Gas|53|0.0000898|-259|-252|2.20|+1,-1|1766|Balloons, Fuel, Water|बेलुन, इन्धन, पानी|Most abundant element|सबैभन्दा प्रचुर तत्व",
+"2|He|Helium|हिलियम|4.0026|18|1|s|noble-gas|1s2|2|0|Gas|31|0.000178|-272|-268|-|0|1868|Balloons, Cooling|बेलुन, चिस्यान|Second lightest element|दोस्रो हल्का तत्व",
+"3|Li|Lithium|लिथियम|6.94|1|2|s|alkali|1s2 2s1|2,1|1|Solid|167|0.534|180|1342|0.98|+1|1817|Batteries, Ceramics|ब्याट्री, सेरामिक्स|Lightest metal|सबैभन्दा हल्का धातु",
+"4|Be|Beryllium|बेरिलियम|9.0122|2|2|s|alkaline|1s2 2s2|2,2|2|Solid|112|1.85|1287|2469|1.57|+2|1798|Aerospace, X-ray windows|एयरोस्पेस, एक्स-रे विन्डो|Highly toxic dust|अत्यधिक विषाक्त धुलो",
+"5|B|Boron|बोरोन|10.81|13|2|p|metalloid|1s2 2s2 2p1|2,3|3|Solid|87|2.34|2076|3927|2.04|+3|1808|Glass, Detergents|गिलास, डिटर्जेन्ट|Hard and brittle|कडा र भंगुर",
+"6|C|Carbon|कार्बन|12.011|14|2|p|reactive-nonmetal|[He] 2s2 2p2|2,4|4|Solid|67|2.26|3500|4827|2.55|+4,-4|Ancient|Steel, Plastics, Life|स्टिल, प्लास्टिक, जीवन|Basis of all known life|सबै ज्ञात जीवनको आधार",
+"7|N|Nitrogen|नाइट्रोजन|14.007|15|2|p|reactive-nonmetal|[He] 2s2 2p3|2,5|5|Gas|56|0.00125|-210|-195|3.04|+5,-3|1772|Fertilizers, Ammonia|मल, अमोनिया|78% of Earth's atmosphere|पृथ्वीको वायुमण्डलको ७८%",
+"8|O|Oxygen|अक्सिजन|15.999|16|2|p|reactive-nonmetal|[He] 2s2 2p4|2,6|6|Gas|48|0.00143|-218|-183|3.44|-2|1774|Breathing, Steelmaking|सास फेर्न, स्टिल निर्माण|Essential for respiration|स्वासप्रश्वासको लागि आवश्यक",
+"9|F|Fluorine|फ्लोरिन|18.998|17|2|p|halogen|[He] 2s2 2p5|2,7|7|Gas|42|0.0017|-219|-188|3.98|-1|1886|Toothpaste, Teflon|टुथपेस्ट, टेफ्लोन|Most electronegative element|सबैभन्दा इलेक्ट्रोनेगेटिभ",
+"10|Ne|Neon|नियोन|20.180|18|2|p|noble-gas|[He] 2s2 2p6|2,8|0|Gas|38|0.0009|-248|-246|-|0|1898|Lighting, Lasers|प्रकाश, लेजर|Glows reddish-orange|रातो-सुन्तला चम्किन्छ",
+"11|Na|Sodium|सोडियम|22.990|1|3|s|alkali|[Ne] 3s1|2,8,1|1|Solid|190|0.968|97|883|0.93|+1|1807|Salt, Street lamps|नुन, सडक बत्ती|Explodes in water|पानीमा विस्फोट हुन्छ",
+"12|Mg|Magnesium|म्याग्नेसियम|24.305|2|3|s|alkaline|[Ne] 3s2|2,8,2|2|Solid|145|1.738|650|1090|1.31|+2|1755|Alloys, Flares|मिश्र धातु, फ्लेयर|Burns with bright white light|उज्यालो सेतो प्रकाशसँग बल्छ",
+"13|Al|Aluminium|एल्युमिनियम|26.982|13|3|p|post-transition|[Ne] 3s2 3p1|2,8,3|3|Solid|118|2.70|660|2467|1.61|+3|1825|Cans, Aircraft|क्यान, विमान|Most abundant metal in crust|क्रस्टमा प्रचुर धातु",
+"14|Si|Silicon|सिलिकन|28.085|14|3|p|metalloid|[Ne] 3s2 3p2|2,8,4|4|Solid|111|2.32|1414|3265|1.90|+4,-4|1824|Microchips, Glass|माइक्रोचिप, गिलास|Basis of modern electronics|आधुनिक इलेक्ट्रोनिक्सको आधार",
+"15|P|Phosphorus|फस्फोरस|30.974|15|3|p|reactive-nonmetal|[Ne] 3s2 3p3|2,8,5|5|Solid|98|1.82|44|280|2.19|+5,-3|1669|Matches, Fertilizers|सलाई, मल|Glows in the dark|अध्याँरोमा चम्किन्छ",
+"16|S|Sulfur|सल्फर|32.06|16|3|p|reactive-nonmetal|[Ne] 3s2 3p4|2,8,6|6|Solid|88|2.07|115|444|2.58|-2,+4,+6|Ancient|Gunpowder, Acids|बारूद, एसिड|Smells like rotten eggs|कुहिएको अण्डा जस्तो गन्ध",
+"17|Cl|Chlorine|क्लोरीन|35.45|17|3|p|halogen|[Ne] 3s2 3p5|2,8,7|7|Gas|79|0.0032|-101|-34|3.16|-1|1774|Water purification, PVC|पानी शुद्धीकरण, पीभीसी|Poisonous green gas|विषाक्त हरियो ग्यास",
+"18|Ar|Argon|आर्गन|39.95|18|3|p|noble-gas|[Ne] 3s2 3p6|2,8,8|0|Gas|71|0.00178|-189|-185|-|0|1894|Light bulbs, Welding|चिम, वेल्डिङ|Inert shielding gas|निष्क्रिय ग्यास",
+"19|K|Potassium|पोटासियम|39.098|1|4|s|alkali|[Ar] 4s1|2,8,8,1|1|Solid|243|0.862|63|759|0.82|+1|1807|Fertilizer, Soap|मल, साबुन|Essential for nerve function|स्नायु कार्यको लागि आवश्यक",
+"20|Ca|Calcium|क्याल्सियम|40.078|2|4|s|alkaline|[Ar] 4s2|2,8,8,2|2|Solid|194|1.54|842|1484|1.00|+2|1808|Bones, Cement|हड्डी, सिमेन्ट|Vital for living organisms|जीवहरूको लागि महत्त्वपूर्ण",
+"21|Sc|Scandium|स्क्यान्डियम|44.955|3|4|d|transition|[Ar] 3d1 4s2|2,8,9,2|3|Solid|184|2.98|1541|2836|1.36|+3|1879|Bicycles, Aerospace|साइकल, एयरोस्पेस|Strengthens aluminum|एल्युमिनियम बलियो बनाउँछ",
+"22|Ti|Titanium|टाइटेनियम|47.867|4|4|d|transition|[Ar] 3d2 4s2|2,8,10,2|4|Solid|176|4.50|1668|3287|1.54|+4|1791|Joint replacements, Jets|जोर्नी प्रतिस्थापन, जेट|Strong as steel, 45% lighter|स्टिल जस्तै बलियो, 45% हल्का",
+"23|V|Vanadium|भेनडियम|50.941|5|4|d|transition|[Ar] 3d3 4s2|2,8,11,2|5|Solid|171|6.11|1910|3407|1.63|+5|1801|Tools, Axles|उपकरण, एक्सल|Makes steel shock-resistant|स्टिललाई झटका-प्रतिरोधी बनाउँछ",
+"24|Cr|Chromium|क्रोमियम|51.996|6|4|d|transition|[Ar] 3d5 4s1|2,8,13,1|6|Solid|166|7.15|1907|2671|1.66|+3,+6|1797|Stainless steel, Plating|खिया नलाग्ने स्टिल, लेपन|Gives rubies their red color|रुबीलाई रातो रङ दिन्छ",
+"25|Mn|Manganese|म्याङ्गनीज|54.938|7|4|d|transition|[Ar] 3d5 4s2|2,8,13,2|7|Solid|161|7.44|1246|2061|1.55|+2,+4,+7|1774|Batteries, Rails|ब्याट्री, रेलमार्ग|Toughens steel|स्टिललाई कडा बनाउँछ",
+"26|Fe|Iron|फलाम|55.845|8|4|d|transition|[Ar] 3d6 4s2|2,8,14,2|8|Solid|156|7.87|1538|2861|1.83|+2,+3|Ancient|Construction, Vehicles|निर्माण, सवारी साधन|Earth's most abundant element by mass|पिण्डको आधारमा सबैभन्दा प्रचुर",
+"27|Co|Cobalt|कोबाल्ट|58.933|9|4|d|transition|[Ar] 3d7 4s2|2,8,15,2|9|Solid|152|8.86|1495|2927|1.88|+2,+3|1735|Magnets, Blue glass|चुम्बक, नीलो गिलास|Part of Vitamin B12|भिटामिन B12 को भाग",
+"28|Ni|Nickel|निकल|58.693|10|4|d|transition|[Ar] 3d8 4s2|2,8,16,2|10|Solid|149|8.90|1455|2913|1.91|+2|1751|Coins, Batteries|सिक्का, ब्याट्री|Resists corrosion well|खिया प्रतिरोधी",
+"29|Cu|Copper|तामा|63.546|11|4|d|transition|[Ar] 3d10 4s1|2,8,18,1|11|Solid|145|8.96|1084|2562|1.90|+2|Ancient|Wires, Pipes|तार, पाइप|Excellent electrical conductor|उत्कृष्ट विद्युतीय सुचालक",
+"30|Zn|Zinc|जिंक|65.38|12|4|d|transition|[Ar] 3d10 4s2|2,8,18,2|12|Solid|142|7.13|419|907|1.65|+2|Ancient|Galvanizing, Brass|ग्याल्भनाइजिङ, पीतल|Prevents rusting|खिया लाग्नबाट रोक्छ",
+"31|Ga|Gallium|ग्यालियम|69.723|13|4|p|post-transition|[Ar] 3d10 4s2 4p1|2,8,18,3|3|Solid|136|5.91|29|2204|1.81|+3|1875|LEDs, Semiconductors|एलईडी, सेमीकन्डक्टर|Melts in your hand|हातमा पग्लिन्छ",
+"32|Ge|Germanium|जर्मेनियम|72.630|14|4|p|metalloid|[Ar] 3d10 4s2 4p2|2,8,18,4|4|Solid|125|5.32|938|2833|2.01|+4|1886|Fiber optics, Electronics|फाइबर अप्टिक्स, इलेक्ट्रोनिक्स|Used in early transistors|सुरुवाती ट्रान्जिस्टरहरूमा प्रयोग",
+"33|As|Arsenic|आर्सेनिक|74.921|15|4|p|metalloid|[Ar] 3d10 4s2 4p3|2,8,18,5|5|Solid|114|5.77|817|614|2.18|+3,-3|Ancient|Poisons, Semiconductors|विष, सेमीकन्डक्टर|Historically notorious poison|ऐतिहासिक रूपमा कुख्यात विष",
+"34|Se|Selenium|सेलेनियम|78.971|16|4|p|reactive-nonmetal|[Ar] 3d10 4s2 4p4|2,8,18,6|6|Solid|103|4.80|221|685|2.55|+4,-2|1817|Photocopying, Glass|फोटोकपी, गिलास|Conducts electricity in light|प्रकाशमा बिजुली प्रवाह गर्छ",
+"35|Br|Bromine|ब्रोमिन|79.904|17|4|p|halogen|[Ar] 3d10 4s2 4p5|2,8,18,7|7|Liquid|94|3.12|-7|58|2.96|-1|1826|Flame retardants, Sedatives|आगो प्रतिरोधी, शामक|Only non-metal liquid at RT|RT मा एकमात्र तरल गैर-धातु",
+"36|Kr|Krypton|क्रिप्टोन|83.798|18|4|p|noble-gas|[Ar] 3d10 4s2 4p6|2,8,18,8|0|Gas|88|0.0037|-157|-153|-|0|1898|Lasers, Fluorescent lights|लेजर, फ्लोरोसेन्ट बत्ती|Used in high-speed photography|उच्च गतिको फोटोग्राफीमा प्रयोग",
+"37|Rb|Rubidium|रुबिडियम|85.467|1|5|s|alkali|[Kr] 5s1|2,8,18,8,1|1|Solid|265|1.53|39|688|0.82|+1|1861|Atomic clocks, Fireworks|परमाणु घडी, आतिशबाजी|Ignites spontaneously in air|हावामा स्वतः जल्दछ",
+"38|Sr|Strontium|स्ट्रोन्सियम|87.62|2|5|s|alkaline|[Kr] 5s2|2,8,18,8,2|2|Solid|219|2.64|777|1382|0.95|+2|1790|Red fireworks, Glow paints|रातो आतिशबाजी, चमक पेन्ट|Burns with intense red flame|तीव्र रातो ज्वालासँग बल्छ",
+"39|Y|Yttrium|इट्रियम|88.905|3|5|d|transition|[Kr] 4d1 5s2|2,8,18,9,2|3|Solid|212|4.47|1522|3338|1.22|+3|1794|LEDs, Superconductors|एलईडी, सुपरकन्डक्टर|Named after a Swedish village|स्वीडिश गाउँको नामबाट",
+"40|Zr|Zirconium|जिरकोनियम|91.224|4|5|d|transition|[Kr] 4d2 5s2|2,8,18,10,2|4|Solid|206|6.52|1855|4409|1.33|+4|1789|Nuclear reactors, Gems|आणविक रिएक्टर, रत्न|Fake diamond material|नक्कली हीरा सामग्री",
+"41|Nb|Niobium|नियोबियम|92.906|5|5|d|transition|[Kr] 4d4 5s1|2,8,18,12,1|5|Solid|198|8.57|2477|4744|1.6| +5|1801|Pipelines, Jet engines|पाइपलाइन, जेट इन्जिन|Superconductor in MRI|MRI मा सुपरकन्डक्टर",
+"42|Mo|Molybdenum|मोलिब्डेनम|95.95|6|5|d|transition|[Kr] 4d5 5s1|2,8,18,13,1|6|Solid|190|10.2|2623|4639|2.16|+6|1778|Alloys, Enzymes|मिश्र धातु, इन्जाइम|Essential trace element|अत्यावश्यक सूक्ष्म तत्व",
+"43|Tc|Technetium|टेक्नेसियम|98|7|5|d|transition|[Kr] 4d5 5s2|2,8,18,13,2|7|Solid|183|11|2157|4265|1.9|+7|1937|Medical imaging|मेडिकल इमेजिङ|First artificially produced|पहिलो कृत्रिम तत्व",
+"44|Ru|Ruthenium|रुथेनियम|101.07|8|5|d|transition|[Kr] 4d7 5s1|2,8,18,15,1|8|Solid|178|12.1|2334|4150|2.2|+3,+4|1844|Electrical contacts|विद्युतीय सम्पर्कहरू|Does not tarnish at room temp|RT मा दाग लाग्दैन",
+"45|Rh|Rhodium|रोडियम|102.90|9|5|d|transition|[Kr] 4d8 5s1|2,8,18,16,1|9|Solid|173|12.4|1964|3695|2.28|+3|1803|Catalytic converters|उत्प्रेरक कन्भर्टर|One of the rarest elements|सबैभन्दा दुर्लभ तत्वमध्ये एक",
+"46|Pd|Palladium|प्यालेडियम|106.42|10|5|d|transition|[Kr] 4d10|2,8,18,18|10|Solid|169|12.0|1554|2963|2.20|+2,+4|1803|Catalytic converters, Jewelry|उत्प्रेरक कन्भर्टर, गहना|Absorbs 900x its volume in H2|आफ्नो आयतनको ९०० गुणा H2 सोस्छ",
+"47|Ag|Silver|चाँदी|107.86|11|5|d|transition|[Kr] 4d10 5s1|2,8,18,18,1|11|Solid|165|10.5|961|2162|1.93|+1|Ancient|Jewelry, Mirrors|गहना, ऐना|Highest electrical conductivity|उच्च विद्युतीय सुचालकता",
+"48|Cd|Cadmium|क्याडमियम|112.41|12|5|d|transition|[Kr] 4d10 5s2|2,8,18,18,2|12|Solid|161|8.69|321|767|1.69|+2|1817|Batteries, Pigments|ब्याट्री, पिग्मेन्ट|Highly toxic|अत्यधिक विषाक्त",
+"49|In|Indium|इन्डियम|114.81|13|5|p|post-transition|[Kr] 4d10 5s2 5p1|2,8,18,18,3|3|Solid|156|7.31|156|2072|1.78|+3|1863|Touchscreens, Solder|टचस्क्रिन, सोल्डर|Cries when bent|बङ्ग्याउँदा रुन्छ (आवाज आउँछ)",
+"50|Sn|Tin|टिन|118.71|14|5|p|post-transition|[Kr] 4d10 5s2 5p2|2,8,18,18,4|4|Solid|145|7.28|231|2602|1.96|+4,+2|Ancient|Cans, Bronze|क्यान, कांस्य|Does not rust|खिया लाग्दैन",
+"51|Sb|Antimony|एन्टिमनी|121.76|15|5|p|metalloid|[Kr] 4d10 5s2 5p3|2,8,18,18,5|5|Solid|133|6.68|630|1587|2.05|+3,-3|Ancient|Flame retardants, Batteries|आगो प्रतिरोधी, ब्याट्री|Expands upon freezing|जम्दा विस्तार हुन्छ",
+"52|Te|Tellurium|टेलुरियम|127.60|16|5|p|metalloid|[Kr] 4d10 5s2 5p4|2,8,18,18,6|6|Solid|123|6.23|449|988|2.1|+4,-2|1782|Solar panels, Alloys|सौर्य प्यानल, मिश्र धातु|Smells like garlic|लसुन जस्तो गन्ध आउँछ",
+"53|I|Iodine|आयोडिन|126.90|17|5|p|halogen|[Kr] 4d10 5s2 5p5|2,8,18,18,7|7|Solid|115|4.93|113|184|2.66|-1,+5|1811|Disinfectants, Nutrition|कीटाणुनाशक, पोषण|Sublimes to purple gas|बैजनी ग्यासमा परिणत हुन्छ",
+"54|Xe|Xenon|जेनन|131.29|18|5|p|noble-gas|[Kr] 4d10 5s2 5p6|2,8,18,18,8|0|Gas|108|0.0058|-111|-108|2.6|0|1898|Flash lamps, Ion thrusters|फ्ल्यास बत्ती, आयन थ्रस्टर|Forms true compounds|सच्चा यौगिकहरू बनाउँछ",
+"55|Cs|Cesium|सिजियम|132.90|1|6|s|alkali|[Xe] 6s1|2,8,18,18,8,1|1|Solid|298|1.93|28|671|0.79|+1|1860|Atomic clocks|परमाणु घडी|Defines the second|एक सेकेन्ड परिभाषित गर्दछ",
+"56|Ba|Barium|बेरियम|137.32|2|6|s|alkaline|[Xe] 6s2|2,8,18,18,8,2|2|Solid|253|3.51|727|1897|0.89|+2|1808|X-ray imaging, Spark plugs|एक्स-रे, स्पार्क प्लग|Poisonous but used in medical GI|विषाक्त तर चिकित्सामा प्रयोग",
+"57|La|Lanthanum|ल्यान्थानम|138.90|3|6|f|lanthanide|[Xe] 5d1 6s2|2,8,18,18,9,2|3|Solid|195|6.14|919|3464|1.1|+3|1839|Camera lenses, Batteries|क्यामेरा लेन्स, ब्याट्री|Starts the Lanthanide series|ल्यान्थानाइड श्रृंखला सुरु गर्छ",
+"58|Ce|Cerium|सेरियम|140.11|3|6|f|lanthanide|[Xe] 4f1 5d1 6s2|2,8,18,19,9,2|3|Solid|185|6.77|795|3443|1.12|+3,+4|1803|Lighter flints, Polishing|लाइटर फ्लिन्ट, पालिसिङ|Most abundant rare earth|प्रचुर मात्रामा दुर्लभ पृथ्वी तत्व",
+"59|Pr|Praseodymium|प्रासियोडिमियम|140.90|3|6|f|lanthanide|[Xe] 4f3 6s2|2,8,18,21,8,2|3|Solid|247|6.77|931|3520|1.13|+3|1885|Magnets, Lasers|चुम्बक, लेजर|Gives glass yellow color|गिलासलाई पहेँलो रङ दिन्छ",
+"60|Nd|Neodymium|नियोडिमियम|144.24|3|6|f|lanthanide|[Xe] 4f4 6s2|2,8,18,22,8,2|3|Solid|206|7.01|1024|3074|1.14|+3|1885|Strong magnets, Headphones|बलियो चुम्बक, हेडफोन|Makes the strongest permanent magnets|सबैभन्दा बलियो चुम्बक बनाउँछ",
+"61|Pm|Promethium|प्रोमेथियम|145|3|6|f|lanthanide|[Xe] 4f5 6s2|2,8,18,23,8,2|3|Solid|205|7.26|1042|3000|1.13|+3|1945|Luminous paint|चमकदार पेन्ट|Radioactive rare earth|रेडियोधर्मी",
+"62|Sm|Samarium|सामाेरियम|150.36|3|6|f|lanthanide|[Xe] 4f6 6s2|2,8,18,24,8,2|3|Solid|238|7.52|1072|1794|1.17|+3|1879|Magnets, Cancer treatment|चुम्बक, क्यान्सर उपचार|Used in special guitar pickups|गिटार पिकअपमा प्रयोग",
+"63|Eu|Europium|युरोपियम|151.96|3|6|f|lanthanide|[Xe] 4f7 6s2|2,8,18,25,8,2|3|Solid|231|5.24|822|1529|1.2|+2,+3|1901|TV screens, LEDs|टिभी स्क्रिन, एलईडी|Makes red phosphors|रातो फस्फर बनाउँछ",
+"64|Gd|Gadolinium|ग्याडोलिनियम|157.25|3|6|f|lanthanide|[Xe] 4f7 5d1 6s2|2,8,18,25,9,2|3|Solid|233|7.90|1313|3273|1.2|+3|1880|MRI contrast, Data storage|MRI कन्ट्रास्ट, डाटा भण्डारण|Highly magnetic below RT|RT तल अत्यधिक चुम्बकीय",
+"65|Tb|Terbium|टर्बियम|158.92|3|6|f|lanthanide|[Xe] 4f9 6s2|2,8,18,27,8,2|3|Solid|225|8.23|1356|3230|1.2|+3|1843|Green phosphors, Sonar|हरियो फस्फर, सोनार|Changes shape in magnetic fields|चुम्बकीय क्षेत्रमा आकार परिवर्तन गर्छ",
+"66|Dy|Dysprosium|डिस्प्रोसियम|162.50|3|6|f|lanthanide|[Xe] 4f10 6s2|2,8,18,28,8,2|3|Solid|228|8.55|1412|2567|1.22|+3|1886|Magnets, Lasers|चुम्बक, लेजर|Highly susceptible to magnetization|चुम्बकीकरणको लागि अति संवेदनशील",
+"67|Ho|Holmium|होल्मियम|164.93|3|6|f|lanthanide|[Xe] 4f11 6s2|2,8,18,29,8,2|3|Solid|226|8.79|1474|2700|1.23|+3|1878|Lasers, Magnets|लेजर, चुम्बक|Highest magnetic strength|उच्च चुम्बकीय शक्ति",
+"68|Er|Erbium|अर्बियम|167.25|3|6|f|lanthanide|[Xe] 4f12 6s2|2,8,18,30,8,2|3|Solid|226|9.06|1529|2868|1.24|+3|1842|Fiber optics, Lasers|फाइबर अप्टिक्स, लेजर|Amplifies signals in optical fibers|अप्टिकल फाइबरमा संकेत बढाउँछ",
+"69|Tm|Thulium|थुलियम|168.93|3|6|f|lanthanide|[Xe] 4f13 6s2|2,8,18,31,8,2|3|Solid|222|9.32|1545|1950|1.25|+3|1879|Portable X-rays|पोर्टेबल एक्स-रे|Rarest stable Lanthanide|दुर्लभ स्थिर ल्यान्थानाइड",
+"70|Yb|Ytterbium|इटर्बियम|173.04|3|6|f|lanthanide|[Xe] 4f14 6s2|2,8,18,32,8,2|3|Solid|222|6.90|824|1196|1.1|+2,+3|1878|Lasers, Steel alloys|लेजर, स्टिल|Electrical resistance increases with stress|तनावसँगै विद्युतीय प्रतिरोध बढ्छ",
+"71|Lu|Lutetium|लुटेटियम|174.96|3|6|d|lanthanide|[Xe] 4f14 5d1 6s2|2,8,18,32,9,2|3|Solid|217|9.84|1663|3402|1.27|+3|1907|PET scanners, Catalysts|पीईटी स्क्यानर, उत्प्रेरक|Hardest and heaviest Lanthanide|सबैभन्दा कडा र भारी",
+"72|Hf|Hafnium|हाफनियम|178.49|4|6|d|transition|[Xe] 4f14 5d2 6s2|2,8,18,32,10,2|4|Solid|208|13.3|2233|4603|1.3|+4|1923|Nuclear reactors, Microchips|आणविक रिएक्टर, माइक्रोचिप|Great neutron absorber|उत्कृष्ट न्यूट्रोन शोषक",
+"73|Ta|Tantalum|ट्यान्टलम|180.94|5|6|d|transition|[Xe] 4f14 5d3 6s2|2,8,18,32,11,2|5|Solid|200|16.6|3017|5458|1.5|+5|1802|Capacitors, Surgical implants|क्यापेसिटर, सर्जिकल प्रत्यारोपण|Highly corrosion resistant|उच्च खिया प्रतिरोधी",
+"74|W|Tungsten|टंगस्टन|183.84|6|6|d|transition|[Xe] 4f14 5d4 6s2|2,8,18,32,12,2|6|Solid|193|19.2|3422|5555|2.36|+6|1783|Light bulbs, Tools|चिम, उपकरण|Highest melting point of metals|धातुहरूको उच्चतम पग्लिने बिन्दु",
+"75|Re|Rhenium|रेनियम|186.20|7|6|d|transition|[Xe] 4f14 5d5 6s2|2,8,18,32,13,2|7|Solid|188|21.0|3186|5596|1.9|+7|1925|Jet engines, Catalysts|जेट इन्जिन, उत्प्रेरक|One of the densest elements|सबैभन्दा घना तत्वहरूमध्ये एक",
+"76|Os|Osmium|अस्मियम|190.23|8|6|d|transition|[Xe] 4f14 5d6 6s2|2,8,18,32,14,2|8|Solid|185|22.5|3033|5012|2.2|+4,+8|1803|Fountain pen nibs|कलमको निब|Densest natural element|सबैभन्दा घना प्राकृतिक तत्व",
+"77|Ir|Iridium|इरिडियम|192.21|9|6|d|transition|[Xe] 4f14 5d7 6s2|2,8,18,32,15,2|9|Solid|180|22.56|2446|4130|2.20|+3,+4|1803|Spark plugs, Compasses|स्पार्क प्लग, कम्पास|Most corrosion-resistant|सबैभन्दा खिया प्रतिरोधी",
+"78|Pt|Platinum|प्लेटिनम|195.08|10|6|d|transition|[Xe] 4f14 5d9 6s1|2,8,18,32,17,1|10|Solid|177|21.4|1768|3825|2.28|+2,+4|1735|Jewelry, Catalytic converters|गहना, उत्प्रेरक कन्भर्टर|Precious non-reactive metal|बहुमूल्य गैर-प्रतिक्रियात्मक धातु",
+"79|Au|Gold|सुन|196.96|11|6|d|transition|[Xe] 4f14 5d10 6s1|2,8,18,32,18,1|11|Solid|174|19.3|1064|2970|2.54|+1,+3|Ancient|Jewelry, Electronics|गहना, इलेक्ट्रोनिक्स|Most malleable metal|सबैभन्दा लचिलो धातु",
+"80|Hg|Mercury|पारो|200.59|12|6|d|transition|[Xe] 4f14 5d10 6s2|2,8,18,32,18,2|12|Liquid|171|13.5|-38|356|2.00|+1,+2|Ancient|Thermometers, Barometers|थर्मोमिटर, ब्यारोमिटर|Only metal liquid at RT|RT मा तरल हुने एकमात्र धातु",
+"81|Tl|Thallium|थ्यालियम|204.38|13|6|p|post-transition|[Xe] 4f14 5d10 6s2 6p1|2,8,18,32,18,3|3|Solid|156|11.8|304|1473|1.62|+1,+3|1861|Rat poison, Electronics|मुसाको विष, इलेक्ट्रोनिक्स|Extremely toxic|अत्यधिक विषाक्त",
+"82|Pb|Lead|सिसा|207.2|14|6|p|post-transition|[Xe] 4f14 5d10 6s2 6p2|2,8,18,32,18,4|4|Solid|154|11.3|327|1749|2.33|+2,+4|Ancient|Batteries, Radiation shielding|ब्याट्री, विकिरण ढाल|Heavy, toxic metal|भारी, विषाक्त धातु",
+"83|Bi|Bismuth|बिस्मथ|208.98|15|6|p|post-transition|[Xe] 4f14 5d10 6s2 6p3|2,8,18,32,18,5|5|Solid|143|9.78|271|1564|2.02|+3|Ancient|Pepto-Bismol, Cosmetics|औषधि, सौन्दर्य प्रसाधन|Diamagnetic, expands on freezing|जम्दा विस्तार हुन्छ",
+"84|Po|Polonium|पोलोनियम|209|16|6|p|metalloid|[Xe] 4f14 5d10 6s2 6p4|2,8,18,32,18,6|6|Solid|135|9.19|254|962|2.0|+4|1898|Anti-static devices|एन्टी-स्टेटिक उपकरण|Discovered by Marie Curie|मारी क्युरीद्वारा पत्ता लगाइएको",
+"85|At|Astatine|एस्टाटिन|210|17|6|p|halogen|[Xe] 4f14 5d10 6s2 6p5|2,8,18,32,18,7|7|Solid|127|7|302|337|2.2|-1|1940|Cancer therapy|क्यान्सर थेरापी|Rarest natural element|सबैभन्दा दुर्लभ प्राकृतिक तत्व",
+"86|Rn|Radon|रेडन|222|18|6|p|noble-gas|[Xe] 4f14 5d10 6s2 6p6|2,8,18,32,18,8|0|Gas|120|0.0097|-71|-61|2.2|0|1899|Radiotherapy|रेडियोथेरापी|Radioactive gas|रेडियोधर्मी ग्यास",
+"87|Fr|Francium|फ्रान्सियम|223|1|7|s|alkali|[Rn] 7s1|2,8,18,32,18,8,1|1|Solid|348|1.87|27|677|0.7|+1|1939|Research|अनुसन्धान|Extremely radioactive|अत्यधिक रेडियोधर्मी",
+"88|Ra|Radium|रेडियम|226|2|7|s|alkaline|[Rn] 7s2|2,8,18,32,18,8,2|2|Solid|283|5.50|700|1737|0.9|+2|1898|Luminous paints (past)|चमकदार पेन्ट (विगत)|Glows pale blue|हल्का नीलो चम्किन्छ",
+"89|Ac|Actinium|एक्टिनियम|227|3|7|f|actinide|[Rn] 6d1 7s2|2,8,18,32,18,9,2|3|Solid|260|10|1050|3198|1.1|+3|1899|Neutron sources|न्यूट्रोन स्रोत|Glows in the dark|अध्याँरोमा चम्किन्छ",
+"90|Th|Thorium|थोरियम|232.03|3|7|f|actinide|[Rn] 6d2 7s2|2,8,18,32,18,10,2|4|Solid|237|11.7|1750|4788|1.3|+4|1829|Nuclear fuel, Gas mantles|आणविक इन्धन, ग्यास म्यान्टल|Future nuclear fuel|भविष्यको आणविक इन्धन",
+"91|Pa|Protactinium|प्रोटाक्टिनियम|231.03|3|7|f|actinide|[Rn] 5f2 6d1 7s2|2,8,18,32,20,9,2|5|Solid|243|15.3|1568|4027|1.5|+5|1913|Research|अनुसन्धान|Highly radioactive|अत्यधिक रेडियोधर्मी",
+"92|U|Uranium|युरेनियम|238.02|3|7|f|actinide|[Rn] 5f3 6d1 7s2|2,8,18,32,21,9,2|6|Solid|230|19.1|1132|4131|1.38|+6|1789|Nuclear power, Weapons|आणविक उर्जा, हतियार|Heaviest natural element|सबैभन्दा भारी प्राकृतिक तत्व",
+"93|Np|Neptunium|नेप्टुनियम|237|3|7|f|actinide|[Rn] 5f4 6d1 7s2|2,8,18,32,22,9,2|7|Solid|200|20.2|644|3902|1.36|+5|1940|Neutron detectors|न्यूट्रोन डिटेक्टर|First transuranic element|पहिलो ट्रान्सयुरेनिक तत्व",
+"94|Pu|Plutonium|प्लुटोनियम|244|3|7|f|actinide|[Rn] 5f6 7s2|2,8,18,32,24,8,2|8|Solid|175|19.8|640|3228|1.28|+4|1940|Nuclear weapons, Power|आणविक हतियार, उर्जा|Used in space probes|अन्तरिक्ष प्रोबहरूमा प्रयोग",
+"95|Am|Americium|अमेरिसियम|243|3|7|f|actinide|[Rn] 5f7 7s2|2,8,18,32,25,8,2|3|Solid|173|13.6|1176|2607|1.13|+3|1944|Smoke detectors|धुवाँ डिटेक्टर|Found in homes worldwide|विश्वभर घरहरूमा पाइन्छ",
+"96|Cm|Curium|क्युरियम|247|3|7|f|actinide|[Rn] 5f7 6d1 7s2|2,8,18,32,25,9,2|3|Solid|169|13.5|1340|3110|1.28|+3|1944|Power for space missions|अन्तरिक्ष मिसनको उर्जा|Named after Marie Curie|मारी क्युरीको नामबाट",
+"97|Bk|Berkelium|बर्केलियम|247|3|7|f|actinide|[Rn] 5f9 7s2|2,8,18,32,27,8,2|3|Solid|168|14.7|986|2627|1.3|+3|1949|Research|अनुसन्धान|Named after UC Berkeley|UC Berkeley को नामबाट",
+"98|Cf|Californium|क्यालिफोर्नियम|251|3|7|f|actinide|[Rn] 5f10 7s2|2,8,18,32,28,8,2|3|Solid|168|15.1|900|1470|1.3|+3|1950|Metal detectors|धातु डिटेक्टर|One of most expensive materials|सबैभन्दा महँगो सामग्री",
+"99|Es|Einsteinium|आइन्स्टाइनियम|252|3|7|f|actinide|[Rn] 5f11 7s2|2,8,18,32,29,8,2|3|Solid|165|8.8|860|-|1.3|+3|1952|Research|अनुसन्धान|Named after Albert Einstein|अल्बर्ट आइन्स्टाइनको नामबाट",
+"100|Fm|Fermium|फर्मियम|257|3|7|f|actinide|[Rn] 5f12 7s2|2,8,18,32,30,8,2|3|Solid|167|-|-|-|1.3|+3|1952|Research|अनुसन्धान|Named after Enrico Fermi|एनरिको फर्मीको नामबाट",
+"101|Md|Mendelevium|मेन्डेलेभियम|258|3|7|f|actinide|[Rn] 5f13 7s2|2,8,18,32,31,8,2|3|Solid|173|10.3|827|-|1.3|+3|1955|Research|अनुसन्धान|Named after Mendeleev|मेन्डेलीभको नामबाट",
+"102|No|Nobelium|नोबेलियम|259|3|7|f|actinide|[Rn] 5f14 7s2|2,8,18,32,32,8,2|3|Solid|176|9.9|827|-|1.3|+2|1966|Research|अनुसन्धान|Named after Alfred Nobel|अल्फ्रेड नोबेलको नामबाट",
+"103|Lr|Lawrencium|लरेन्सियम|266|3|7|d|actinide|[Rn] 5f14 7s2 7p1|2,8,18,32,32,8,3|3|Solid|161|15.6|1627|-|1.3|+3|1961|Research|अनुसन्धान|Named after Ernest Lawrence|अर्नेस्ट लरेन्सको नामबाट",
+"104|Rf|Rutherfordium|रदरफोर्डियम|267|4|7|d|transition|[Rn] 5f14 6d2 7s2|2,8,18,32,32,10,2|4|Solid|157|23.2|2100|5500|-|+4|1969|Research|अनुसन्धान|First superheavy element|पहिलो अति भारी तत्व",
+"105|Db|Dubnium|डब्नियम|268|5|7|d|transition|[Rn] 5f14 6d3 7s2|2,8,18,32,32,11,2|5|Solid|149|29.3|-|-|-|+5|1970|Research|अनुसन्धान|Named after Dubna, Russia|रुसको डब्नाको नामबाट",
+"106|Sg|Seaborgium|सिबोर्जियम|269|6|7|d|transition|[Rn] 5f14 6d4 7s2|2,8,18,32,32,12,2|6|Solid|143|35.0|-|-|-|+6|1974|Research|अनुसन्धान|Named after Glenn Seaborg|ग्लेन सिबोर्गको नामबाट",
+"107|Bh|Bohrium|बोरियम|270|7|7|d|transition|[Rn] 5f14 6d5 7s2|2,8,18,32,32,13,2|7|Solid|141|37.1|-|-|-|+7|1981|Research|अनुसन्धान|Named after Niels Bohr|निल्स बोरको नामबाट",
+"108|Hs|Hassium|ह्यासियम|277|8|7|d|transition|[Rn] 5f14 6d6 7s2|2,8,18,32,32,14,2|8|Solid|134|40.7|-|-|-|+8|1984|Research|अनुसन्धान|Named after Hesse, Germany|जर्मनीको हेस्सेको नामबाट",
+"109|Mt|Meitnerium|माइट्नेरियम|278|9|7|d|transition|[Rn] 5f14 6d7 7s2|2,8,18,32,32,15,2|9|Solid|129|37.4|-|-|-|+9|1982|Research|अनुसन्धान|Named after Lise Meitner|लिज माइट्नरको नामबाट",
+"110|Ds|Darmstadtium|डार्मस्टाटियम|281|10|7|d|transition|[Rn] 5f14 6d8 7s2|2,8,18,32,32,16,2|10|Solid|128|34.8|-|-|-|+8|1994|Research|अनुसन्धान|Named after Darmstadt|डार्मस्टाड्टको नामबाट",
+"111|Rg|Roentgenium|रोन्जेनियम|282|11|7|d|transition|[Rn] 5f14 6d9 7s2|2,8,18,32,32,17,2|11|Solid|121|28.7|-|-|-|+3|1994|Research|अनुसन्धान|Named after W. Röntgen|डब्लु. रोन्टजेनको नामबाट",
+"112|Cn|Copernicium|कोपरनिसियम|285|12|7|d|transition|[Rn] 5f14 6d10 7s2|2,8,18,32,32,18,2|12|Gas|122|23.7|-|-|-|+2|1996|Research|अनुसन्धान|Named after Copernicus|कोपरनिकसको नामबाट",
+"113|Nh|Nihonium|निहोनियम|286|13|7|p|post-transition|[Rn] 5f14 6d10 7s2 7p1|2,8,18,32,32,18,3|3|Solid|136|16|-|-|-|+1|2004|Research|अनुसन्धान|Named after Japan (Nihon)|जापान (निहोन) को नामबाट",
+"114|Fl|Flerovium|फ्लेरोभियम|289|14|7|p|post-transition|[Rn] 5f14 6d10 7s2 7p2|2,8,18,32,32,18,4|4|Solid|143|14|-|-|-|+2|1999|Research|अनुसन्धान|Named after Flerov lab|फ्लेरोभ प्रयोगशालाको नामबाट",
+"115|Mc|Moscovium|मस्कोभियम|290|15|7|p|post-transition|[Rn] 5f14 6d10 7s2 7p3|2,8,18,32,32,18,5|5|Solid|162|13.5|-|-|-|+1|2003|Research|अनुसन्धान|Named after Moscow|मस्कोको नामबाट",
+"116|Lv|Livermorium|लिभरमोरियम|293|16|7|p|post-transition|[Rn] 5f14 6d10 7s2 7p4|2,8,18,32,32,18,6|6|Solid|175|12.9|-|-|-|+2|2000|Research|अनुसन्धान|Named after Livermore lab|लिभरमोर प्रयोगशालाको नामबाट",
+"117|Ts|Tennessine|टेनेसाइन|294|17|7|p|halogen|[Rn] 5f14 6d10 7s2 7p5|2,8,18,32,32,18,7|7|Solid|165|7.1|-|-|-|+1|2010|Research|अनुसन्धान|Named after Tennessee|टेनेसीको नामबाट",
+"118|Og|Oganesson|ओगानेसन|294|18|7|p|noble-gas|[Rn] 5f14 6d10 7s2 7p6|2,8,18,32,32,18,8|0|Gas|157|4.9|-|-|-|+2|2002|Research|अनुसन्धान|Named after Yuri Oganessian|युरी ओगानेसनको नामबाट"
+        ];
+
+        const elements = rawData.map(str => {
+            const p = str.split('|');
+            return {
+                num: parseInt(p[0]), sym: p[1], name: {en: p[2], ne: p[3]}, mass: p[4],
+                group: parseInt(p[5]), period: parseInt(p[6]), block: p[7], category: p[8],
+                config: p[9], shells: p[10].split(',').map(Number), valence: p[11], state: p[12],
+                radius: p[13], density: p[14], melt: p[15], boil: p[16], eneg: p[17], ox: p[18],
+                disc: p[19], uses: {en: p[20], ne: p[21]}, fact: {en: p[22], ne: p[23]}
+            };
+        });
+
+        const dict = {
+            appTitle: {en: "Periodic Table", ne: "पिरियोडिक तालिका"},
+            exploreBtn: {en: "Explore", ne: "अन्वेषण"},
+            atomBtn: {en: "Atomic Models", ne: "परमाणु मोडेल"},
+            homeTitle: {en: "Modern Periodic Table", ne: "आधुनिक पिरियोडिक तालिका"},
+            homeSubtitle: {en: "Developed By Basanta Bhattarai", ne: "बसन्त भट्टराईद्वारा विकसित"},
+            exploreTable: {en: "Explore Periodic Table", ne: "पिरियोडिक तालिका अन्वेषण गर्नुहोस्"},
+            exploreAtoms: {en: "Atomic Structure (1-20)", ne: "परमाणु संरचना (१-२०)"},
+            searchPh: {en: "Search element...", ne: "तत्व खोज्नुहोस्..."},
+            fAll: {en: "All Elements", ne: "सबै तत्वहरू"},
+            fMetal: {en: "Metals", ne: "धातुहरू"},
+            fNonMetal: {en: "Non-metals", ne: "अधातुहरू"},
+            fMetalloid: {en: "Metalloids", ne: "अर्धधातुहरू"},
+            fSynthetic: {en: "Synthetic", ne: "कृत्रिम"},
+            fRadioactive: {en: "Radioactive", ne: "रेडियोधर्मी"},
+            tNone: {en: "Periodic Trends: Off", ne: "आवधिक प्रवृत्ति: बन्द"},
+            tRadius: {en: "Atomic Radius", ne: "परमाणु त्रिज्या"},
+            tIonization: {en: "Ionization Energy", ne: "आयनीकरण ऊर्जा"},
+            tElectronegativity: {en: "Electronegativity", ne: "इलेक्ट्रोनेगेटिभिटी"},
+            props: {en: "Properties", ne: "गुणहरू"},
+            discovery: {en: "Discovery & Uses", ne: "खोज र उपयोग"},
+            atomicNum: {en: "Atomic Number", ne: "परमाणु संख्या"},
+            mass: {en: "Atomic Mass", ne: "परमाणु पिण्ड"},
+            category: {en: "Category", ne: "वर्ग"},
+            state: {en: "State (RT)", ne: "अवस्था"},
+            config: {en: "Electron Config", ne: "इलेक्ट्रोन कन्फिगरेसन"},
+            group: {en: "Group", ne: "समूह"},
+            period: {en: "Period", ne: "अवधि"},
+            block: {en: "Block", ne: "ब्लक"},
+            valence: {en: "Valence Electrons", ne: "भ्यालेन्स इलेक्ट्रोन"},
+            radius: {en: "Atomic Radius (pm)", ne: "परमाणु त्रिज्या (pm)"},
+            electroneg: {en: "Electronegativity", ne: "इलेक्ट्रोनेगेटिभिटी"},
+            melt: {en: "Melting Point (°C)", ne: "पग्लिने बिन्दु (°C)"},
+            boil: {en: "Boiling Point (°C)", ne: "उम्लने बिन्दु (°C)"},
+            discYear: {en: "Discovered", ne: "पत्ता लागेको"},
+            uses: {en: "Uses", ne: "उपयोगहरू"},
+            fact: {en: "Fact", ne: "तथ्य"}
+        };
+
+        const cats = {
+            'alkali': {en: 'Alkali Metal', ne: 'अल्काली धातु'},
+            'alkaline': {en: 'Alkaline Earth Metal', ne: 'अल्कालाइन अर्थ धातु'},
+            'transition': {en: 'Transition Metal', ne: 'संक्रमण धातु'},
+            'post-transition': {en: 'Post-transition Metal', ne: 'उत्तर-संक्रमण धातु'},
+            'metalloid': {en: 'Metalloid', ne: 'अर्धधातु'},
+            'reactive-nonmetal': {en: 'Reactive Nonmetal', ne: 'प्रतिक्रियाशील अधातु'},
+            'halogen': {en: 'Halogen', ne: 'ह्यालोजन'},
+            'noble-gas': {en: 'Noble Gas', ne: 'नोबल ग्यास'},
+            'lanthanide': {en: 'Lanthanide', ne: 'ल्यान्थानाइड'},
+            'actinide': {en: 'Actinide', ne: 'एक्टिनाइड'}
+        };
+
+        const states = {
+            'Solid': {en: 'Solid', ne: 'ठोस'},
+            'Liquid': {en: 'Liquid', ne: 'तरल'},
+            'Gas': {en: 'Gas', ne: 'ग्यास'}
+        };
+
+        const app = {
+            lang: 'en',
+            theme: 'light',
+            
+            init() {
+                this.renderTable();
+                this.renderLegend();
+                this.renderAtomList();
+                this.setupSearch();
+                this.translateUI();
+                atomEngine.initCanvas();
+                
+                // Keyboard acc
+                document.addEventListener('keydown', (e) => {
+                    if(e.key === 'Escape') this.closePanel();
+                });
+                
+                window.addEventListener('resize', () => {
+                    if(document.getElementById('atom-view').classList.contains('active')) {
+                        atomEngine.resize();
+                    }
+                });
+            },
+
+            toggleLanguage() {
+                this.lang = this.lang === 'en' ? 'ne' : 'en';
+                document.getElementById('lang-btn').innerText = this.lang === 'en' ? 'NE' : 'EN';
+                this.translateUI();
+            },
+
+            toggleTheme() {
+                this.theme = this.theme === 'light' ? 'dark' : 'light';
+                document.documentElement.className = this.theme + '-mode';
+            },
+
+            translateUI() {
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    if (dict[key]) el.innerText = dict[key][this.lang];
+                });
+                document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+                    const key = el.getAttribute('data-i18n-ph');
+                    if (dict[key]) el.placeholder = dict[key][this.lang];
+                });
+                
+                // Re-render strings inside JS
+                document.querySelectorAll('.element').forEach(el => {
+                    const id = parseInt(el.dataset.id);
+                    const item = elements[id-1];
+                    el.querySelector('.el-name').innerText = item.name[this.lang];
+                });
+                
+                // Translate Panel if open
+                const panel = document.getElementById('info-panel');
+                if (panel.classList.contains('open')) {
+                    const id = parseInt(document.getElementById('panel-num').innerText);
+                    this.showPanel(elements[id-1]);
+                }
+                
+                // Translate Atom list
+                this.renderAtomList();
+            },
+
+            switchView(viewId) {
+                document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+                document.getElementById(viewId + '-view').classList.add('active');
+                if(viewId === 'atom') {
+                    setTimeout(() => atomEngine.resize(), 100);
+                    if(!atomEngine.currentAtom) atomEngine.loadAtom(1); // Default H
+                }
+                window.scrollTo(0,0);
+            },
+
+            renderTable() {
+                const pt = document.getElementById('periodic-table');
+                pt.innerHTML = '';
+                
+                elements.forEach(el => {
+                    const div = document.createElement('div');
+                    div.className = `element cat-${el.category}`;
+                    div.dataset.id = el.num;
+                    div.dataset.name = el.name.en.toLowerCase();
+                    div.dataset.sym = el.sym.toLowerCase();
+                    div.dataset.cat = el.category;
+                    div.tabIndex = 0;
+                    
+                    // Position calculations
+                    let col = el.group;
+                    let row = el.period;
+                    
+                    if(el.category === 'lanthanide') {
+                        row = 9; col = 4 + (el.num - 57);
+                    }
+                    if(el.category === 'actinide') {
+                        row = 10; col = 4 + (el.num - 89);
+                    }
+                    
+                    div.style.gridColumn = col;
+                    div.style.gridRow = row;
+                    div.style.backgroundColor = `var(--cat-${el.category})`;
+                    
+                    div.innerHTML = `
+                        <span class="el-num">${el.num}</span>
+                        <span class="el-sym">${el.sym}</span>
+                        <span class="el-name">${el.name[this.lang]}</span>
+                        <span class="el-mass">${el.mass}</span>
+                    `;
+                    
+                    // Tooltip & interactions
+                    div.onmouseenter = (e) => this.showTooltip(e, el);
+                    div.onmouseleave = () => this.hideTooltip();
+                    div.onclick = () => this.showPanel(el);
+                    div.onkeydown = (e) => { if(e.key==='Enter' || e.key===' ') this.showPanel(el); };
+                    
+                    pt.appendChild(div);
+                });
+            },
+
+            renderLegend() {
+                const leg = document.getElementById('legend');
+                leg.innerHTML = '';
+                for (let key in cats) {
+                    leg.innerHTML += `
+                        <div class="legend-item" onclick="app.filterTable('${key}')">
+                            <div class="color-box" style="background: var(--cat-${key})"></div>
+                            <span data-cat-key="${key}">${cats[key][this.lang]}</span>
+                        </div>
+                    `;
+                }
+            },
+
+            setupSearch() {
+                document.getElementById('search-input').addEventListener('input', (e) => {
+                    const v = e.target.value.toLowerCase();
+                    document.querySelectorAll('.element').forEach(el => {
+                        const m = el.dataset.name.includes(v) || el.dataset.sym.includes(v) || el.dataset.id === v;
+                        el.classList.toggle('dimmed', !m);
+                    });
+                });
+            },
+
+            filterTable(filter) {
+                document.querySelectorAll('.element').forEach(el => {
+                    let show = true;
+                    if(filter === 'all') show = true;
+                    else if (cats[filter]) show = el.dataset.cat === filter;
+                    else if (filter === 'metal') show = ['alkali','alkaline','transition','post-transition','lanthanide','actinide'].includes(el.dataset.cat);
+                    else if (filter === 'nonmetal') show = ['reactive-nonmetal','halogen','noble-gas'].includes(el.dataset.cat);
+                    else if (filter === 'metalloid') show = el.dataset.cat === 'metalloid';
+                    else if (filter === 'synthetic') show = parseInt(el.dataset.id) >= 95 || parseInt(el.dataset.id) === 43 || parseInt(el.dataset.id) === 61;
+                    else if (filter === 'radioactive') show = parseInt(el.dataset.id) >= 84 || parseInt(el.dataset.id) === 43 || parseInt(el.dataset.id) === 61;
+                    
+                    el.classList.toggle('dimmed', !show);
+                });
+            },
+
+            showTrend(trend) {
+                const layer = document.getElementById('trend-layer');
+                layer.innerHTML = '';
+                
+                if (trend === 'none') {
+                    layer.classList.remove('active');
+                    return;
+                }
+                
+                layer.classList.add('active');
+                
+                // Draw arrows based on trend
+                const ptRect = document.getElementById('periodic-table').getBoundingClientRect();
+                
+                let html = '';
+                if (trend === 'radius') {
+                    html += `<div class="trend-arrow arrow-down" style="left: 10px; top: 10%; width: 40px; height: 60%;"><span style="transform:rotate(-90deg); white-space:nowrap;">Increases</span></div>`;
+                    html += `<div class="trend-arrow arrow-right" style="left: 10%; bottom: 25%; width: 60%; height: 40px;">Increases</div>`;
+                } else if (trend === 'ionization' || trend === 'electronegativity') {
+                    html += `<div class="trend-arrow arrow-down" style="left: 10px; top: 10%; width: 40px; height: 60%; transform: rotate(180deg);"><span style="transform:rotate(-90deg); white-space:nowrap;">Increases</span></div>`;
+                    html += `<div class="trend-arrow arrow-right" style="left: 10%; top: 5%; width: 60%; height: 40px;">Increases</div>`;
+                }
+                
+                layer.innerHTML = html;
+            },
+
+            showTooltip(e, el) {
+                const tt = document.getElementById('tooltip');
+                tt.innerHTML = `
+                    <div style="font-size:1.2rem; font-weight:bold; color:var(--primary)">${el.name[this.lang]} (${el.sym})</div>
+                    <div>${dict.atomicNum[this.lang]}: ${el.num}</div>
+                    <div>${dict.mass[this.lang]}: ${el.mass}</div>
+                    <div>${dict.category[this.lang]}: ${cats[el.category][this.lang]}</div>
+                    <div>${dict.config[this.lang]}: <span style="font-family:monospace">${el.config}</span></div>
+                `;
+                tt.style.opacity = 1;
+                
+                // Position logic
+                let x = e.clientX + 15;
+                let y = e.clientY + 15;
+                if(x + 220 > window.innerWidth) x = window.innerWidth - 220;
+                if(y + 120 > window.innerHeight) y = window.innerHeight - 120;
+                tt.style.left = x + 'px';
+                tt.style.top = y + 'px';
+            },
+
+            hideTooltip() {
+                document.getElementById('tooltip').style.opacity = 0;
+            },
+
+            showPanel(el) {
+                this.hideTooltip();
+                const p = document.getElementById('info-panel');
+                p.classList.add('open');
+                
+                document.getElementById('panel-sym').innerText = el.sym;
+                document.getElementById('panel-sym').style.backgroundColor = `var(--cat-${el.category})`;
+                document.getElementById('panel-name').innerText = el.name[this.lang];
+                document.getElementById('panel-num').innerText = el.num;
+                
+                document.getElementById('panel-mass').innerText = el.mass;
+                document.getElementById('panel-cat').innerText = cats[el.category][this.lang];
+                document.getElementById('panel-state').innerText = states[el.state] ? states[el.state][this.lang] : el.state;
+                document.getElementById('panel-config').innerText = el.config;
+                document.getElementById('panel-group').innerText = el.group || '-';
+                document.getElementById('panel-period').innerText = el.period;
+                document.getElementById('panel-block').innerText = el.block;
+                document.getElementById('panel-val').innerText = el.valence || '-';
+                
+                document.getElementById('panel-rad').innerText = el.radius !== '-' ? el.radius : 'N/A';
+                document.getElementById('panel-eneg').innerText = el.eneg !== '-' ? el.eneg : 'N/A';
+                document.getElementById('panel-melt').innerText = el.melt !== '-' ? el.melt : 'N/A';
+                document.getElementById('panel-boil').innerText = el.boil !== '-' ? el.boil : 'N/A';
+                
+                document.getElementById('panel-disc').innerText = el.disc;
+                document.getElementById('panel-uses').innerText = el.uses[this.lang];
+                document.getElementById('panel-fact').innerText = el.fact[this.lang];
+            },
+
+            closePanel() {
+                document.getElementById('info-panel').classList.remove('open');
+            },
+
+            renderAtomList() {
+                const list = document.getElementById('atom-list');
+                list.innerHTML = '';
+                for(let i=0; i<20; i++) {
+                    const el = elements[i];
+                    const div = document.createElement('div');
+                    div.className = 'atom-list-item';
+                    div.innerHTML = `<strong>${el.num}. ${el.name[this.lang]}</strong> (${el.sym})`;
+                    div.onclick = () => atomEngine.loadAtom(el.num);
+                    list.appendChild(div);
+                }
+            }
+        };
+
+        const atomEngine = {
+            ctx: null, canvas: null,
+            w: 0, h: 0,
+            currentAtom: null,
+            animId: null,
+            time: 0,
+            isPlaying: true,
+            speed: 0.01,
+            showLabels: true,
+            
+            initCanvas() {
+                this.canvas = document.getElementById('atom-canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.resize();
+            },
+            
+            resize() {
+                const rect = this.canvas.parentElement.getBoundingClientRect();
+                this.w = rect.width;
+                this.h = rect.height;
+                this.canvas.width = this.w;
+                this.canvas.height = this.h;
+                if(this.currentAtom) this.draw();
+            },
+            
+            loadAtom(num) {
+                this.currentAtom = elements[num-1];
+                this.time = 0;
+                
+                // Update active list styling
+                document.querySelectorAll('.atom-list-item').forEach((el, idx) => {
+                    el.classList.toggle('selected', idx === num-1);
+                });
+                
+                document.getElementById('atom-title').innerText = this.currentAtom.name[app.lang] + ` (${this.currentAtom.sym})`;
+                document.getElementById('atom-config').innerText = this.currentAtom.config;
+                document.getElementById('atom-shells').innerText = `Shells: ${this.currentAtom.shells.join(', ')}`;
+                
+                if(this.isPlaying && !this.animId) this.loop();
+                if(!this.isPlaying) this.draw();
+            },
+            
+            togglePlay() {
+                this.isPlaying = !this.isPlaying;
+                document.getElementById('btn-play').innerText = this.isPlaying ? 'Pause' : 'Play';
+                if(this.isPlaying) this.loop();
+                else cancelAnimationFrame(this.animId);
+            },
+            
+            reset() { this.time = 0; this.draw(); },
+            changeSpeed(mult) { this.speed *= mult; },
+            toggleLabels() { this.showLabels = !this.showLabels; this.draw(); },
+
+            draw() {
+                if(!this.ctx || !this.currentAtom) return;
+                const ctx = this.ctx;
+                ctx.clearRect(0, 0, this.w, this.h);
+                
+                const cx = this.w / 2;
+                const cy = this.h / 2;
+                
+                // Zoom scale based on screen
+                const maxR = Math.min(this.w, this.h) / 2 * 0.8;
+                const shellGap = maxR / Math.max(4, this.currentAtom.shells.length);
+                
+                // Draw Nucleus
+                const protons = this.currentAtom.num;
+                const neutrons = Math.round(parseFloat(this.currentAtom.mass)) - protons;
+                const totalNuc = protons + neutrons;
+                
+                // Nucleus Glow
+                const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 30);
+                grad.addColorStop(0, 'rgba(255, 100, 100, 0.8)');
+                grad.addColorStop(1, 'rgba(255, 100, 100, 0)');
+                ctx.fillStyle = grad;
+                ctx.beginPath(); ctx.arc(cx, cy, 40, 0, Math.PI*2); ctx.fill();
+
+                // Draw central cluster (simplified for performance)
+                ctx.fillStyle = '#ef4444'; // Proton red
+                ctx.beginPath(); ctx.arc(cx, cy, 15, 0, Math.PI*2); ctx.fill();
+                
+                ctx.fillStyle = document.documentElement.className === 'dark-mode' ? '#fff' : '#000';
+                ctx.font = 'bold 12px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                if(this.showLabels) {
+                    ctx.fillText(`${protons}p⁺`, cx, cy - 6);
+                    ctx.fillText(`${neutrons}n⁰`, cx, cy + 6);
+                }
+
+                const shellColors = ['#60a5fa', '#34d399', '#fbbf24', '#c084fc', '#f472b6'];
+                
+                this.currentAtom.shells.forEach((electronsCount, shellIdx) => {
+                    const r = (shellIdx + 1) * shellGap + 20;
+                    
+                    // Draw Shell Orbit
+                    ctx.strokeStyle = document.documentElement.className === 'dark-mode' ? 'rgba(255,215,0,0.2)' : '#000000';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, r, 0, Math.PI*2);
+                    ctx.stroke();
+                    
+                    // Shell speed decreases for outer shells
+                    const shellSpeed = this.speed / (shellIdx + 1);
+                    
+                    for(let e = 0; e < electronsCount; e++) {
+                        // Evenly space electrons
+                        const angleOffset = (Math.PI * 2 / electronsCount) * e;
+                        const angle = this.time * shellSpeed + angleOffset;
+                        
+                        const ex = cx + r * Math.cos(angle);
+                        const ey = cy + r * Math.sin(angle);
+                        
+                        // Electron Glow
+                        ctx.shadowBlur = 10;
+                        ctx.shadowColor = shellColors[shellIdx % shellColors.length];
+                        
+                        // Draw Electron
+                        ctx.fillStyle = shellColors[shellIdx % shellColors.length];
+                        ctx.beginPath();
+                        ctx.arc(ex, ey, 5, 0, Math.PI*2);
+                        ctx.fill();
+                        
+                        // Reset shadow
+                        ctx.shadowBlur = 0;
+                        
+                        if(this.showLabels) {
+                            ctx.fillStyle = document.documentElement.className === 'dark-mode' ? '#fff' : '#333';
+                            ctx.font = '10px Arial';
+                            ctx.fillText('e⁻', ex + 10, ey);
+                        }
+                    }
+                });
+            },
+            
+            loop() {
+                if(!this.isPlaying) return;
+                this.time++;
+                this.draw();
+                this.animId = requestAnimationFrame(() => this.loop());
+            }
+        };
+
+        window.onload = () => {
+            app.init();
+        };
+
+    </script>
+</body>
+</html>
