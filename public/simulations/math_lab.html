@@ -5,49 +5,48 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Math Lab — Addition & Subtraction</title>
 <style>
-/* ===== GLOBAL RESET & VARIABLES ===== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #FFF9F0;
+  --bg: #F6F7FB;
   --surface: #FFFFFF;
-  --surface2: #FFF3E0;
-  --border: #FFD8A8;
-  --text: #2D1B00;
-  --text2: #6B4C1E;
-  --text3: #A07040;
-  --accent1: #FF6B35;
-  --accent2: #4ECDC4;
-  --accent3: #FFE66D;
-  --accent4: #A8E6CF;
-  --accent5: #C779D0;
-  --col-ones: #FF6B6B;
-  --col-tens: #4ECDC4;
-  --col-hund: #FFE66D;
-  --col-thou: #A8E6CF;
-  --col-tth: #C779D0;
-  --carry: #FF6B35;
-  --borrow: #9B59B6;
-  --success: #27AE60;
-  --wrong: #E74C3C;
-  --shadow: 0 4px 20px rgba(0,0,0,0.08);
-  --shadow-md: 0 8px 32px rgba(0,0,0,0.12);
-  --r: 16px;
-  --r-sm: 10px;
-  --font: 'Segoe UI', 'Comic Sans MS', Tahoma, sans-serif;
-  --transition: 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  --surface2: #F1F3F9;
+  --border: #E3E7F1;
+  --text: #1E2233;
+  --text2: #5B6178;
+  --text3: #9398AC;
+  --accent1: #6C5CE7;
+  --accent2: #00B8A9;
+  --accent3: #FFC53D;
+  --accent4: #4CD787;
+  --accent5: #FF7A7A;
+  --col-ones: #FF7A7A;
+  --col-tens: #00B8A9;
+  --col-hund: #FFC53D;
+  --col-thou: #4CD787;
+  --col-tth: #A78BFA;
+  --carry: #6C5CE7;
+  --borrow: #FF8A5B;
+  --success: #22B07D;
+  --wrong: #F0506E;
+  --shadow: 0 2px 10px rgba(30,34,51,0.05);
+  --shadow-md: 0 12px 32px rgba(30,34,51,0.10);
+  --r: 18px;
+  --r-sm: 12px;
+  --font: 'Nunito', 'Segoe UI', Tahoma, sans-serif;
+  --transition: 0.35s cubic-bezier(0.34,1.56,0.64,1);
 }
 
 body.dark {
-  --bg: #1A1025;
-  --surface: #241838;
-  --surface2: #2E1F45;
-  --border: #4A3060;
-  --text: #F5EDFF;
-  --text2: #C4A8E8;
-  --text3: #8B6BB5;
-  --shadow: 0 4px 20px rgba(0,0,0,0.4);
-  --shadow-md: 0 8px 32px rgba(0,0,0,0.5);
+  --bg: #14121F;
+  --surface: #1D1B2E;
+  --surface2: #262440;
+  --border: #38355A;
+  --text: #F1F0FB;
+  --text2: #B3AFD4;
+  --text3: #7C78A0;
+  --shadow: 0 2px 10px rgba(0,0,0,0.3);
+  --shadow-md: 0 12px 32px rgba(0,0,0,0.45);
 }
 
 body {
@@ -61,8 +60,8 @@ body {
 
 /* ===== HEADER ===== */
 .header {
-  background: linear-gradient(135deg, #FF6B35 0%, #F7C59F 50%, #4ECDC4 100%);
-  padding: 18px 24px;
+  background: linear-gradient(120deg, #6C5CE7 0%, #8E7CFF 45%, #00B8A9 100%);
+  padding: 18px 28px;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -72,128 +71,142 @@ body {
 }
 
 .mascot {
-  width: 56px; height: 56px;
+  width: 54px; height: 54px;
   background: white;
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 30px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  animation: bob 2.5s ease-in-out infinite;
+  font-size: 28px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+  animation: bob 2.6s ease-in-out infinite;
   flex-shrink: 0;
 }
+@keyframes bob { 0%,100%{transform:translateY(0) rotate(0)} 50%{transform:translateY(-6px) rotate(-4deg)} }
 
-@keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
-
-.header-title { flex: 1; min-width: 160px; }
-.header-title h1 { color: white; font-size: clamp(16px,3vw,24px); font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-.header-title p { color: rgba(255,255,255,0.9); font-size: 13px; margin-top: 2px; }
+.header-title { flex: 1; min-width: 180px; }
+.header-title h1 { color: white; font-size: clamp(16px,3vw,23px); font-weight: 800; letter-spacing: -0.3px; }
+.header-title p { color: rgba(255,255,255,0.88); font-size: 13px; margin-top: 2px; }
 
 .header-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
 .score-badge {
-  background: rgba(255,255,255,0.25);
-  backdrop-filter: blur(8px);
-  border: 2px solid rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(255,255,255,0.35);
   border-radius: 24px;
-  padding: 6px 14px;
+  padding: 7px 16px;
   color: white;
   font-weight: 700;
   font-size: 14px;
-  display: flex; gap: 12px;
+  display: flex; gap: 14px;
 }
 
 .btn-icon {
-  background: rgba(255,255,255,0.25);
-  border: 2px solid rgba(255,255,255,0.5);
+  background: rgba(255,255,255,0.2);
+  border: 1.5px solid rgba(255,255,255,0.4);
   border-radius: 50%;
-  width: 40px; height: 40px;
+  width: 38px; height: 38px;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
+  font-size: 17px;
   color: white;
   transition: all 0.2s;
 }
-.btn-icon:hover { background: rgba(255,255,255,0.4); transform: scale(1.1); }
+.btn-icon:hover { background: rgba(255,255,255,0.35); transform: scale(1.08) rotate(8deg); }
 
-/* ===== NAV TABS ===== */
+/* ===== NAV TABS (only 2 now: Addition / Subtraction) ===== */
 .nav {
   display: flex;
   gap: 8px;
-  padding: 16px 24px 0;
-  overflow-x: auto;
-  scrollbar-width: none;
+  padding: 18px 28px 0;
 }
-.nav::-webkit-scrollbar { display: none; }
 
 .nav-tab {
   border: none;
-  padding: 10px 18px;
-  border-radius: 12px 12px 0 0;
-  font-size: 13px;
-  font-weight: 700;
+  padding: 12px 24px;
+  border-radius: 14px 14px 0 0;
+  font-size: 14px;
+  font-weight: 800;
   cursor: pointer;
   transition: all 0.25s;
   white-space: nowrap;
   font-family: var(--font);
-  display: flex; align-items: center; gap: 6px;
+  display: flex; align-items: center; gap: 8px;
   flex-shrink: 0;
+  opacity: 0.6;
 }
-
-.nav-tab.add-nc { background: #FFF0F0; color: #C0392B; border: 2px solid #FFCDD2; border-bottom: none; }
-.nav-tab.add-c  { background: #FFF3E0; color: #E67E22; border: 2px solid #FFE0B2; border-bottom: none; }
-.nav-tab.sub-nb { background: #E8F5E9; color: #27AE60; border: 2px solid #C8E6C9; border-bottom: none; }
-.nav-tab.sub-b  { background: #EDE7F6; color: #8E44AD; border: 2px solid #D1C4E9; border-bottom: none; }
-.nav-tab.active { transform: translateY(2px); opacity: 1; z-index: 2; box-shadow: 0 -4px 12px rgba(0,0,0,0.1); }
-.nav-tab:not(.active) { opacity: 0.65; }
+.nav-tab.add { background: #FFF0F0; color: #E0475A; }
+.nav-tab.sub { background: #EAF9F1; color: #1E9E63; }
+body.dark .nav-tab.add { background: #3A1F27; color: #FF9DAA; }
+body.dark .nav-tab.sub { background: #1B3B2C; color: #7CE0A8; }
+.nav-tab.active { opacity: 1; transform: translateY(2px); box-shadow: 0 -6px 16px rgba(0,0,0,0.06); z-index: 2; }
+.nav-tab .nav-emoji { font-size: 18px; }
 
 /* ===== MAIN CONTENT ===== */
 .main {
   background: var(--surface);
   border-radius: 0 var(--r) var(--r) var(--r);
-  margin: 0 24px 24px;
+  margin: 0 28px 28px;
   box-shadow: var(--shadow-md);
-  padding: 24px;
+  padding: 28px;
   min-height: 500px;
 }
 
 .section { display: none; }
 .section.active { display: block; animation: fadeIn 0.4s ease; }
-
 @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
 
 /* ===== MODE HEADER ===== */
 .mode-header {
-  display: flex; align-items: center; gap: 14px;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 2px dashed var(--border);
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 22px;
+  padding-bottom: 18px;
+  border-bottom: 2px solid var(--surface2);
 }
 .mode-icon {
-  width: 52px; height: 52px;
-  border-radius: 50%;
+  width: 54px; height: 54px;
+  border-radius: 16px;
   display: flex; align-items: center; justify-content: center;
   font-size: 26px;
   flex-shrink: 0;
 }
 .mode-title { flex: 1; }
-.mode-title h2 { font-size: clamp(16px,2.5vw,22px); font-weight: 800; }
-.mode-title p { font-size: 13px; color: var(--text2); margin-top: 3px; }
+.mode-title h2 { font-size: clamp(17px,2.5vw,22px); font-weight: 800; letter-spacing: -0.3px; }
+.mode-title p { font-size: 13.5px; color: var(--text2); margin-top: 3px; }
+
+/* Auto-detected type chip */
+.detect-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12.5px;
+  font-weight: 800;
+  white-space: nowrap;
+  transition: all 0.35s var(--transition);
+  animation: chipPop 0.4s var(--transition);
+}
+@keyframes chipPop { 0%{transform:scale(0.6);opacity:0} 100%{transform:scale(1);opacity:1} }
+.detect-chip.plain { background: #E9F7EF; color: #1E9E63; }
+.detect-chip.special { background: #F0EBFF; color: #6C5CE7; }
+body.dark .detect-chip.plain { background: #1B3B2C; color: #7CE0A8; }
+body.dark .detect-chip.special { background: #2B2450; color: #C4B5FD; }
 
 /* ===== PROBLEM SETUP ===== */
 .setup-row {
   display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 14px;
+  margin-bottom: 22px;
   flex-wrap: wrap;
   align-items: flex-end;
 }
 
 .input-group { display: flex; flex-direction: column; gap: 6px; }
-.input-group label { font-size: 12px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+.input-group label { font-size: 11.5px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 0.6px; }
 
 .num-input {
-  width: 110px;
-  padding: 10px 14px;
+  width: 116px;
+  padding: 11px 14px;
   border: 2px solid var(--border);
   border-radius: var(--r-sm);
   font-size: 22px;
@@ -202,20 +215,16 @@ body {
   background: var(--surface2);
   color: var(--text);
   font-family: var(--font);
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
-.num-input:focus { outline: none; border-color: var(--accent1); }
+.num-input:focus { outline: none; border-color: var(--accent1); box-shadow: 0 0 0 4px rgba(108,92,231,0.12); }
 
-.digit-slider { display: flex; flex-direction: column; gap: 4px; }
-.digit-slider label { font-size: 12px; font-weight: 700; color: var(--text2); }
-.digit-slider input[type=range] {
-  width: 120px;
-  accent-color: var(--accent1);
-  cursor: pointer;
-}
+.digit-slider { display: flex; flex-direction: column; gap: 6px; }
+.digit-slider label { font-size: 11.5px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 0.6px; }
+.digit-slider input[type=range] { width: 120px; accent-color: var(--accent1); cursor: pointer; }
 
 .btn {
-  padding: 10px 20px;
+  padding: 11px 20px;
   border: none;
   border-radius: var(--r-sm);
   font-size: 14px;
@@ -223,593 +232,297 @@ body {
   cursor: pointer;
   transition: all 0.2s;
   font-family: var(--font);
-  display: inline-flex; align-items: center; gap: 6px;
+  display: inline-flex; align-items: center; gap: 7px;
   white-space: nowrap;
 }
-.btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.15); }
+.btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,0.12); }
 .btn:active { transform: scale(0.97); }
 
 .btn-primary { background: var(--accent1); color: white; }
 .btn-secondary { background: var(--accent2); color: white; }
 .btn-success { background: var(--success); color: white; }
-.btn-info { background: #3498DB; color: white; }
-.btn-warning { background: #F39C12; color: white; }
+.btn-info { background: #3E8FF5; color: white; }
+.btn-warning { background: #FFA53D; color: white; }
 .btn-light { background: var(--surface2); color: var(--text); border: 2px solid var(--border); }
 
 /* ===== EQUATION DISPLAY ===== */
 .equation-area {
   display: flex;
-  gap: 24px;
+  gap: 26px;
   align-items: flex-start;
   flex-wrap: wrap;
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 }
 
 .column-box {
   background: var(--surface2);
   border: 2px solid var(--border);
   border-radius: var(--r);
-  padding: 20px;
-  min-width: 220px;
+  padding: 22px;
+  min-width: 230px;
   position: relative;
   overflow: visible;
 }
 
-.place-labels {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0;
-  margin-bottom: 8px;
-}
-
+.place-labels { display: flex; justify-content: flex-end; gap: 0; margin-bottom: 8px; }
 .place-label {
   width: 52px;
   text-align: center;
-  font-size: 11px;
-  font-weight: 700;
-  border-radius: 6px 6px 0 0;
+  font-size: 10.5px;
+  font-weight: 800;
+  border-radius: 8px 8px 0 0;
   padding: 4px 2px;
   letter-spacing: 0.3px;
+  color: white;
 }
+.pl-ones { background: var(--col-ones); }
+.pl-tens { background: var(--col-tens); }
+.pl-hund { background: var(--col-hund); color: #4A3B00; }
+.pl-thou { background: var(--col-thou); color: #1E4A2E; }
+.pl-tth  { background: var(--col-tth); }
 
-.pl-ones { background: var(--col-ones); color: white; }
-.pl-tens { background: var(--col-tens); color: white; }
-.pl-hund { background: var(--col-hund); color: #333; }
-.pl-thou { background: var(--col-thou); color: #333; }
-.pl-tth  { background: var(--col-tth);  color: white; }
-
-.number-row {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0;
-  min-height: 52px;
-  position: relative;
-}
+.number-row { display: flex; justify-content: flex-end; gap: 0; min-height: 52px; position: relative; }
 
 .digit-cell {
-  width: 52px;
-  height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  font-weight: 900;
+  width: 52px; height: 52px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 27px; font-weight: 800;
   border: 2px solid var(--border);
-  border-radius: 8px;
+  border-radius: 10px;
   margin: 1px;
   transition: all 0.3s;
   position: relative;
   background: var(--surface);
   font-family: 'Courier New', monospace;
 }
-
 .digit-cell.ones { border-color: var(--col-ones); color: var(--col-ones); }
 .digit-cell.tens { border-color: var(--col-tens); color: var(--col-tens); }
 .digit-cell.hund { border-color: var(--col-hund); color: #B8860B; }
 .digit-cell.thou { border-color: var(--col-thou); color: #2E8B57; }
 .digit-cell.tth  { border-color: var(--col-tth);  color: var(--col-tth); }
 
-.digit-cell.highlight {
-  transform: scale(1.15);
-  box-shadow: 0 0 0 3px currentColor;
-  z-index: 2;
-}
-.digit-cell.done {
-  background: #E8F5E9;
-  color: #27AE60;
-  border-color: #27AE60;
-}
-body.dark .digit-cell.done { background: #1B4332; }
+.digit-cell.highlight { transform: scale(1.15); box-shadow: 0 0 0 3px currentColor; z-index: 2; }
+.digit-cell.done { background: #E7FBF1; color: var(--success); border-color: var(--success); }
+body.dark .digit-cell.done { background: #163A2B; }
 
-.op-row {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 0;
-  margin: 4px 0;
-}
-.op-sign {
-  width: 52px;
-  text-align: center;
-  font-size: 28px;
-  font-weight: 900;
-  color: var(--accent1);
-}
-.op-line {
-  flex: 1;
-  height: 3px;
-  background: var(--text);
-  border-radius: 2px;
-  margin-top: 2px;
-}
+.op-row { display: flex; justify-content: flex-end; align-items: center; gap: 0; margin: 4px 0; }
+.op-sign { width: 52px; text-align: center; font-size: 27px; font-weight: 900; color: var(--accent1); }
+.op-line { flex: 1; height: 3px; background: var(--text); border-radius: 2px; margin-top: 2px; }
 
-.carry-row {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0;
-  min-height: 26px;
-  margin-bottom: 2px;
-}
-.carry-cell {
-  width: 52px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  font-weight: 900;
-  color: var(--carry);
-  margin: 1px;
-}
-.carry-cell span {
-  background: var(--carry);
-  color: white;
-  border-radius: 50%;
-  width: 22px; height: 22px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px;
-}
-.carry-cell span.animate-carry {
-  animation: carryBounce 0.6s var(--transition) forwards;
-}
-@keyframes carryBounce {
-  0%{opacity:0;transform:translateY(-24px) scale(0.5)}
-  60%{transform:translateY(4px) scale(1.2)}
-  100%{opacity:1;transform:translateY(0) scale(1)}
-}
+.carry-row { display: flex; justify-content: flex-end; gap: 0; min-height: 26px; margin-bottom: 2px; }
+.carry-cell { width: 52px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 900; color: var(--carry); margin: 1px; }
+.carry-cell span { background: var(--carry); color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+.carry-cell span.animate-carry { animation: carryBounce 0.6s var(--transition) forwards; }
+@keyframes carryBounce { 0%{opacity:0;transform:translateY(-24px) scale(0.5)} 60%{transform:translateY(4px) scale(1.2)} 100%{opacity:1;transform:translateY(0) scale(1)} }
 
-.borrow-cell span {
-  background: var(--borrow);
-  color: white;
-  border-radius: 50%;
-  width: 22px; height: 22px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px;
-  font-weight: 900;
-}
-.borrow-cell span.animate-borrow {
-  animation: borrowSlide 0.7s var(--transition) forwards;
-}
-@keyframes borrowSlide {
-  0%{opacity:0;transform:translateX(60px) scale(0.5)}
-  60%{transform:translateX(-6px) scale(1.2)}
-  100%{opacity:1;transform:translateX(0) scale(1)}
-}
+.borrow-cell span { background: var(--borrow); color: white; border-radius: 50%; width: 26px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; }
+.borrow-cell span.animate-borrow { animation: borrowSlide 0.7s var(--transition) forwards; }
+@keyframes borrowSlide { 0%{opacity:0;transform:translateX(60px) scale(0.5)} 60%{transform:translateX(-6px) scale(1.2)} 100%{opacity:1;transform:translateX(0) scale(1)} }
 
-.answer-row .digit-cell {
-  border-style: dashed;
-  border-width: 2px;
-}
-.answer-row .digit-cell.filled {
-  border-style: solid;
-  animation: fillIn 0.4s ease forwards;
-}
-@keyframes fillIn {
-  0%{transform:scale(0.7);opacity:0}
-  100%{transform:scale(1);opacity:1}
-}
+.answer-row .digit-cell { border-style: dashed; border-width: 2px; }
+.answer-row .digit-cell.filled { border-style: solid; animation: fillIn 0.4s ease forwards; }
+@keyframes fillIn { 0%{transform:scale(0.7);opacity:0} 100%{transform:scale(1);opacity:1} }
 
 /* ===== EXPLANATION BOX ===== */
 .explanation-box {
-  background: linear-gradient(135deg, #FFF9C4, #FFF3E0);
-  border: 2px solid #FFD54F;
+  background: linear-gradient(135deg, #F0EBFF, #E4F9F6);
+  border: 2px solid #D6C9FF;
   border-radius: var(--r);
   padding: 16px 20px;
   font-size: 15px;
   font-weight: 600;
-  color: #4A3000;
+  color: #34266B;
   min-height: 60px;
   transition: all 0.3s;
   display: flex;
   align-items: center;
   gap: 12px;
   flex: 1;
-  min-width: 200px;
+  min-width: 220px;
 }
-body.dark .explanation-box { background: #2A1E00; color: #FFD54F; border-color: #5A4000; }
+body.dark .explanation-box { background: #251F42; color: #DCD3FF; border-color: #453A78; }
 
-.explanation-icon { font-size: 28px; flex-shrink: 0; animation: pulse 1.5s ease-in-out infinite; }
+.explanation-icon { font-size: 27px; flex-shrink: 0; animation: pulse 1.6s ease-in-out infinite; }
 @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
 
-/* ===== CONTROLS ===== */
-.controls {
+.controls { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; align-items: center; }
+
+/* ===== PLACE VALUE BLOCKS (animated) ===== */
+.blocks-area { margin-top: 22px; padding-top: 18px; border-top: 2px solid var(--surface2); }
+.blocks-title { font-size: 12.5px; font-weight: 800; color: var(--text3); margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.6px; }
+
+.blocks-stage {
   display: flex;
-  gap: 10px;
+  gap: 26px;
   flex-wrap: wrap;
-  margin-top: 16px;
-  align-items: center;
+  align-items: flex-start;
+  min-height: 90px;
 }
-
-/* ===== PLACE VALUE BLOCKS ===== */
-.blocks-area {
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 2px dashed var(--border);
+.blocks-col {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  min-width: 90px;
 }
-.blocks-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text2);
-  margin-bottom: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.blocks-row {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-.block-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-.block-group-label {
-  font-size: 12px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 4px;
-  color: white;
+.blocks-col-label {
+  font-size: 11.5px; font-weight: 800; padding: 3px 10px; border-radius: 20px; color: white;
 }
 .bg-ones { background: var(--col-ones); }
 .bg-tens { background: var(--col-tens); }
-.bg-hund { background: var(--col-hund); color: #333 !important; }
-.bg-thou { background: var(--col-thou); color: #333 !important; }
+.bg-hund { background: var(--col-hund); color: #4A3B00 !important; }
+.bg-thou { background: var(--col-thou); color: #1E4A2E !important; }
 
 .block-visual {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px;
-  max-width: 120px;
-  align-items: flex-start;
+  display: flex; flex-wrap: wrap; gap: 4px;
+  max-width: 130px; min-height: 40px;
+  align-items: flex-end;
+  justify-content: center;
+  position: relative;
 }
 
-.cube { width: 14px; height: 14px; border-radius: 3px; background: var(--col-ones); border: 1px solid rgba(0,0,0,0.2); transition: all 0.3s; }
-.rod  { width: 14px; height: 60px; border-radius: 3px; background: var(--col-tens); border: 1px solid rgba(0,0,0,0.2); transition: all 0.3s; }
-.square { width: 60px; height: 60px; border-radius: 4px; background: var(--col-hund); border: 2px solid rgba(0,0,0,0.2); transition: all 0.3s; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #333; }
+.cube {
+  width: 16px; height: 16px; border-radius: 4px;
+  background: var(--col-ones); border: 1px solid rgba(0,0,0,0.15);
+  animation: blockIn 0.35s var(--transition) backwards;
+}
+.rod {
+  width: 14px; height: 62px; border-radius: 4px;
+  background: var(--col-tens); border: 1px solid rgba(0,0,0,0.15);
+  animation: blockIn 0.35s var(--transition) backwards;
+}
+.square {
+  width: 62px; height: 62px; border-radius: 6px;
+  background: var(--col-hund); border: 2px solid rgba(0,0,0,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; color: #4A3B00;
+  animation: blockIn 0.35s var(--transition) backwards;
+}
+@keyframes blockIn { 0%{opacity:0;transform:scale(0.3) rotate(-10deg)} 100%{opacity:1;transform:scale(1) rotate(0)} }
+
+.block-morph {
+  animation: blockMorph 0.7s var(--transition) forwards;
+}
+@keyframes blockMorph {
+  0%{ transform: scale(1); }
+  35%{ transform: scale(1.4) rotate(8deg); box-shadow: 0 0 0 6px rgba(108,92,231,0.25); }
+  100%{ transform: scale(0); opacity: 0; }
+}
+.block-arrive {
+  animation: blockArrive 0.6s var(--transition) 0.35s backwards;
+}
+@keyframes blockArrive {
+  0%{ transform: translateY(-30px) scale(0.3); opacity: 0; }
+  60%{ transform: translateY(4px) scale(1.15); opacity: 1; }
+  100%{ transform: translateY(0) scale(1); opacity: 1; }
+}
+.block-remove {
+  animation: blockRemove 0.5s var(--transition) forwards;
+}
+@keyframes blockRemove {
+  0%{ transform: scale(1); opacity: 1; }
+  100%{ transform: scale(0.2) translateY(10px); opacity: 0; }
+}
+.blocks-arrow {
+  align-self: center;
+  font-size: 22px;
+  color: var(--text3);
+  margin-top: 30px;
+}
 
 /* ===== PRACTICE MODE ===== */
-.practice-area {
-  background: var(--surface2);
-  border: 2px solid var(--border);
-  border-radius: var(--r);
-  padding: 20px;
-}
+.practice-area { background: var(--surface2); border: 2px solid var(--border); border-radius: var(--r); padding: 22px; }
 
-.practice-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-  gap: 10px;
-}
+.practice-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
 
 .diff-buttons { display: flex; gap: 8px; }
 .diff-btn {
-  padding: 6px 14px;
-  border: 2px solid var(--border);
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  background: var(--surface);
-  color: var(--text);
-  font-family: var(--font);
+  padding: 7px 15px; border: 2px solid var(--border); border-radius: 20px;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  background: var(--surface); color: var(--text); font-family: var(--font);
   transition: all 0.2s;
 }
 .diff-btn.active { border-color: var(--accent1); background: var(--accent1); color: white; }
 .diff-btn:hover { transform: scale(1.05); }
 
-.stats-row {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-}
-.stat-card {
-  background: var(--surface);
-  border: 2px solid var(--border);
-  border-radius: var(--r-sm);
-  padding: 10px 16px;
-  text-align: center;
-  min-width: 80px;
-}
+.stats-row { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.stat-card { background: var(--surface); border: 2px solid var(--border); border-radius: var(--r-sm); padding: 10px 18px; text-align: center; min-width: 82px; }
 .stat-card .stat-num { font-size: 22px; font-weight: 900; color: var(--accent1); }
-.stat-card .stat-label { font-size: 11px; color: var(--text2); font-weight: 600; text-transform: uppercase; }
+.stat-card .stat-label { font-size: 10.5px; color: var(--text2); font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
 
-.practice-question {
-  display: flex;
-  align-items: flex-start;
-  gap: 32px;
-  flex-wrap: wrap;
-}
+.practice-question { display: flex; align-items: flex-start; gap: 32px; flex-wrap: wrap; }
 
 .vertical-eq {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: flex-end;
-  background: var(--surface);
-  border: 2px solid var(--border);
-  border-radius: var(--r);
-  padding: 16px 20px 12px;
-  gap: 2px;
-  min-width: 160px;
+  display: inline-flex; flex-direction: column; align-items: flex-end;
+  background: var(--surface); border: 2px solid var(--border); border-radius: var(--r);
+  padding: 16px 20px 12px; gap: 2px; min-width: 160px;
 }
-.veq-row {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  justify-content: flex-end;
-  width: 100%;
-}
-.veq-op {
-  font-size: 34px;
-  font-weight: 900;
-  font-family: 'Courier New', monospace;
-  width: 38px;
-  text-align: center;
-  flex-shrink: 0;
-}
-.veq-num {
-  font-size: 38px;
-  font-weight: 900;
-  font-family: 'Courier New', monospace;
-  letter-spacing: 4px;
-  text-align: right;
-}
-.veq-line {
-  width: 100%;
-  height: 3px;
-  background: var(--text);
-  border-radius: 2px;
-  margin: 6px 0 4px;
-}
-.veq-answer-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  justify-content: flex-end;
-}
+.veq-row { display: flex; align-items: center; gap: 0; justify-content: flex-end; width: 100%; }
+.veq-op { font-size: 33px; font-weight: 900; font-family: 'Courier New', monospace; width: 38px; text-align: center; flex-shrink: 0; }
+.veq-num { font-size: 37px; font-weight: 900; font-family: 'Courier New', monospace; letter-spacing: 4px; text-align: right; }
+.veq-line { width: 100%; height: 3px; background: var(--text); border-radius: 2px; margin: 6px 0 4px; }
+.veq-answer-row { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: flex-end; }
 .veq-answer-input {
-  font-size: 38px;
-  font-weight: 900;
-  font-family: 'Courier New', monospace;
-  text-align: right;
-  border: none;
-  border-bottom: 3px dashed var(--accent1);
-  background: transparent;
-  color: var(--accent1);
-  width: 100%;
-  outline: none;
-  letter-spacing: 4px;
-  padding: 0;
-  transition: border-color 0.3s, color 0.3s;
+  font-size: 37px; font-weight: 900; font-family: 'Courier New', monospace;
+  text-align: right; border: none; border-bottom: 3px dashed var(--accent1);
+  background: transparent; color: var(--accent1); width: 100%; outline: none;
+  letter-spacing: 4px; padding: 0; transition: border-color 0.3s, color 0.3s;
 }
 .veq-answer-input:focus { border-bottom-color: var(--accent2); }
 .veq-answer-input.correct { color: var(--success); border-bottom-color: var(--success); }
 .veq-answer-input.wrong   { color: var(--wrong);   border-bottom-color: var(--wrong); animation: shake 0.4s; }
 .veq-answer-input::placeholder { color: var(--border); }
 
-/* Practice carry / borrow indicator row */
-.veq-carry-row {
-  display: flex;
-  justify-content: flex-end;
-  width: 100%;
-  min-height: 24px;
-  padding-left: 38px;
-}
-.veq-carry-cell {
-  min-width: 28px;
-  text-align: center;
-  font-size: 13px;
-  font-weight: 900;
-  font-family: 'Courier New', monospace;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.veq-carry-chip {
-  background: var(--carry);
-  color: white;
-  border-radius: 50%;
-  width: 20px; height: 20px;
-  font-size: 12px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 900;
-  animation: carryBounce 0.5s var(--transition) forwards;
-}
-.veq-borrow-chip {
-  background: var(--borrow);
-  color: white;
-  border-radius: 12px;
-  padding: 0 5px;
-  height: 20px;
-  font-size: 10px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 900;
-  white-space: nowrap;
-  animation: borrowSlide 0.5s var(--transition) forwards;
-}
-/* Digit cells inside practice vertical eq */
-.veq-digit-cell {
-  min-width: 28px;
-  text-align: center;
-  font-size: 36px;
-  font-weight: 900;
-  font-family: 'Courier New', monospace;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.3s, opacity 0.3s;
-  position: relative;
-}
+.veq-carry-row { display: flex; justify-content: flex-end; width: 100%; min-height: 24px; padding-left: 38px; }
+.veq-carry-cell { min-width: 28px; text-align: center; font-size: 13px; font-weight: 900; font-family: 'Courier New', monospace; height: 24px; display: flex; align-items: center; justify-content: center; }
+.veq-carry-chip { background: var(--carry); color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; font-weight: 900; animation: carryBounce 0.5s var(--transition) forwards; }
+.veq-borrow-chip { background: var(--borrow); color: white; border-radius: 12px; padding: 0 5px; height: 20px; font-size: 10px; display: inline-flex; align-items: center; justify-content: center; font-weight: 900; white-space: nowrap; animation: borrowSlide 0.5s var(--transition) forwards; }
+
+.veq-digit-cell { min-width: 28px; text-align: center; font-size: 35px; font-weight: 900; font-family: 'Courier New', monospace; display: inline-flex; align-items: center; justify-content: center; transition: color 0.3s, opacity 0.3s; position: relative; }
 .veq-digit-cell.col-ones { color: var(--col-ones); }
 .veq-digit-cell.col-tens { color: var(--col-tens); }
 .veq-digit-cell.col-hund { color: #B8860B; }
 .veq-digit-cell.col-thou { color: #2E8B57; }
 .veq-digit-cell.borrowed-old { text-decoration: line-through; opacity: 0.45; color: var(--borrow) !important; }
-.veq-digit-cell.borrowed-new { color: var(--borrow) !important; font-size: 28px; }
+.veq-digit-cell.borrowed-new { color: var(--borrow) !important; font-size: 27px; }
 
-.answer-input {
-  width: 120px;
-  padding: 10px;
-  font-size: 32px;
-  font-weight: 900;
-  text-align: center;
-  border: 3px solid var(--border);
-  border-radius: var(--r-sm);
-  background: var(--surface);
-  color: var(--text);
-  font-family: 'Courier New', monospace;
-  transition: border-color 0.3s;
-}
-.answer-input:focus { outline: none; border-color: var(--accent1); }
-.answer-input.correct { border-color: var(--success); background: #E8F5E9; color: var(--success); }
-.answer-input.wrong   { border-color: var(--wrong);   background: #FFEBEE; color: var(--wrong); animation: shake 0.4s; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)} }
 
-@keyframes shake {
-  0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)}
-}
-
-.feedback-msg {
-  font-size: 18px;
-  font-weight: 800;
-  padding: 8px 16px;
-  border-radius: 24px;
-  transition: all 0.3s;
-}
-.feedback-msg.correct { background: #E8F5E9; color: var(--success); }
-.feedback-msg.wrong   { background: #FFEBEE; color: var(--wrong);   }
+.feedback-msg { font-size: 17px; font-weight: 800; padding: 8px 16px; border-radius: 24px; transition: all 0.3s; }
+.feedback-msg.correct { background: #E7FBF1; color: var(--success); }
+.feedback-msg.wrong   { background: #FDEBEF; color: var(--wrong);   }
 
 /* ===== CONFETTI ===== */
-.confetti-container {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  height: 0;
-  pointer-events: none;
-  z-index: 9999;
-  overflow: visible;
-}
-.confetti-piece {
-  position: absolute;
-  width: 10px; height: 10px;
-  border-radius: 2px;
-  animation: confettiFall linear forwards;
-}
-@keyframes confettiFall {
-  0%  { transform: translateY(-20px) rotate(0deg); opacity: 1; }
-  100%{ transform: translateY(100vh) rotate(720deg); opacity: 0; }
-}
+.confetti-container { position: fixed; top: 0; left: 0; right: 0; height: 0; pointer-events: none; z-index: 9999; overflow: visible; }
+.confetti-piece { position: absolute; width: 10px; height: 10px; border-radius: 2px; animation: confettiFall linear forwards; }
+@keyframes confettiFall { 0%{transform:translateY(-20px) rotate(0deg);opacity:1;} 100%{transform:translateY(100vh) rotate(720deg);opacity:0;} }
 
-/* ===== STARS ===== */
-.stars-display {
-  display: flex;
-  gap: 4px;
-}
-.star { font-size: 22px; transition: all 0.3s; filter: grayscale(1); }
+.stars-display { display: flex; gap: 4px; }
+.star { font-size: 21px; transition: all 0.3s; filter: grayscale(1); }
 .star.lit { filter: grayscale(0); animation: starPop 0.4s var(--transition); }
 @keyframes starPop { 0%{transform:scale(0)} 70%{transform:scale(1.3)} 100%{transform:scale(1)} }
 
-/* ===== PROGRESS BAR ===== */
-.progress-bar {
-  height: 8px;
-  background: var(--border);
-  border-radius: 4px;
-  overflow: hidden;
-  margin-top: 8px;
-}
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent2), var(--success));
-  border-radius: 4px;
-  transition: width 0.6s ease;
-}
+.progress-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin-top: 8px; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--success)); border-radius: 4px; transition: width 0.6s ease; }
 
-/* ===== SPEED DISPLAY ===== */
-.timer-display {
-  font-size: 13px;
-  color: var(--text2);
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
+.timer-display { font-size: 13px; color: var(--text2); font-weight: 600; display: flex; align-items: center; gap: 6px; }
 
-/* ===== HINT BOX ===== */
 .hint-box {
-  background: linear-gradient(135deg, #E8F4FD, #D6EAF8);
-  border: 2px solid #85C1E9;
-  border-radius: var(--r);
-  padding: 14px 18px;
-  font-size: 14px;
-  color: #1A5276;
-  display: none;
-  margin-top: 12px;
-  animation: fadeIn 0.3s;
+  background: linear-gradient(135deg, #E9F3FF, #DCEEFF);
+  border: 2px solid #A9CFFF; border-radius: var(--r);
+  padding: 14px 18px; font-size: 14px; color: #1A4E82;
+  display: none; margin-top: 12px; animation: fadeIn 0.3s;
 }
 .hint-box.visible { display: flex; gap: 10px; align-items: flex-start; }
-body.dark .hint-box { background: #0D2235; color: #85C1E9; border-color: #1A5276; }
+body.dark .hint-box { background: #12233B; color: #9FCBFF; border-color: #1A4E82; }
 
-/* ===== BADGES ===== */
-.badges-row {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 12px;
-}
-.badge {
-  padding: 4px 10px;
-  border-radius: 14px;
-  font-size: 12px;
-  font-weight: 700;
-  opacity: 0.35;
-  transition: all 0.4s;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.badge.earned {
-  opacity: 1;
-  animation: badgePop 0.5s var(--transition);
-}
+.badges-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.badge { padding: 5px 12px; border-radius: 16px; font-size: 12px; font-weight: 700; opacity: 0.35; transition: all 0.4s; display: flex; align-items: center; gap: 4px; }
+.badge.earned { opacity: 1; animation: badgePop 0.5s var(--transition); }
 @keyframes badgePop { 0%{transform:scale(0);opacity:0} 70%{transform:scale(1.2)} 100%{transform:scale(1);opacity:1} }
 
-.badge-gold   { background: #FFF9C4; color: #B8860B; border: 2px solid #FFD54F; }
-.badge-green  { background: #E8F5E9; color: #27AE60; border: 2px solid #A5D6A7; }
-.badge-blue   { background: #E3F2FD; color: #1565C0; border: 2px solid #90CAF9; }
-.badge-purple { background: #EDE7F6; color: #6A1B9A; border: 2px solid #CE93D8; }
+.badge-gold   { background: #FFF6DB; color: #B8860B; border: 2px solid #FFDD87; }
+.badge-green  { background: #E7FBF1; color: #1E9E63; border: 2px solid #9BE8C2; }
+.badge-blue   { background: #E7F1FF; color: #2C6FD1; border: 2px solid #A9CFFF; }
+.badge-purple { background: #F1EBFF; color: #6C5CE7; border: 2px solid #CBB8FF; }
 
-/* ===== RESPONSIVE ===== */
 @media (max-width: 600px) {
   .main { margin: 0 10px 16px; padding: 16px; }
   .nav { padding: 12px 10px 0; }
@@ -818,27 +531,17 @@ body.dark .hint-box { background: #0D2235; color: #85C1E9; border-color: #1A5276
   .num-input { width: 90px; }
   .veq-num, .veq-answer-input { font-size: 28px; letter-spacing: 2px; }
   .veq-op { font-size: 26px; width: 30px; }
+  .nav-tab { padding: 10px 16px; font-size: 13px; }
 }
 
-/* ===== DARK MODE specific ===== */
-body.dark .explanation-box { background: linear-gradient(135deg, #2A1E00, #1A1025); }
 body.dark .digit-cell { background: var(--surface2); }
-body.dark .hint-box { border-color: #1A5276; }
-body.dark .diff-btn { background: var(--surface2); }
 
-/* ===== ANIMATIONS for step transitions ===== */
-.step-highlight {
-  animation: glowPulse 0.8s ease-in-out;
-}
-@keyframes glowPulse {
-  0%,100%{box-shadow:none}
-  50%{box-shadow:0 0 0 6px rgba(255,107,53,0.4)}
-}
+.step-highlight { animation: glowPulse 0.8s ease-in-out; }
+@keyframes glowPulse { 0%,100%{box-shadow:none} 50%{box-shadow:0 0 0 6px rgba(108,92,231,0.3)} }
 </style>
 </head>
 <body>
 
-<!-- CONFETTI CONTAINER -->
 <div class="confetti-container" id="confetti"></div>
 
 <!-- HEADER -->
@@ -846,7 +549,7 @@ body.dark .diff-btn { background: var(--surface2); }
   <div class="mascot" id="mascot" title="Professor Digit">🦉</div>
   <div class="header-title">
     <h1>🔢 Math Lab — Addition & Subtraction</h1>
-    <p>Learn step-by-step with animations!</p>
+    <p>Type numbers — carrying and borrowing are detected automatically!</p>
   </div>
   <div class="header-controls">
     <div class="score-badge">
@@ -859,324 +562,175 @@ body.dark .diff-btn { background: var(--surface2); }
 
 <!-- NAV TABS -->
 <nav class="nav">
-  <button class="nav-tab add-nc active" onclick="switchSection('add-nc')">➕ Addition<br><small>No Carry</small></button>
-  <button class="nav-tab add-c"  onclick="switchSection('add-c')">➕ Addition<br><small>With Carry</small></button>
-  <button class="nav-tab sub-nb" onclick="switchSection('sub-nb')">➖ Subtraction<br><small>No Borrow</small></button>
-  <button class="nav-tab sub-b"  onclick="switchSection('sub-b')">➖ Subtraction<br><small>With Borrow</small></button>
+  <button class="nav-tab add active" onclick="switchSection('add')"><span class="nav-emoji">➕</span> Addition</button>
+  <button class="nav-tab sub" onclick="switchSection('sub')"><span class="nav-emoji">➖</span> Subtraction</button>
 </nav>
 
 <!-- MAIN -->
 <main class="main">
 
-  <!-- ===== SECTION 1: Addition No Carry ===== -->
-  <section id="add-nc" class="section active">
+  <!-- ===== SECTION: Addition (auto-detects carry) ===== -->
+  <section id="add" class="section active">
     <div class="mode-header">
-      <div class="mode-icon" style="background:#FFEBEE;">➕</div>
+      <div class="mode-icon" style="background:#FFE9EC;">➕</div>
       <div class="mode-title">
-        <h2 style="color:#C0392B;">Addition Without Carry Over</h2>
-        <p>Each column adds up to 9 or less — no carrying needed!</p>
+        <h2 style="color:#E0475A;">Addition</h2>
+        <p>Enter any two numbers — we'll automatically detect if carrying is needed.</p>
       </div>
+      <div class="detect-chip plain" id="add-detect-chip" style="display:none;"></div>
     </div>
-    <div id="anc-setup" class="setup-row">
+    <div id="add-setup" class="setup-row">
       <div class="input-group">
         <label>First Number</label>
-        <input type="number" class="num-input" id="anc-a" value="34" min="1" max="99999">
+        <input type="number" class="num-input" id="add-a" value="58" min="0" max="99999" oninput="onNumbersChanged('add')">
       </div>
       <div class="input-group">
         <label>Second Number</label>
-        <input type="number" class="num-input" id="anc-b" value="25" min="1" max="99999">
+        <input type="number" class="num-input" id="add-b" value="67" min="0" max="99999" oninput="onNumbersChanged('add')">
       </div>
       <div class="digit-slider">
-        <label>Digits: <span id="anc-digits-val">2</span></label>
-        <input type="range" min="1" max="5" value="2" id="anc-digits" oninput="updateDigitLabel('anc')">
+        <label>Digits: <span id="add-digits-val">2</span></label>
+        <input type="range" min="1" max="5" value="2" id="add-digits" oninput="updateDigitLabel('add')">
       </div>
-      <button class="btn btn-primary" onclick="generateRandom('anc')">🎲 Random</button>
-      <button class="btn btn-secondary" onclick="startSolve('anc')">▶ Solve Step-by-Step</button>
-      <button class="btn btn-light" onclick="resetSection('anc')">🔄 Reset</button>
+      <button class="btn btn-primary" onclick="generateRandom('add')">🎲 Random</button>
+      <button class="btn btn-secondary" onclick="startSolve('add')">▶ Solve Step-by-Step</button>
+      <button class="btn btn-light" onclick="resetSection('add')">🔄 Reset</button>
     </div>
     <div class="equation-area">
       <div class="column-box">
-        <div id="anc-place-labels" class="place-labels"></div>
-        <div id="anc-carry-row" class="carry-row"></div>
-        <div id="anc-row-a" class="number-row"></div>
+        <div id="add-place-labels" class="place-labels"></div>
+        <div id="add-carry-row" class="carry-row"></div>
+        <div id="add-row-a" class="number-row"></div>
         <div class="op-row">
-          <div class="op-sign">+</div>
+          <div class="op-sign" style="color:#E0475A;">+</div>
           <div class="op-line"></div>
         </div>
-        <div id="anc-row-b" class="number-row"></div>
+        <div id="add-row-b" class="number-row"></div>
         <div class="op-row" style="margin-bottom:4px;">
           <div style="width:52px;"></div>
           <div class="op-line"></div>
         </div>
-        <div id="anc-row-ans" class="number-row answer-row"></div>
+        <div id="add-row-ans" class="number-row answer-row"></div>
       </div>
       <div>
-        <div class="explanation-box" id="anc-explain">
+        <div class="explanation-box" id="add-explain">
           <span class="explanation-icon">💡</span>
-          <span id="anc-explain-text">Enter numbers and press <b>Solve Step-by-Step</b> to begin!</span>
+          <span id="add-explain-text">Enter numbers and press <b>Solve Step-by-Step</b> to begin!</span>
         </div>
         <div class="controls">
-          <button class="btn btn-primary" onclick="nextStep('anc')" id="anc-next-btn" style="display:none;">▶ Next Step</button>
-          <button class="btn btn-info" onclick="autoSolve('anc')" id="anc-auto-btn" style="display:none;">⚡ Auto Solve</button>
-          <button class="btn btn-warning" onclick="showHint('anc')" id="anc-hint-btn">💡 Hint</button>
+          <button class="btn btn-primary" onclick="nextStep('add')" id="add-next-btn" style="display:none;">▶ Next Step</button>
+          <button class="btn btn-info" onclick="autoSolve('add')" id="add-auto-btn" style="display:none;">⚡ Auto Solve</button>
+          <button class="btn btn-warning" onclick="showHint('add')" id="add-hint-btn">💡 Hint</button>
         </div>
-        <div class="hint-box" id="anc-hint"></div>
+        <div class="hint-box" id="add-hint"></div>
       </div>
     </div>
     <div class="blocks-area">
-      <div class="blocks-title">📦 Place Value Blocks</div>
-      <div id="anc-blocks" class="blocks-row"></div>
+      <div class="blocks-title">📦 Place Value Blocks — watch them regroup!</div>
+      <div id="add-blocks" class="blocks-stage"></div>
     </div>
-    <hr style="margin:20px 0;border:1px dashed var(--border);">
-    <div id="anc-practice-wrap">
+    <hr style="margin:22px 0;border:none;border-top:2px solid var(--surface2);">
+    <div id="add-practice-wrap">
       <h3 style="margin-bottom:12px;font-size:16px;color:var(--text2);">🎯 Practice Mode</h3>
-      <div id="anc-practice"></div>
+      <div id="add-practice"></div>
     </div>
   </section>
 
-  <!-- ===== SECTION 2: Addition With Carry ===== -->
-  <section id="add-c" class="section">
+  <!-- ===== SECTION: Subtraction (auto-detects borrow) ===== -->
+  <section id="sub" class="section">
     <div class="mode-header">
-      <div class="mode-icon" style="background:#FFF3E0;">🚀</div>
+      <div class="mode-icon" style="background:#E9FBF1;">➖</div>
       <div class="mode-title">
-        <h2 style="color:#E67E22;">Addition With Carry Over</h2>
-        <p>When digits add up to 10 or more, we carry to the next column!</p>
+        <h2 style="color:#1E9E63;">Subtraction</h2>
+        <p>Enter any two numbers — we'll automatically detect if borrowing is needed.</p>
       </div>
+      <div class="detect-chip plain" id="sub-detect-chip" style="display:none;"></div>
     </div>
-    <div id="ac-setup" class="setup-row">
-      <div class="input-group">
-        <label>First Number</label>
-        <input type="number" class="num-input" id="ac-a" value="58" min="1" max="99999">
-      </div>
-      <div class="input-group">
-        <label>Second Number</label>
-        <input type="number" class="num-input" id="ac-b" value="67" min="1" max="99999">
-      </div>
-      <div class="digit-slider">
-        <label>Digits: <span id="ac-digits-val">2</span></label>
-        <input type="range" min="1" max="5" value="2" id="ac-digits" oninput="updateDigitLabel('ac')">
-      </div>
-      <button class="btn btn-primary" onclick="generateRandom('ac')">🎲 Random</button>
-      <button class="btn btn-secondary" onclick="startSolve('ac')">▶ Solve Step-by-Step</button>
-      <button class="btn btn-light" onclick="resetSection('ac')">🔄 Reset</button>
-    </div>
-    <div class="equation-area">
-      <div class="column-box">
-        <div id="ac-place-labels" class="place-labels"></div>
-        <div id="ac-carry-row" class="carry-row"></div>
-        <div id="ac-row-a" class="number-row"></div>
-        <div class="op-row">
-          <div class="op-sign" style="color:#E67E22;">+</div>
-          <div class="op-line"></div>
-        </div>
-        <div id="ac-row-b" class="number-row"></div>
-        <div class="op-row" style="margin-bottom:4px;">
-          <div style="width:52px;"></div>
-          <div class="op-line"></div>
-        </div>
-        <div id="ac-row-ans" class="number-row answer-row"></div>
-      </div>
-      <div>
-        <div class="explanation-box" id="ac-explain">
-          <span class="explanation-icon">💡</span>
-          <span id="ac-explain-text">Enter numbers and press <b>Solve Step-by-Step</b> to begin!</span>
-        </div>
-        <div class="controls">
-          <button class="btn btn-primary" onclick="nextStep('ac')" id="ac-next-btn" style="display:none;">▶ Next Step</button>
-          <button class="btn btn-info" onclick="autoSolve('ac')" id="ac-auto-btn" style="display:none;">⚡ Auto Solve</button>
-          <button class="btn btn-warning" onclick="showHint('ac')" id="ac-hint-btn">💡 Hint</button>
-        </div>
-        <div class="hint-box" id="ac-hint"></div>
-      </div>
-    </div>
-    <div class="blocks-area">
-      <div class="blocks-title">📦 Place Value Blocks</div>
-      <div id="ac-blocks" class="blocks-row"></div>
-    </div>
-    <hr style="margin:20px 0;border:1px dashed var(--border);">
-    <div id="ac-practice-wrap">
-      <h3 style="margin-bottom:12px;font-size:16px;color:var(--text2);">🎯 Practice Mode</h3>
-      <div id="ac-practice"></div>
-    </div>
-  </section>
-
-  <!-- ===== SECTION 3: Subtraction No Borrow ===== -->
-  <section id="sub-nb" class="section">
-    <div class="mode-header">
-      <div class="mode-icon" style="background:#E8F5E9;">➖</div>
-      <div class="mode-title">
-        <h2 style="color:#27AE60;">Subtraction Without Borrowing</h2>
-        <p>Each top digit is bigger than the bottom — simple column subtraction!</p>
-      </div>
-    </div>
-    <div id="snb-setup" class="setup-row">
+    <div id="sub-setup" class="setup-row">
       <div class="input-group">
         <label>First Number (larger)</label>
-        <input type="number" class="num-input" id="snb-a" value="79" min="1" max="99999">
+        <input type="number" class="num-input" id="sub-a" value="52" min="0" max="99999" oninput="onNumbersChanged('sub')">
       </div>
       <div class="input-group">
         <label>Second Number</label>
-        <input type="number" class="num-input" id="snb-b" value="34" min="1" max="99999">
+        <input type="number" class="num-input" id="sub-b" value="38" min="0" max="99999" oninput="onNumbersChanged('sub')">
       </div>
       <div class="digit-slider">
-        <label>Digits: <span id="snb-digits-val">2</span></label>
-        <input type="range" min="1" max="5" value="2" id="snb-digits" oninput="updateDigitLabel('snb')">
+        <label>Digits: <span id="sub-digits-val">2</span></label>
+        <input type="range" min="1" max="5" value="2" id="sub-digits" oninput="updateDigitLabel('sub')">
       </div>
-      <button class="btn btn-primary" onclick="generateRandom('snb')">🎲 Random</button>
-      <button class="btn btn-secondary" onclick="startSolve('snb')">▶ Solve Step-by-Step</button>
-      <button class="btn btn-light" onclick="resetSection('snb')">🔄 Reset</button>
+      <button class="btn btn-primary" onclick="generateRandom('sub')">🎲 Random</button>
+      <button class="btn btn-secondary" onclick="startSolve('sub')">▶ Solve Step-by-Step</button>
+      <button class="btn btn-light" onclick="resetSection('sub')">🔄 Reset</button>
     </div>
     <div class="equation-area">
       <div class="column-box">
-        <div id="snb-place-labels" class="place-labels"></div>
-        <div id="snb-carry-row" class="carry-row"></div>
-        <div id="snb-row-a" class="number-row"></div>
+        <div id="sub-place-labels" class="place-labels"></div>
+        <div id="sub-carry-row" class="carry-row"></div>
+        <div id="sub-row-a" class="number-row"></div>
         <div class="op-row">
-          <div class="op-sign" style="color:#27AE60;">−</div>
+          <div class="op-sign" style="color:#1E9E63;">−</div>
           <div class="op-line"></div>
         </div>
-        <div id="snb-row-b" class="number-row"></div>
+        <div id="sub-row-b" class="number-row"></div>
         <div class="op-row" style="margin-bottom:4px;">
           <div style="width:52px;"></div>
           <div class="op-line"></div>
         </div>
-        <div id="snb-row-ans" class="number-row answer-row"></div>
+        <div id="sub-row-ans" class="number-row answer-row"></div>
       </div>
       <div>
-        <div class="explanation-box" id="snb-explain">
+        <div class="explanation-box" id="sub-explain">
           <span class="explanation-icon">💡</span>
-          <span id="snb-explain-text">Enter numbers and press <b>Solve Step-by-Step</b> to begin!</span>
+          <span id="sub-explain-text">Enter numbers and press <b>Solve Step-by-Step</b> to begin!</span>
         </div>
         <div class="controls">
-          <button class="btn btn-primary" onclick="nextStep('snb')" id="snb-next-btn" style="display:none;">▶ Next Step</button>
-          <button class="btn btn-info" onclick="autoSolve('snb')" id="snb-auto-btn" style="display:none;">⚡ Auto Solve</button>
-          <button class="btn btn-warning" onclick="showHint('snb')" id="snb-hint-btn">💡 Hint</button>
+          <button class="btn btn-primary" onclick="nextStep('sub')" id="sub-next-btn" style="display:none;">▶ Next Step</button>
+          <button class="btn btn-info" onclick="autoSolve('sub')" id="sub-auto-btn" style="display:none;">⚡ Auto Solve</button>
+          <button class="btn btn-warning" onclick="showHint('sub')" id="sub-hint-btn">💡 Hint</button>
         </div>
-        <div class="hint-box" id="snb-hint"></div>
+        <div class="hint-box" id="sub-hint"></div>
       </div>
     </div>
     <div class="blocks-area">
-      <div class="blocks-title">📦 Place Value Blocks</div>
-      <div id="snb-blocks" class="blocks-row"></div>
+      <div class="blocks-title">📦 Place Value Blocks — watch them regroup!</div>
+      <div id="sub-blocks" class="blocks-stage"></div>
     </div>
-    <hr style="margin:20px 0;border:1px dashed var(--border);">
-    <div id="snb-practice-wrap">
+    <hr style="margin:22px 0;border:none;border-top:2px solid var(--surface2);">
+    <div id="sub-practice-wrap">
       <h3 style="margin-bottom:12px;font-size:16px;color:var(--text2);">🎯 Practice Mode</h3>
-      <div id="snb-practice"></div>
-    </div>
-  </section>
-
-  <!-- ===== SECTION 4: Subtraction With Borrow ===== -->
-  <section id="sub-b" class="section">
-    <div class="mode-header">
-      <div class="mode-icon" style="background:#EDE7F6;">🔄</div>
-      <div class="mode-title">
-        <h2 style="color:#8E44AD;">Subtraction With Borrowing</h2>
-        <p>When the top digit is smaller, we borrow from the next column!</p>
-      </div>
-    </div>
-    <div id="sb-setup" class="setup-row">
-      <div class="input-group">
-        <label>First Number (larger)</label>
-        <input type="number" class="num-input" id="sb-a" value="52" min="1" max="99999">
-      </div>
-      <div class="input-group">
-        <label>Second Number</label>
-        <input type="number" class="num-input" id="sb-b" value="38" min="1" max="99999">
-      </div>
-      <div class="digit-slider">
-        <label>Digits: <span id="sb-digits-val">2</span></label>
-        <input type="range" min="1" max="5" value="2" id="sb-digits" oninput="updateDigitLabel('sb')">
-      </div>
-      <button class="btn btn-primary" onclick="generateRandom('sb')">🎲 Random</button>
-      <button class="btn btn-secondary" onclick="startSolve('sb')">▶ Solve Step-by-Step</button>
-      <button class="btn btn-light" onclick="resetSection('sb')">🔄 Reset</button>
-    </div>
-    <div class="equation-area">
-      <div class="column-box">
-        <div id="sb-place-labels" class="place-labels"></div>
-        <div id="sb-carry-row" class="carry-row"></div>
-        <div id="sb-row-a" class="number-row"></div>
-        <div class="op-row">
-          <div class="op-sign" style="color:#8E44AD;">−</div>
-          <div class="op-line"></div>
-        </div>
-        <div id="sb-row-b" class="number-row"></div>
-        <div class="op-row" style="margin-bottom:4px;">
-          <div style="width:52px;"></div>
-          <div class="op-line"></div>
-        </div>
-        <div id="sb-row-ans" class="number-row answer-row"></div>
-      </div>
-      <div>
-        <div class="explanation-box" id="sb-explain">
-          <span class="explanation-icon">💡</span>
-          <span id="sb-explain-text">Enter numbers and press <b>Solve Step-by-Step</b> to begin!</span>
-        </div>
-        <div class="controls">
-          <button class="btn btn-primary" onclick="nextStep('sb')" id="sb-next-btn" style="display:none;">▶ Next Step</button>
-          <button class="btn btn-info" onclick="autoSolve('sb')" id="sb-auto-btn" style="display:none;">⚡ Auto Solve</button>
-          <button class="btn btn-warning" onclick="showHint('sb')" id="sb-hint-btn">💡 Hint</button>
-        </div>
-        <div class="hint-box" id="sb-hint"></div>
-      </div>
-    </div>
-    <div class="blocks-area">
-      <div class="blocks-title">📦 Place Value Blocks</div>
-      <div id="sb-blocks" class="blocks-row"></div>
-    </div>
-    <hr style="margin:20px 0;border:1px dashed var(--border);">
-    <div id="sb-practice-wrap">
-      <h3 style="margin-bottom:12px;font-size:16px;color:var(--text2);">🎯 Practice Mode</h3>
-      <div id="sb-practice"></div>
+      <div id="sub-practice"></div>
     </div>
   </section>
 
 </main>
 
-<!-- AUDIO (Web Audio API - no external files) -->
 <script>
 // ============================================================
 // AUDIO ENGINE
 // ============================================================
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
 let audioCtx;
-
-function getAudio() {
-  if (!audioCtx) audioCtx = new AudioCtx();
-  return audioCtx;
-}
-
+function getAudio() { if (!audioCtx) audioCtx = new AudioCtx(); return audioCtx; }
 function playTone(freq, duration, type='sine', vol=0.3) {
   try {
     const ctx = getAudio();
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.type = type;
-    osc.frequency.value = freq;
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = type; osc.frequency.value = freq;
     gain.gain.setValueAtTime(vol, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
-    osc.start();
-    osc.stop(ctx.currentTime + duration);
+    osc.start(); osc.stop(ctx.currentTime + duration);
   } catch(e) {}
 }
-
 function playCorrect() {
   playTone(523, 0.15, 'sine', 0.3);
   setTimeout(() => playTone(659, 0.15, 'sine', 0.3), 120);
   setTimeout(() => playTone(784, 0.25, 'sine', 0.3), 240);
 }
-
-function playWrong() {
-  playTone(220, 0.3, 'sawtooth', 0.2);
-}
-
-function playStep() {
-  playTone(440, 0.1, 'sine', 0.15);
-}
-
+function playWrong() { playTone(220, 0.3, 'sawtooth', 0.2); }
+function playStep() { playTone(440, 0.1, 'sine', 0.15); }
 function playCarry() {
   playTone(880, 0.15, 'sine', 0.25);
   setTimeout(() => playTone(1046, 0.2, 'sine', 0.2), 100);
@@ -1186,7 +740,7 @@ function playCarry() {
 // GLOBAL STATE
 // ============================================================
 const state = {};
-const SECTIONS = ['anc','ac','snb','sb'];
+const SECTIONS = ['add','sub'];
 const PLACE_NAMES = ['ones','tens','hund','thou','tth'];
 const PLACE_LABELS_TEXT = ['Ones','Tens','Hundreds','Thousands','Ten-Thousands'];
 
@@ -1197,22 +751,11 @@ let totalCorrect = 0;
 // UTILITY FUNCTIONS
 // ============================================================
 function getDigits(n) {
-  return String(Math.abs(n)).split('').map(Number).reverse(); // [ones, tens, ...]
+  return String(Math.abs(n)).split('').map(Number).reverse();
 }
+function clsName(pos) { return PLACE_NAMES[pos] || 'ones'; }
 
-function clsName(pos) {
-  return PLACE_NAMES[pos] || 'ones';
-}
-
-function padDigits(n, len) {
-  const d = getDigits(n);
-  while (d.length < len) d.push(0);
-  return d;
-}
-
-function toggleDark() {
-  document.body.classList.toggle('dark');
-}
+function toggleDark() { document.body.classList.toggle('dark'); }
 
 function updateDigitLabel(pfx) {
   const v = document.getElementById(pfx+'-digits').value;
@@ -1223,13 +766,66 @@ function switchSection(id) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  // match tab
-  const map = {'add-nc':'anc','add-c':'ac','sub-nb':'snb','sub-b':'sb'};
-  const invMap = {'anc':'add-nc','ac':'add-c','snb':'sub-nb','sb':'sub-b'};
   document.querySelectorAll('.nav-tab').forEach(t => {
     const onclick = t.getAttribute('onclick');
     if (onclick && onclick.includes("'"+id+"'")) t.classList.add('active');
   });
+}
+
+// ============================================================
+// AUTO-DETECTION: carry (addition) / borrow (subtraction)
+// ============================================================
+function isNoCarry(a, b) {
+  const da = getDigits(a), db = getDigits(b);
+  const len = Math.max(da.length, db.length);
+  while (da.length < len) da.push(0);
+  while (db.length < len) db.push(0);
+  let carry = 0;
+  for (let i = 0; i < len; i++) {
+    if (da[i] + db[i] + carry >= 10) return false;
+    carry = 0;
+  }
+  return true;
+}
+function isNoBorrow(a, b) {
+  const da = getDigits(a), db = getDigits(b);
+  const len = Math.max(da.length, db.length);
+  while (da.length < len) da.push(0);
+  while (db.length < len) db.push(0);
+  const mod = [...da];
+  for (let i = 0; i < len; i++) {
+    if (mod[i] < db[i]) return false;
+  }
+  return true;
+}
+
+function updateDetectChip(pfx) {
+  const aVal = parseInt(document.getElementById(pfx+'-a').value) || 0;
+  const bVal = parseInt(document.getElementById(pfx+'-b').value) || 0;
+  const chip = document.getElementById(pfx+'-detect-chip');
+  if (!chip) return;
+
+  if (pfx === 'add') {
+    const noCarry = isNoCarry(aVal, bVal);
+    chip.style.display = 'inline-flex';
+    chip.className = 'detect-chip ' + (noCarry ? 'plain' : 'special');
+    chip.textContent = noCarry ? '✓ No carrying needed' : '🚀 Carrying detected';
+  } else {
+    if (aVal < bVal) {
+      chip.style.display = 'inline-flex';
+      chip.className = 'detect-chip special';
+      chip.textContent = '⚠️ First number should be larger';
+      return;
+    }
+    const noBorrow = isNoBorrow(aVal, bVal);
+    chip.style.display = 'inline-flex';
+    chip.className = 'detect-chip ' + (noBorrow ? 'plain' : 'special');
+    chip.textContent = noBorrow ? '✓ No borrowing needed' : '🔄 Borrowing detected';
+  }
+}
+
+function onNumbersChanged(pfx) {
+  updateDetectChip(pfx);
 }
 
 // ============================================================
@@ -1242,18 +838,16 @@ function renderEquation(pfx, a, b, op) {
   while (digA.length < len) digA.push(0);
   while (digB.length < len) digB.push(0);
 
-  // Place labels
   const labelsEl = document.getElementById(pfx+'-place-labels');
   labelsEl.innerHTML = '';
   for (let i = len-1; i >= 0; i--) {
     const d = document.createElement('div');
     d.className = 'place-label pl-'+clsName(i);
     d.textContent = PLACE_LABELS_TEXT[i];
-    d.style.fontSize = len > 3 ? '9px' : '11px';
+    d.style.fontSize = len > 3 ? '9px' : '10.5px';
     labelsEl.appendChild(d);
   }
 
-  // Carry/borrow row
   const carryEl = document.getElementById(pfx+'-carry-row');
   carryEl.innerHTML = '';
   for (let i = len; i >= 0; i--) {
@@ -1263,11 +857,9 @@ function renderEquation(pfx, a, b, op) {
     carryEl.appendChild(d);
   }
 
-  // Row A
   renderRow(pfx+'-row-a', digA, len);
-  // Row B
   renderRow(pfx+'-row-b', digB, len);
-  // Answer row (empty)
+
   const ansEl = document.getElementById(pfx+'-row-ans');
   ansEl.innerHTML = '';
   for (let i = len; i >= 0; i--) {
@@ -1277,7 +869,6 @@ function renderEquation(pfx, a, b, op) {
     d.textContent = '';
     ansEl.appendChild(d);
   }
-  // hide the extra answer cell
   const extra = document.getElementById(pfx+'-ans-'+(len));
   if (extra) extra.style.display = 'none';
 }
@@ -1295,48 +886,145 @@ function renderRow(rowId, digits, len) {
 }
 
 // ============================================================
-// PLACE VALUE BLOCKS
+// PLACE VALUE BLOCKS (animated regrouping)
 // ============================================================
-function renderBlocks(pfx, a) {
+const PLACE_NAMES_FULL = ['Ones','Tens','Hundreds','Thousands'];
+const BG_CLS = ['bg-ones','bg-tens','bg-hund','bg-thou'];
+const COL_VARS = ['var(--col-ones)','var(--col-tens)','var(--col-hund)','var(--col-thou)'];
+
+function makeBlockEl(placeIdx) {
+  const el = document.createElement('div');
+  if (placeIdx === 0) { el.className = 'cube'; el.style.background = COL_VARS[0]; }
+  else if (placeIdx === 1) { el.className = 'rod'; el.style.background = COL_VARS[1]; }
+  else { el.className = 'square'; el.style.background = COL_VARS[2]; el.textContent = '100'; el.style.color = '#4A3B00'; }
+  return el;
+}
+
+function renderBlocksStatic(pfx, a, minCols) {
   const container = document.getElementById(pfx+'-blocks');
   container.innerHTML = '';
   const digits = getDigits(a);
-  const names = ['Ones','Tens','Hundreds','Thousands'];
-  const bgCls = ['bg-ones','bg-tens','bg-hund','bg-thou'];
+  // Render at least `minCols` columns (empty ones included) so that a fresh
+  // place-value column exists ahead of time if addition later carries into it.
+  const totalCols = Math.min(Math.max(digits.length, minCols||0), PLACE_NAMES_FULL.length);
 
-  digits.forEach((d, i) => {
-    if (d === 0 || i > 3) return;
-    const grp = document.createElement('div');
-    grp.className = 'block-group';
+  for (let i = 0; i < totalCols; i++) {
+    const d = digits[i] || 0;
+    const col = document.createElement('div');
+    col.className = 'blocks-col';
+    col.id = pfx+'-bcol-'+i;
 
     const lbl = document.createElement('div');
-    lbl.className = 'block-group-label '+bgCls[i];
-    lbl.style.color = i >= 2 ? '#333' : 'white';
-    lbl.textContent = names[i]+': '+d;
-    grp.appendChild(lbl);
+    lbl.className = 'blocks-col-label '+BG_CLS[i];
+    lbl.id = pfx+'-blbl-'+i;
+    lbl.textContent = PLACE_NAMES_FULL[i]+': '+d;
+    col.appendChild(lbl);
 
     const vis = document.createElement('div');
     vis.className = 'block-visual';
+    vis.id = pfx+'-bvis-'+i;
 
-    for (let j = 0; j < Math.min(d,10); j++) {
-      const block = document.createElement('div');
-      if (i === 0) block.className = 'cube';
-      else if (i === 1) block.className = 'rod';
-      else block.className = 'square';
-      if (i === 0) block.style.background = 'var(--col-ones)';
-      else if (i === 1) block.style.background = 'var(--col-tens)';
-      else { block.style.background = 'var(--col-hund)'; block.textContent = '100'; }
-      block.style.transition = 'all 0.3s';
-      block.style.animationDelay = (j*0.05)+'s';
+    for (let j = 0; j < d; j++) {
+      const block = makeBlockEl(i);
+      block.style.animationDelay = (j*0.04)+'s';
       vis.appendChild(block);
     }
-    if (d > 10 && i === 0) {
-      const more = document.createElement('div');
-      more.style.fontSize = '11px'; more.style.color = 'var(--text2)'; more.textContent = '...+'+( d-10);
-      vis.appendChild(more);
-    }
-    grp.appendChild(vis);
-    container.appendChild(grp);
+    col.appendChild(vis);
+    container.appendChild(col);
+  }
+}
+
+// Ensures a place-value column exists in the DOM (creating an empty one, inserted
+// in the correct place-value order, if it doesn't already exist). Needed because a
+// carry can overflow into a column that wasn't part of the original number (e.g. 95+8=103).
+function ensureBlocksCol(pfx, place) {
+  let col = document.getElementById(pfx+'-bcol-'+place);
+  if (col) return col;
+  if (place >= PLACE_NAMES_FULL.length) return null;
+  const container = document.getElementById(pfx+'-blocks');
+  if (!container) return null;
+
+  col = document.createElement('div');
+  col.className = 'blocks-col';
+  col.id = pfx+'-bcol-'+place;
+
+  const lbl = document.createElement('div');
+  lbl.className = 'blocks-col-label '+BG_CLS[place];
+  lbl.id = pfx+'-blbl-'+place;
+  lbl.textContent = PLACE_NAMES_FULL[place]+': 0';
+  col.appendChild(lbl);
+
+  const vis = document.createElement('div');
+  vis.className = 'block-visual';
+  vis.id = pfx+'-bvis-'+place;
+  col.appendChild(vis);
+
+  let inserted = false;
+  for (const existing of Array.from(container.children)) {
+    const existingPlace = parseInt(existing.id.split('-').pop(), 10);
+    if (existingPlace > place) { container.insertBefore(col, existing); inserted = true; break; }
+  }
+  if (!inserted) container.appendChild(col);
+  return col;
+}
+
+// Sets a column's label text to reflect a given block count.
+function setBlockLabel(pfx, place, count) {
+  const lbl = document.getElementById(pfx+'-blbl-'+place);
+  if (lbl) lbl.textContent = PLACE_NAMES_FULL[place] + ': ' + count;
+}
+
+// Re-reads the DOM to sync a column's label with however many blocks are actually
+// showing right now (call this once earlier animations on that column have settled).
+function syncBlockLabel(pfx, place) {
+  const vis = document.getElementById(pfx+'-bvis-'+place);
+  if (!vis) return;
+  setBlockLabel(pfx, place, vis.children.length);
+}
+
+// Adds `count` new blocks into a place-value column, animated flying in. Creates
+// the column first if it doesn't exist yet (e.g. a brand-new carry column).
+function addBlocksToCol(pfx, place, count) {
+  if (place >= PLACE_NAMES_FULL.length || count <= 0) return;
+  ensureBlocksCol(pfx, place);
+  const vis = document.getElementById(pfx+'-bvis-'+place);
+  if (!vis) return;
+  for (let j = 0; j < count; j++) {
+    const nb = makeBlockEl(place);
+    nb.classList.add('block-arrive');
+    nb.style.animationDelay = (j*0.04)+'s';
+    vis.appendChild(nb);
+  }
+}
+
+// Animate one new block arriving in `toPlace` column (the regrouped ten/hundred/etc).
+// Called after removeBlocksFromCol has already taken the 10 blocks away from `fromPlace`.
+function animateCarryBlocks(pfx, fromPlace, toPlace) {
+  addBlocksToCol(pfx, toPlace, 1);
+}
+
+// Animate borrowing: one block in `fromPlace` breaks into ten blocks of `toPlace` (toPlace = fromPlace-1)
+function animateBorrowBlocks(pfx, fromPlace, toPlace) {
+  const fromVis = document.getElementById(pfx+'-bvis-'+fromPlace);
+  if (!fromVis) return;
+  const blocks = fromVis.querySelectorAll(':scope > div');
+  if (blocks.length) {
+    const last = blocks[blocks.length-1];
+    last.classList.add('block-morph');
+    setTimeout(() => { if (last.parentNode) last.parentNode.removeChild(last); }, 700);
+  }
+  setTimeout(() => { addBlocksToCol(pfx, toPlace, 10); }, 250);
+}
+
+function removeBlocksFromCol(pfx, place, count) {
+  const vis = document.getElementById(pfx+'-bvis-'+place);
+  if (!vis) return;
+  const blocks = Array.from(vis.querySelectorAll(':scope > div')).slice(-count);
+  blocks.forEach((b,i) => {
+    setTimeout(() => {
+      b.classList.add('block-remove');
+      setTimeout(() => { if (b.parentNode) b.parentNode.removeChild(b); }, 500);
+    }, i*60);
   });
 }
 
@@ -1346,35 +1034,16 @@ function renderBlocks(pfx, a) {
 function startSolve(pfx) {
   const aVal = parseInt(document.getElementById(pfx+'-a').value) || 0;
   const bVal = parseInt(document.getElementById(pfx+'-b').value) || 0;
-  const isSub = pfx === 'snb' || pfx === 'sb';
+  const isSub = pfx === 'sub';
   const op = isSub ? 'sub' : 'add';
 
-  // Validate
   if (isSub && aVal < bVal) {
-    setExplain(pfx, '⚠️', 'The first number must be larger for subtraction! Try swapping.');
+    setExplain(pfx, '⚠️', 'The first number must be larger for subtraction! Try swapping the numbers.');
     return;
   }
 
-  // Check mode constraints
-  if (pfx === 'anc' && !isNoCarry(aVal, bVal)) {
-    setExplain(pfx, '⚠️', 'These numbers need a carry! Try the "Addition With Carry" tab, or use Random to get new numbers.');
-    return;
-  }
-  if (pfx === 'ac' && isNoCarry(aVal, bVal)) {
-    setExplain(pfx, '⚠️', 'These numbers don\'t need a carry! Try "Addition Without Carry" tab, or press Random.');
-    return;
-  }
-  if (pfx === 'snb' && !isNoBorrow(aVal, bVal)) {
-    setExplain(pfx, '⚠️', 'These numbers need borrowing! Try the "Subtraction With Borrowing" tab.');
-    return;
-  }
-  if (pfx === 'sb' && isNoBorrow(aVal, bVal)) {
-    setExplain(pfx, '⚠️', 'These numbers don\'t need borrowing! Try "Subtraction Without Borrowing" tab.');
-    return;
-  }
-
+  updateDetectChip(pfx);
   renderEquation(pfx, aVal, bVal, op);
-  renderBlocks(pfx, aVal);
 
   const digA = getDigits(aVal);
   const digB = getDigits(bVal);
@@ -1382,7 +1051,10 @@ function startSolve(pfx) {
   while (digA.length < len) digA.push(0);
   while (digB.length < len) digB.push(0);
 
-  // Build steps
+  // Any place-value column beyond what `a` has (e.g. from a bigger addend, or a
+  // final overflow carry like 95 + 8 = 103) is created on demand by addBlocksToCol.
+  renderBlocksStatic(pfx, aVal);
+
   const steps = buildSteps(pfx, digA, digB, len, op);
 
   state[pfx] = { steps, stepIdx: 0, a: aVal, b: bVal, len, digA, digB, op, autoTimer: null };
@@ -1390,30 +1062,16 @@ function startSolve(pfx) {
   document.getElementById(pfx+'-next-btn').style.display = '';
   document.getElementById(pfx+'-auto-btn').style.display = '';
 
-  setExplain(pfx, '🎯', 'Great! Let\'s solve this step by step. Press <b>Next Step</b> to start from the ones column.');
+  const introMsg = op === 'add'
+    ? (isNoCarry(aVal,bVal)
+        ? 'Great! No carrying needed here. Let\'s add each column, starting from the ones place.'
+        : 'Great! This one needs carrying. Let\'s solve it step by step, starting from the ones column.')
+    : (isNoBorrow(aVal,bVal)
+        ? 'Great! No borrowing needed here. Let\'s subtract each column, starting from the ones place.'
+        : 'Great! This one needs borrowing. Let\'s solve it step by step, starting from the ones column.');
+
+  setExplain(pfx, '🎯', introMsg);
   playStep();
-}
-
-function isNoCarry(a, b) {
-  const da = getDigits(a), db = getDigits(b);
-  const len = Math.max(da.length, db.length);
-  while (da.length < len) da.push(0);
-  while (db.length < len) db.push(0);
-  for (let i = 0; i < len; i++) {
-    if (da[i] + db[i] >= 10) return false;
-  }
-  return true;
-}
-
-function isNoBorrow(a, b) {
-  const da = getDigits(a), db = getDigits(b);
-  const len = Math.max(da.length, db.length);
-  while (da.length < len) da.push(0);
-  while (db.length < len) db.push(0);
-  for (let i = 0; i < len; i++) {
-    if (da[i] < db[i]) return false;
-  }
-  return true;
 }
 
 // ============================================================
@@ -1422,8 +1080,7 @@ function isNoBorrow(a, b) {
 function buildSteps(pfx, digA, digB, len, op) {
   const steps = [];
   const carries = new Array(len+1).fill(0);
-  const borrows = new Array(len).fill(0);
-  const modA = [...digA]; // modified top digits for borrow display
+  const modA = [...digA];
 
   if (op === 'add') {
     for (let i = 0; i < len; i++) {
@@ -1443,35 +1100,24 @@ function buildSteps(pfx, digA, digB, len, op) {
 
       const carryNote = carries[i] > 0 ? ` + carry ${carries[i]}` : '';
       steps.push({
-        type:'add-col',
-        col: i,
-        a: digA[i], b: digB[i], carry: carries[i], sum,
+        type:'add-col', col: i, a: digA[i], b: digB[i], carry: carries[i], sum,
         msg: `<b>${digA[i]} + ${digB[i]}${carryNote} = ${sum}</b>`
       });
 
       if (carry > 0) {
         carries[i+1] = carry;
         steps.push({
-          type:'do-carry',
-          col: i, nextCol: i+1, carry, digit,
-          msg: `${sum} is 10 or more! Write <b>${digit}</b> in ${PLACE_LABELS_TEXT[i].toLowerCase()} place and carry <b>${carry}</b> to ${PLACE_LABELS_TEXT[i+1].toLowerCase()}.`
+          type:'do-carry', col: i, nextCol: i+1, carry, digit,
+          msg: `${sum} is 10 or more! Write <b>${digit}</b> in ${PLACE_LABELS_TEXT[i].toLowerCase()} place and carry <b>${carry}</b> to ${PLACE_LABELS_TEXT[i+1].toLowerCase()}. Watch the blocks regroup! 📦`
         });
       } else {
-        steps.push({
-          type:'write-ans',
-          col: i, digit,
-          msg: `Write <b>${digit}</b> in the ${PLACE_LABELS_TEXT[i].toLowerCase()} place.`
-        });
+        steps.push({ type:'write-ans', col: i, digit, msg: `Write <b>${digit}</b> in the ${PLACE_LABELS_TEXT[i].toLowerCase()} place.` });
       }
     }
-    // Extra carry
     if (carries[len] > 0) {
-      steps.push({
-        type:'extra-carry', col: len, digit: carries[len],
-        msg: `There's still a carry of <b>${carries[len]}</b>! Write it in the ${PLACE_LABELS_TEXT[len].toLowerCase()} place.`
-      });
+      steps.push({ type:'extra-carry', col: len, digit: carries[len], msg: `There's still a carry of <b>${carries[len]}</b>! Write it in the ${PLACE_LABELS_TEXT[len].toLowerCase()} place.` });
     }
-  } else { // subtraction
+  } else {
     for (let i = 0; i < len; i++) {
       let top = modA[i];
       let bot = digB[i];
@@ -1483,40 +1129,32 @@ function buildSteps(pfx, digA, digB, len, op) {
       }
 
       if (top < bot) {
-        // Find next non-zero to borrow from
         let j = i + 1;
         while (j < len && modA[j] === 0) j++;
 
-        steps.push({
-          type:'need-borrow', col: i,
-          msg: `<b>${top}</b> is smaller than <b>${bot}</b>! We need to borrow from the <b>${PLACE_LABELS_TEXT[j].toLowerCase()}</b> column.`
-        });
+        steps.push({ type:'need-borrow', col: i, msg: `<b>${top}</b> is smaller than <b>${bot}</b>! We need to borrow from the <b>${PLACE_LABELS_TEXT[j].toLowerCase()}</b> column.` });
 
-        // Handle chain borrowing
         for (let k = j; k > i; k--) {
           steps.push({
             type:'do-borrow', col: k, fromCol: k, toCol: k-1,
-            msg: `Borrow 1 from <b>${PLACE_LABELS_TEXT[k].toLowerCase()}</b>: ${modA[k]} becomes ${modA[k]-1}, and ${PLACE_LABELS_TEXT[k-1].toLowerCase()} gets +10.`
+            msg: `Borrow 1 from <b>${PLACE_LABELS_TEXT[k].toLowerCase()}</b>: ${modA[k]} becomes ${modA[k]-1}, and ${PLACE_LABELS_TEXT[k-1].toLowerCase()} gets +10. Watch the block break apart! 📦`
           });
           modA[k] -= 1;
           modA[k-1] += 10;
         }
         top = modA[i];
-        steps.push({
-          type:'after-borrow', col: i, top, bot,
-          msg: `After borrowing, the top digit is now <b>${top}</b>. Now subtract: <b>${top} − ${bot}</b>.`
-        });
+        steps.push({ type:'after-borrow', col: i, top, bot, msg: `After borrowing, the top digit is now <b>${top}</b>. Now subtract: <b>${top} − ${bot}</b>.` });
       }
 
       const diff = modA[i] - bot;
-      steps.push({
-        type:'write-sub', col: i, digit: diff, top: modA[i], bot,
-        msg: `<b>${modA[i]} − ${bot} = ${diff}</b>. Write <b>${diff}</b> in the ${PLACE_LABELS_TEXT[i].toLowerCase()} place.`
-      });
+      steps.push({ type:'write-sub', col: i, digit: diff, top: modA[i], bot, msg: `<b>${modA[i]} − ${bot} = ${diff}</b>. Write <b>${diff}</b> in the ${PLACE_LABELS_TEXT[i].toLowerCase()} place.` });
     }
   }
 
-  steps.push({ type:'done', msg: `🎉 <b>Excellent!</b> The answer is <b>${Math.abs(op==='add' ? digA.reduce((s,v,i)=>s+v*Math.pow(10,i),0)+digB.reduce((s,v,i)=>s+v*Math.pow(10,i),0) : digA.reduce((s,v,i)=>s+v*Math.pow(10,i),0)-digB.reduce((s,v,i)=>s+v*Math.pow(10,i),0))}</b>! You're a Math Champion! 🏆` });
+  const finalAns = op==='add'
+    ? digA.reduce((s,v,i)=>s+v*Math.pow(10,i),0)+digB.reduce((s,v,i)=>s+v*Math.pow(10,i),0)
+    : digA.reduce((s,v,i)=>s+v*Math.pow(10,i),0)-digB.reduce((s,v,i)=>s+v*Math.pow(10,i),0);
+  steps.push({ type:'done', msg: `🎉 <b>Excellent!</b> The answer is <b>${Math.abs(finalAns)}</b>! You're a Math Champion! 🏆` });
   return steps;
 }
 
@@ -1533,10 +1171,7 @@ function nextStep(pfx) {
 function executeStep(pfx, step, s) {
   const { type, col, msg } = step;
   playStep();
-
-  // Clear all highlights first
   clearHighlights(pfx, s.len);
-
   setExplain(pfx, getStepIcon(type), msg);
 
   if (type === 'start' || type === 'move') {
@@ -1545,34 +1180,47 @@ function executeStep(pfx, step, s) {
   else if (type === 'show-carry') {
     highlightCol(pfx, col, s.len);
     const cc = document.getElementById(pfx+'-carry-'+col);
-    if (cc) { cc.innerHTML = `<span>${step.carry}</span>`; }
+    if (cc) cc.innerHTML = `<span>${step.carry}</span>`;
   }
   else if (type === 'add-col') {
     highlightCol(pfx, col, s.len);
+    // Visually add this column's second addend into the pile of blocks, so the
+    // column actually shows all of a+b(+carry-in) before any regrouping happens.
+    if (col <= 3 && step.b > 0) {
+      addBlocksToCol(pfx, col, step.b);
+      setTimeout(() => setBlockLabel(pfx, col, step.sum), 500);
+    }
   }
   else if (type === 'do-carry') {
     playCarry();
     highlightCol(pfx, col, s.len);
-    // Write answer digit
     const ansEl = document.getElementById(pfx+'-ans-'+col);
     if (ansEl) { ansEl.textContent = step.digit; ansEl.classList.add('filled'); }
-    // Animate carry
     setTimeout(() => {
       const cc = document.getElementById(pfx+'-carry-'+(col+1));
-      if (cc) {
-        cc.innerHTML = `<span class="animate-carry">${step.carry}</span>`;
-      }
+      if (cc) cc.innerHTML = `<span class="animate-carry">${step.carry}</span>`;
     }, 300);
     highlightCol(pfx, col+1, s.len);
+    // animate blocks: 10 blocks of col `col` become 1 block of col `col+1`
+    if (col <= 3) {
+      removeBlocksFromCol(pfx, col, 10);
+      setTimeout(() => {
+        setBlockLabel(pfx, col, step.digit);
+        animateCarryBlocks(pfx, col, col+1);
+        setTimeout(() => syncBlockLabel(pfx, col+1), 700);
+      }, 1100);
+    }
   }
   else if (type === 'write-ans') {
     const ansEl = document.getElementById(pfx+'-ans-'+col);
     if (ansEl) { ansEl.textContent = step.digit; ansEl.classList.add('filled'); }
     highlightCol(pfx, col, s.len);
+    if (col <= 3) setTimeout(() => setBlockLabel(pfx, col, step.digit), 500);
   }
   else if (type === 'extra-carry') {
     const ansEl = document.getElementById(pfx+'-ans-'+col);
     if (ansEl) { ansEl.style.display = 'flex'; ansEl.textContent = step.digit; ansEl.classList.add('filled'); }
+    if (col <= 3) setTimeout(() => syncBlockLabel(pfx, col), 700);
   }
   else if (type === 'need-borrow') {
     highlightCol(pfx, col, s.len);
@@ -1580,20 +1228,10 @@ function executeStep(pfx, step, s) {
   else if (type === 'do-borrow') {
     playCarry();
     highlightCol(pfx, step.fromCol, s.len);
-    // Show borrow animation
     const bc = document.getElementById(pfx+'-carry-'+step.fromCol);
-    if (bc) {
-      const modded = s.digA[step.fromCol] - (s.borrows ? (s.borrows[step.fromCol]||0) : 0) - 1;
-      bc.innerHTML = `<span class="animate-borrow" style="background:var(--borrow)">-1</span>`;
-    }
-    // Show +10 on lower column
+    if (bc) bc.innerHTML = `<span class="animate-borrow" style="background:var(--borrow)">-1</span>`;
     const bc2 = document.getElementById(pfx+'-carry-'+step.toCol);
-    if (bc2) {
-      setTimeout(() => {
-        bc2.innerHTML = `<span class="animate-carry" style="background:var(--borrow)">+10</span>`;
-      }, 400);
-    }
-    // Update display of top digit
+    if (bc2) setTimeout(() => { bc2.innerHTML = `<span class="animate-carry" style="background:var(--borrow)">+10</span>`; }, 400);
     setTimeout(() => {
       const topCell = document.getElementById(pfx+'-row-a-'+step.fromCol);
       if (topCell && s.modA) {
@@ -1602,10 +1240,14 @@ function executeStep(pfx, step, s) {
         topCell.style.opacity = '0.5';
       }
     }, 200);
+    // animate blocks: 1 block of fromCol breaks into 10 of toCol
+    if (step.fromCol <= 3) {
+      animateBorrowBlocks(pfx, step.fromCol, step.toCol);
+      setTimeout(() => { syncBlockLabel(pfx, step.fromCol); syncBlockLabel(pfx, step.toCol); }, 900);
+    }
   }
   else if (type === 'after-borrow') {
     highlightCol(pfx, col, s.len);
-    // Update top digit display
     const topCell = document.getElementById(pfx+'-row-a-'+col);
     if (topCell) {
       topCell.textContent = step.top;
@@ -1619,11 +1261,15 @@ function executeStep(pfx, step, s) {
     const ansEl = document.getElementById(pfx+'-ans-'+col);
     if (ansEl) { ansEl.textContent = step.digit; ansEl.classList.add('filled'); }
     highlightCol(pfx, col, s.len);
+    // remove the "used" blocks (the bottom number's worth) from this column, animated
+    if (col <= 3 && step.bot > 0) {
+      removeBlocksFromCol(pfx, col, step.bot);
+      setTimeout(() => syncBlockLabel(pfx, col), (step.bot*60)+600);
+    }
   }
   else if (type === 'done') {
     playCorrect();
     launchConfetti();
-    // Mark all answer cells as done
     for (let i = 0; i <= s.len; i++) {
       const el = document.getElementById(pfx+'-ans-'+i);
       if (el && el.textContent) el.classList.add('done');
@@ -1647,7 +1293,6 @@ function highlightCol(pfx, col, len) {
   if (cellA) cellA.classList.add('highlight');
   if (cellB) cellB.classList.add('highlight');
 }
-
 function clearHighlights(pfx, len) {
   for (let i = 0; i <= len; i++) {
     const a = document.getElementById(pfx+'-row-a-'+i);
@@ -1656,7 +1301,6 @@ function clearHighlights(pfx, len) {
     if (b) b.classList.remove('highlight');
   }
 }
-
 function getStepIcon(type) {
   const icons = {
     'start':'🎯', 'move':'👉', 'show-carry':'🚀', 'add-col':'🔢',
@@ -1666,7 +1310,6 @@ function getStepIcon(type) {
   };
   return icons[type] || '💡';
 }
-
 function setExplain(pfx, icon, html) {
   const el = document.getElementById(pfx+'-explain');
   document.querySelector('#'+pfx+'-explain .explanation-icon').textContent = icon;
@@ -1690,7 +1333,7 @@ function autoSolve(pfx) {
       return;
     }
     nextStep(pfx);
-  }, 1400);
+  }, 2000);
 }
 
 // ============================================================
@@ -1710,6 +1353,8 @@ function resetSection(pfx) {
   document.getElementById(pfx+'-blocks').innerHTML = '';
   const hintEl = document.getElementById(pfx+'-hint');
   if (hintEl) hintEl.classList.remove('visible');
+  const chip = document.getElementById(pfx+'-detect-chip');
+  if (chip) chip.style.display = 'none';
 }
 
 // ============================================================
@@ -1721,37 +1366,22 @@ function generateRandom(pfx) {
   const min = Math.pow(10, digits-1) || 1;
 
   let a, b;
-  let tries = 0;
-  do {
-    a = Math.floor(Math.random() * (max - min)) + min;
-    b = Math.floor(Math.random() * (max - min)) + min;
-    if (pfx === 'snb' || pfx === 'sb') { if (a < b) [a,b] = [b,a]; }
-    tries++;
-    if (tries > 200) break;
-  } while (!matchesMode(pfx, a, b));
+  a = Math.floor(Math.random() * (max - min + 1)) + min;
+  b = Math.floor(Math.random() * (max - min + 1)) + min;
+  if (pfx === 'sub' && a < b) [a,b] = [b,a];
 
   document.getElementById(pfx+'-a').value = a;
   document.getElementById(pfx+'-b').value = b;
-}
-
-function matchesMode(pfx, a, b) {
-  if (pfx === 'anc') return isNoCarry(a, b) && a > 0 && b > 0;
-  if (pfx === 'ac')  return !isNoCarry(a, b) && a > 0 && b > 0;
-  if (pfx === 'snb') return a >= b && isNoBorrow(a, b) && a > 0 && b >= 0;
-  if (pfx === 'sb')  return a >= b && !isNoBorrow(a, b) && a > 0 && b > 0;
-  return true;
+  updateDetectChip(pfx);
 }
 
 // ============================================================
 // HINTS
 // ============================================================
 const HINTS = {
-  anc: '💡 In addition without carry, just add each column separately from right to left. Each sum will be 9 or less!',
-  ac:  '💡 When two digits add up to 10 or more, write the ones digit in the answer and "carry" the tens digit to the next column!',
-  snb: '💡 In subtraction without borrowing, just subtract each column from right to left. The top digit is always bigger!',
-  sb:  '💡 When the top digit is smaller than the bottom, borrow 1 from the next column. The next column loses 1, and the current column gains 10!'
+  add: '💡 Add each column from right to left. If a column sums to 10 or more, write the ones digit and carry the tens digit to the next column — we detect this automatically!',
+  sub: '💡 Subtract each column from right to left. If the top digit is smaller than the bottom, borrow 1 from the next column: it loses 1, and the current column gains 10 — we detect this automatically!'
 };
-
 function showHint(pfx) {
   const hintEl = document.getElementById(pfx+'-hint');
   if (!hintEl) return;
@@ -1765,12 +1395,7 @@ function showHint(pfx) {
 const practiceState = {};
 
 function initPractice(pfx, container) {
-  practiceState[pfx] = {
-    score: 0, correct: 0, total: 0,
-    difficulty: 'easy',
-    a: 0, b: 0, answer: 0,
-    startTime: Date.now(), timer: null
-  };
+  practiceState[pfx] = { score: 0, correct: 0, total: 0, difficulty: 'easy', a: 0, b: 0, answer: 0, startTime: Date.now(), timer: null };
   renderPractice(pfx, container);
 }
 
@@ -1834,23 +1459,19 @@ function newPracQuestion(pfx) {
   const max = Math.pow(10, digits) - 1;
   const min = Math.pow(10, digits-1) || 1;
 
-  let a, b, tries=0;
-  do {
-    a = Math.floor(Math.random()*(max-min))+min;
-    b = Math.floor(Math.random()*(max-min))+min;
-    if (pfx === 'snb' || pfx === 'sb') { if (a < b) [a,b]=[b,a]; }
-    tries++;
-    if (tries > 300) break;
-  } while (!matchesMode(pfx, a, b));
+  let a, b;
+  a = Math.floor(Math.random()*(max-min+1))+min;
+  b = Math.floor(Math.random()*(max-min+1))+min;
+  if (pfx === 'sub' && a < b) [a,b] = [b,a];
 
   ps.a = a; ps.b = b;
-  ps.answer = (pfx === 'anc' || pfx === 'ac') ? a+b : a-b;
+  const isAdd = pfx === 'add';
+  const isSub = !isAdd;
+  ps.answer = isAdd ? a+b : a-b;
   ps.startTime = Date.now();
 
-  const isAdd = (pfx === 'anc' || pfx === 'ac');
-  const isSub = !isAdd;
   const op = isAdd ? '+' : '−';
-  const opColors = { anc:'#C0392B', ac:'#E67E22', snb:'#27AE60', sb:'#8E44AD' };
+  const opColors = { add:'#E0475A', sub:'#1E9E63' };
   const opColor = opColors[pfx] || 'var(--accent1)';
   const colClasses = ['col-ones','col-tens','col-hund','col-thou','col-tth'];
 
@@ -1860,7 +1481,6 @@ function newPracQuestion(pfx) {
   while (digA.length < len) digA.push(0);
   while (digB.length < len) digB.push(0);
 
-  // ---- compute carries (addition) ----
   const carries = new Array(len+1).fill(0);
   if (isAdd) {
     for (let i = 0; i < len; i++) {
@@ -1869,10 +1489,8 @@ function newPracQuestion(pfx) {
     }
   }
 
-  // ---- compute borrows (subtraction): which columns borrow FROM neighbour ----
-  // modA tracks the modified top digits after borrowing
   const modA = [...digA];
-  const borrowFrom = new Array(len).fill(false); // col i borrows from col i+1
+  const borrowFrom = new Array(len).fill(false);
   if (isSub) {
     for (let i = 0; i < len; i++) {
       if (modA[i] < digB[i]) {
@@ -1891,73 +1509,47 @@ function newPracQuestion(pfx) {
   ps.carries = carries; ps.borrowFrom = borrowFrom;
   ps.isAdd = isAdd;
 
-  // ---- render carry row ----
+  // detect chip label inside the practice question (uses same chip logic as solver)
+  const needsSpecial = isAdd ? !isNoCarry(a,b) : !isNoBorrow(a,b);
+
   const carriesEl = document.getElementById(pfx+'-veq-carries');
   if (carriesEl) {
     carriesEl.innerHTML = '';
-    // Render carry cells from highest to lowest (left to right)
     const hasCarries = isAdd && carries.slice(1).some(c => c > 0);
     const hasBorrows = isSub && borrowFrom.some(Boolean);
     if (hasCarries || hasBorrows) {
-      // spacer for op column
       const spacer = document.createElement('span');
       spacer.style.minWidth = '38px';
       carriesEl.appendChild(spacer);
 
       if (isAdd) {
-        // extra carry cell (e.g. hundreds position when adding 2-digit)
-        const extraCarryCol = len; // position len
+        const extraCarryCol = len;
         const extraCell = document.createElement('div');
         extraCell.className = 'veq-carry-cell';
         extraCell.id = pfx+'-pvc-'+extraCarryCol;
-        if (carries[extraCarryCol] > 0) {
-          extraCell.innerHTML = `<span class="veq-carry-chip">${carries[extraCarryCol]}</span>`;
-        }
+        if (carries[extraCarryCol] > 0) extraCell.innerHTML = `<span class="veq-carry-chip">${carries[extraCarryCol]}</span>`;
         carriesEl.appendChild(extraCell);
-
         for (let i = len-1; i >= 0; i--) {
           const cell = document.createElement('div');
           cell.className = 'veq-carry-cell';
           cell.id = pfx+'-pvc-'+i;
-          if (carries[i] > 0) {
-            cell.innerHTML = `<span class="veq-carry-chip">${carries[i]}</span>`;
-          }
+          if (carries[i] > 0) cell.innerHTML = `<span class="veq-carry-chip">${carries[i]}</span>`;
           carriesEl.appendChild(cell);
         }
       } else {
-        // borrow indicators: show "-1" above the column being borrowed FROM
-        for (let i = len-1; i >= 0; i--) {
-          const cell = document.createElement('div');
-          cell.className = 'veq-carry-cell';
-          cell.id = pfx+'-pvc-'+i;
-          // if this column was borrowed FROM by the column to its right
-          if (i < len-1 && borrowFrom[i-1] !== undefined && borrowFrom[i] === true) {
-            cell.innerHTML = `<span class="veq-borrow-chip">-1</span>`;
-          } else if (borrowFrom[i-1] === true && i > 0) {
-            // col i was the source for i-1
-          }
-          carriesEl.appendChild(cell);
-        }
-        // Re-do: mark columns that are borrowed FROM
-        // borrowFrom[i] = col i borrows from col i+1
-        // so col i+1 loses 1 → show -1 above col i+1 digit
         carriesEl.innerHTML = '';
-        carriesEl.appendChild(spacer.cloneNode());
+        carriesEl.appendChild(spacer);
         for (let i = len-1; i >= 0; i--) {
           const cell = document.createElement('div');
           cell.className = 'veq-carry-cell';
           cell.id = pfx+'-pvc-'+i;
-          // col i is borrowed FROM if borrowFrom[i-1] === true (i.e. col i-1 borrows from col i)
-          if (i > 0 && borrowFrom[i-1] === true) {
-            cell.innerHTML = `<span class="veq-borrow-chip">−1</span>`;
-          }
+          if (i > 0 && borrowFrom[i-1] === true) cell.innerHTML = `<span class="veq-borrow-chip">−1</span>`;
           carriesEl.appendChild(cell);
         }
       }
     }
   }
 
-  // ---- render top number (row A) with individual digit cells ----
   const rowA = document.getElementById(pfx+'-veq-row-a');
   if (rowA) {
     rowA.innerHTML = '';
@@ -1970,9 +1562,7 @@ function newPracQuestion(pfx) {
       const cell = document.createElement('span');
       cell.className = 'veq-digit-cell '+colClasses[i];
       cell.id = pfx+'-pvda-'+i;
-      // For subtraction, show modified digit if borrowed
       if (isSub && modA[i] !== digA[i]) {
-        // Show original crossed out, then new value
         cell.innerHTML = `<span class="veq-digit-cell borrowed-old">${digA[i]}</span><span class="veq-digit-cell borrowed-new">${modA[i]}</span>`;
       } else {
         cell.textContent = digA[i];
@@ -1981,7 +1571,6 @@ function newPracQuestion(pfx) {
     }
   }
 
-  // ---- render bottom number (row B) ----
   const rowB = document.getElementById(pfx+'-veq-row-b');
   if (rowB) {
     rowB.innerHTML = '';
@@ -1999,11 +1588,10 @@ function newPracQuestion(pfx) {
     }
   }
 
-  // Show "Show Carries" hint button only for carry/borrow modes
   const carryBtn = document.getElementById(pfx+'-prac-carry-btn');
   if (carryBtn) {
-    carryBtn.style.display = (pfx === 'ac' || pfx === 'sb') ? '' : 'none';
-    carryBtn.textContent = pfx === 'ac' ? '💡 Show Carries' : '💡 Show Borrows';
+    carryBtn.style.display = needsSpecial ? '' : 'none';
+    carryBtn.textContent = isAdd ? '💡 Show Carries' : '💡 Show Borrows';
   }
 
   const inp = document.getElementById(pfx+'-prac-input');
@@ -2018,43 +1606,32 @@ function showPracCarries(pfx) {
   const carriesEl = document.getElementById(pfx+'-veq-carries');
   if (!carriesEl) return;
 
-  if (pfx === 'ac') {
-    // Animate each carry chip into its cell
+  if (pfx === 'add') {
     const carries = ps.carries || [];
     const len = ps.len || 0;
-    // Extra carry column (leftmost)
     if (carries[len] > 0) {
       const ec = document.getElementById(pfx+'-pvc-'+len);
-      if (ec && !ec.innerHTML.trim()) {
-        ec.innerHTML = `<span class="veq-carry-chip">${carries[len]}</span>`;
-      }
+      if (ec && !ec.innerHTML.trim()) ec.innerHTML = `<span class="veq-carry-chip">${carries[len]}</span>`;
     }
     for (let i = 0; i < len; i++) {
       if (carries[i] > 0) {
         const cell = document.getElementById(pfx+'-pvc-'+i);
         if (cell && !cell.innerHTML.trim()) {
-          setTimeout(() => {
-            cell.innerHTML = `<span class="veq-carry-chip">${carries[i]}</span>`;
-          }, (len-1-i)*120);
+          setTimeout(() => { cell.innerHTML = `<span class="veq-carry-chip">${carries[i]}</span>`; }, (len-1-i)*120);
         }
       }
     }
     playCarry();
-  } else if (pfx === 'sb') {
+  } else if (pfx === 'sub') {
     const borrowFrom = ps.borrowFrom || [];
     const len = ps.len || 0;
     const modA = ps.modA || ps.digA || [];
     const digA = ps.digA || [];
-    // Highlight borrow sources and show modified top digits
     for (let i = 0; i < len; i++) {
       if (i > 0 && borrowFrom[i-1] === true) {
-        // col i was borrowed from
         const cell = document.getElementById(pfx+'-pvc-'+i);
-        if (cell && !cell.innerHTML.trim()) {
-          cell.innerHTML = `<span class="veq-borrow-chip">−1</span>`;
-        }
+        if (cell && !cell.innerHTML.trim()) cell.innerHTML = `<span class="veq-borrow-chip">−1</span>`;
       }
-      // Update top digit cells to show modified values
       const topCell = document.getElementById(pfx+'-pvda-'+i);
       if (topCell && modA[i] !== digA[i]) {
         topCell.innerHTML = `<span class="veq-digit-cell borrowed-old" style="font-size:22px;">${digA[i]}</span><span class="veq-digit-cell borrowed-new">${modA[i]}</span>`;
@@ -2118,17 +1695,13 @@ function updatePracStats(pfx, ps) {
   if (te) te.textContent = ps.total;
   if (stre) stre.textContent = practiceStreaks[pfx] || 0;
 
-  // Stars
   const pct = ps.total > 0 ? (ps.correct / ps.total) : 0;
   const starsEl = document.getElementById(pfx+'-prac-stars');
   if (starsEl) {
     const stars = starsEl.querySelectorAll('.star');
-    stars.forEach((s,i) => {
-      s.classList.toggle('lit', pct >= (i===0?0.33:i===1?0.67:0.90));
-    });
+    stars.forEach((s,i) => { s.classList.toggle('lit', pct >= (i===0?0.33:i===1?0.67:0.90)); });
   }
 
-  // Progress bar
   const prog = document.getElementById(pfx+'-prac-prog');
   if (prog) prog.style.width = Math.min(ps.correct*10, 100)+'%';
 }
@@ -2139,7 +1712,6 @@ function checkBadges(pfx, ps, streak) {
   if (ps.correct === 10) earnBadge(pfx+'-badge-10');
   if (streak >= 5) earnBadge(pfx+'-badge-streak');
 }
-
 function earnBadge(id) {
   const b = document.getElementById(id);
   if (b && !b.classList.contains('earned')) {
@@ -2171,7 +1743,7 @@ function startPracTimer(pfx) {
 // ============================================================
 function launchConfetti() {
   const container = document.getElementById('confetti');
-  const colors = ['#FF6B35','#4ECDC4','#FFE66D','#A8E6CF','#C779D0','#FF6B6B','#45B7D1'];
+  const colors = ['#6C5CE7','#00B8A9','#FFC53D','#4CD787','#A78BFA','#FF7A7A','#3E8FF5'];
   for (let i = 0; i < 60; i++) {
     const p = document.createElement('div');
     p.className = 'confetti-piece';
@@ -2191,9 +1763,7 @@ function launchConfetti() {
 // ============================================================
 // MASCOT ANIMATIONS
 // ============================================================
-const mascotStates = {
-  idle: '🦉', celebrate: '🎉', think: '🤔', teach: '📚'
-};
+const mascotStates = { idle: '🦉', celebrate: '🎉', think: '🤔', teach: '📚' };
 function updateMascot(state) {
   const m = document.getElementById('mascot');
   if (!m) return;
@@ -2202,12 +1772,13 @@ function updateMascot(state) {
 }
 
 // ============================================================
-// INIT ALL SECTIONS
+// INIT
 // ============================================================
 window.addEventListener('DOMContentLoaded', () => {
   SECTIONS.forEach(pfx => {
     const container = document.getElementById(pfx+'-practice');
     if (container) initPractice(pfx, container);
+    updateDetectChip(pfx);
   });
 });
 </script>
