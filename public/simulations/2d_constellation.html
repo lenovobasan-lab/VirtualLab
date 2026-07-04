@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Constellation 2D</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        space: {
+                            950: '#03050d',
+                            900: '#070b19',
+                            800: '#0f172a',
+                            700: '#1e293b',
+                            500: '#38bdf8',
+                            400: '#0ea5e9'
+                        },
+                        gold: {
+                            400: '#f0d9a8',
+                            500: '#e8c887'
+                        }
+                    },
+                    fontFamily: {
+                        display: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+                        sans: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts & FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Modern Glassmorphism Styling */
+        .glass {
+            background: rgba(7, 11, 25, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
+        }
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-btn:hover {
+            background: rgba(56, 189, 248, 0.1);
+            border-color: rgba(56, 189, 248, 0.4);
+            color: #38bdf8;
+            transform: translateY(-1px);
+        }
+        .glass-btn.active {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: #38bdf8;
+            color: #38bdf8;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+        }
+        /* Scrollbar customization */
+        .custom-scroll::-webkit-scrollbar {
+            width: 5px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 99px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(56, 189, 248, 0.4);
+        }
+        
+        /* Slider Customization */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            background: #38bdf8;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+            margin-top: -4px;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 99px;
+        }
+
+        canvas {
+            touch-action: none;
+        }
+
+        /* Keyboard accessibility */
+        button:focus-visible,
+        input:focus-visible {
+            outline: 2px solid #38bdf8;
+            outline-offset: 2px;
+            border-radius: 6px;
+        }
+
+        /* Celestial display type for wordmark, object names & constellation names */
+        .font-display {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+        }
+
+        /* Loader constellation animation */
+        #loader-svg .loader-link {
+            stroke-dasharray: 140;
+            stroke-dashoffset: 140;
+            animation: draw-link 2.6s ease-in-out infinite;
+        }
+        #loader-svg .loader-star {
+            transform-origin: center;
+            animation: pulse-star 2.6s ease-in-out infinite;
+        }
+        @keyframes draw-link {
+            0%   { stroke-dashoffset: 140; }
+            45%  { stroke-dashoffset: 0; }
+            80%  { stroke-dashoffset: 0; opacity: 1; }
+            100% { stroke-dashoffset: 0; opacity: 0.15; }
+        }
+        @keyframes pulse-star {
+            0%, 100% { opacity: 0.35; }
+            50% { opacity: 1; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #loader-svg .loader-link,
+            #loader-svg .loader-star,
+            .animate-spin,
+            .animate-pulse {
+                animation: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-space-950 text-slate-100 overflow-hidden font-sans select-none w-screen h-screen">
+
+    <!-- Screen Loader -->
+    <div id="loader" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-space-950 transition-opacity duration-500">
+        <!-- Ambient background twinkles behind the loader -->
+        <div id="loader-twinkles" class="absolute inset-0 overflow-hidden pointer-events-none"></div>
+
+        <div class="relative flex flex-col items-center text-center px-4 max-w-sm">
+            <!-- Animated constellation forming mark -->
+            <svg id="loader-svg" viewBox="0 0 160 120" class="w-36 h-28 mb-5" fill="none">
+                <circle class="loader-star" cx="30" cy="85" r="3" fill="#e8c887" style="animation-delay:0s"/>
+                <circle class="loader-star" cx="62" cy="50" r="3.4" fill="#ffffff" style="animation-delay:0.3s"/>
+                <circle class="loader-star" cx="98" cy="60" r="2.6" fill="#ffffff" style="animation-delay:0.6s"/>
+                <circle class="loader-star" cx="130" cy="30" r="3.8" fill="#e8c887" style="animation-delay:0.9s"/>
+                <circle class="loader-star" cx="108" cy="95" r="2.4" fill="#ffffff" style="animation-delay:1.2s"/>
+                <path class="loader-link" d="M30 85 L62 50" stroke="#38bdf8" stroke-width="1.5" style="animation-delay:0s"/>
+                <path class="loader-link" d="M62 50 L98 60" stroke="#38bdf8" stroke-width="1.5" style="animation-delay:0.3s"/>
+                <path class="loader-link" d="M98 60 L130 30" stroke="#38bdf8" stroke-width="1.5" style="animation-delay:0.6s"/>
+                <path class="loader-link" d="M98 60 L108 95" stroke="#38bdf8" stroke-width="1.5" style="animation-delay:0.9s"/>
+            </svg>
+
+            <h1 class="font-display italic text-3xl font-semibold tracking-wide text-white mb-1">Stellaris <span class="text-space-500 not-italic">2D</span></h1>
+            <p class="text-[10px] text-slate-400 uppercase tracking-[0.25em] mb-6">Vector Sky Explorer</p>
+
+            <div class="w-48 h-[3px] bg-slate-900 rounded-full overflow-hidden mb-2.5">
+                <div id="loader-bar" class="w-0 h-full rounded-full transition-all duration-300" style="background: linear-gradient(90deg, #0ea5e9, #38bdf8, #e8c887);"></div>
+            </div>
+            <span id="loader-status" class="text-[10px] text-slate-500 font-mono tracking-wider uppercase">Charting stellar coordinates</span>
+        </div>
+    </div>
+
+    <!-- MAIN RENDERING CANVAS -->
+    <canvas id="sky-canvas" class="absolute inset-0 z-0 bg-space-950"></canvas>
+
+    <!-- HEADER & SEARCH OVERLAY -->
+    <header class="absolute top-4 left-4 right-4 z-20 flex justify-between items-center gap-3 pointer-events-none">
+        <div class="glass flex items-center gap-3 px-4 py-2.5 rounded-xl pointer-events-auto">
+            <div class="relative w-6 h-6 flex items-center justify-center shrink-0">
+                <div class="absolute inset-0 rounded-full border border-space-500/30 animate-spin" style="animation-duration: 20s"></div>
+                <i class="fa-solid fa-star text-space-500 text-[10px]"></i>
+            </div>
+            <div class="leading-tight">
+                <h2 class="font-display italic text-base font-semibold tracking-wide text-white">Constellation 2D</h2>
+                <p class="text-[9px] text-slate-400 uppercase tracking-wider -mt-0.5">Created by Basanta</p>
+            </div>
+        </div>
+
+        <!-- Search Input -->
+        <div class="relative w-64 max-w-xs pointer-events-auto hidden sm:block">
+            <div class="glass flex items-center px-3 py-2 rounded-xl">
+                <i class="fa-solid fa-magnifying-glass text-slate-400 mr-2 text-xs"></i>
+                <input id="search-input" type="text" placeholder="Search stars, constellations…" class="w-full bg-transparent text-xs text-white focus:outline-none placeholder-slate-500">
+                <button id="clear-search" class="hidden text-slate-400 hover:text-white ml-2 text-xs" aria-label="Clear search">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="search-results" class="absolute top-full left-0 right-0 mt-1.5 glass rounded-xl max-h-56 overflow-y-auto hidden custom-scroll z-30 text-xs">
+                <!-- Dropdown items rendered via JS -->
+            </div>
+        </div>
+
+        <!-- Coordinates HUD -->
+        <div class="glass px-4 py-2.5 rounded-xl pointer-events-auto flex items-center gap-4 text-right">
+            <div class="leading-tight">
+                <p id="hud-zoom" class="text-[11px] font-mono font-semibold tracking-wider text-white">Zoom 1.0x</p>
+                <p class="text-[9px] text-space-500 uppercase tracking-widest font-bold -mt-0.5">Interactive Sky</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- LEFT SIDEBAR: QUICK VIEW ADJUSTMENTS -->
+    <nav class="absolute left-4 top-20 z-20 flex flex-col gap-2 pointer-events-auto">
+        <div class="glass p-1.5 rounded-xl flex flex-col gap-1">
+            <button id="btn-lines" class="w-9 h-9 rounded-lg flex items-center justify-center text-slate-300 glass-btn active group" title="Toggle Constellation Lines">
+                <i class="fa-solid fa-draw-polygon text-xs"></i>
+            </button>
+            <button id="btn-labels" class="w-9 h-9 rounded-lg flex items-center justify-center text-slate-300 glass-btn active group" title="Toggle Star Labels">
+                <i class="fa-solid fa-tag text-xs"></i>
+            </button>
+            <button id="btn-grid" class="w-9 h-9 rounded-lg flex items-center justify-center text-slate-300 glass-btn group" title="Toggle Coordinate Grid">
+                <i class="fa-solid fa-globe text-xs"></i>
+            </button>
+        </div>
+        <div class="glass p-1.5 rounded-xl flex flex-col gap-1">
+            <button id="btn-zoom-in" class="w-9 h-9 rounded-lg flex items-center justify-center text-slate-300 glass-btn" title="Zoom In">
+                <i class="fa-solid fa-plus text-xs"></i>
+            </button>
+            <button id="btn-zoom-out" class="w-9 h-9 rounded-lg flex items-center justify-center text-slate-300 glass-btn" title="Zoom Out">
+                <i class="fa-solid fa-minus text-xs"></i>
+            </button>
+            <button id="btn-reset" class="w-9 h-9 rounded-lg flex items-center justify-center text-slate-300 glass-btn" title="Reset Map Pan/Zoom">
+                <i class="fa-solid fa-arrows-to-eye text-xs"></i>
+            </button>
+        </div>
+        <div class="glass p-1.5 rounded-xl flex flex-col gap-1">
+            <button id="btn-fullscreen" class="w-9 h-9 rounded-lg flex items-center justify-center text-slate-300 glass-btn" title="Toggle Fullscreen">
+                <i class="fa-solid fa-expand text-xs"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- BOTTOM LEFT: ANIMATION SPEED CONTROL -->
+    <div class="absolute bottom-4 left-4 z-20 glass px-3.5 py-2.5 rounded-xl pointer-events-auto flex items-center gap-3">
+        <i class="fa-solid fa-stopwatch text-space-500 text-xs shrink-0" title="Drawing Animation Speed"></i>
+        <div class="leading-tight">
+            <span class="block text-[8px] text-slate-500 uppercase tracking-wider">Trace Speed</span>
+            <div class="flex items-center gap-2">
+                <input id="speed-slider" type="range" min="5" max="200" value="50" class="w-24 h-1 outline-none" aria-label="Constellation trace animation speed">
+                <span id="speed-display" class="text-[10px] font-mono text-white w-8 text-right">1.0x</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT SIDEBAR: CONSTELLATIONS DIRECTORY & ALMANAC -->
+    <aside class="absolute right-4 top-20 bottom-4 w-72 z-20 pointer-events-none flex flex-col gap-3">
+        
+        <div class="glass p-1 rounded-lg flex gap-1 pointer-events-auto shrink-0">
+            <button id="tab-const" class="flex-1 py-1.5 text-[10px] font-semibold uppercase tracking-wider rounded-md transition-all text-white bg-space-500/20 border border-space-500/30">
+                Constellations
+            </button>
+            <button id="tab-almanac" class="flex-1 py-1.5 text-[10px] font-semibold uppercase tracking-wider rounded-md transition-all text-slate-400 hover:text-white">
+                Almanac
+            </button>
+        </div>
+
+        <!-- Constellation List Tab -->
+        <div id="panel-const" class="glass rounded-xl p-3.5 flex-1 flex flex-col overflow-hidden pointer-events-auto">
+            <span class="text-[9px] uppercase tracking-wider text-space-500 font-bold block mb-2">Directory</span>
+            <div id="const-list" class="flex-1 overflow-y-auto custom-scroll space-y-1.5">
+                <!-- List items injected dynamically -->
+            </div>
+        </div>
+
+        <!-- Almanac Data Tab -->
+        <div id="panel-almanac" class="glass rounded-xl p-3.5 flex-1 flex flex-col pointer-events-auto overflow-y-auto custom-scroll hidden">
+            <div id="almanac-empty" class="h-full flex flex-col items-center justify-center text-center text-slate-400 p-2">
+                <i class="fa-solid fa-circle-nodes text-xl text-space-500/30 mb-3 animate-pulse"></i>
+                <p class="text-[11px] leading-relaxed">Click a star or constellation to inspect precise celestial parameters.</p>
+            </div>
+
+            <div id="almanac-data" class="hidden space-y-3 text-xs">
+                <div class="bg-slate-950/40 border border-white/5 p-3 rounded-lg">
+                    <span id="obj-type" class="text-[9px] uppercase font-mono tracking-wider text-space-500 font-bold block">Star Object</span>
+                    <h3 id="obj-name" class="font-display italic text-2xl font-semibold text-white mt-0.5 leading-none">Vega</h3>
+                    <p id="obj-sub" class="text-[10px] font-mono text-slate-400 mt-1">Alpha Lyrae</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-1.5 text-center text-[10px]">
+                    <div class="bg-slate-950/35 border border-white/5 p-2 rounded-md">
+                        <span class="text-[8px] text-slate-400 block uppercase tracking-wider">Magnitude</span>
+                        <span id="stat-mag" class="font-semibold text-white font-mono text-[11px]">-</span>
+                    </div>
+                    <div class="bg-slate-950/35 border border-white/5 p-2 rounded-md">
+                        <span class="text-[8px] text-slate-400 block uppercase tracking-wider">Distance</span>
+                        <span id="stat-dist" class="font-semibold text-white font-mono text-[11px]">-</span>
+                    </div>
+                </div>
+
+                <div class="border-t border-white/5 pt-2.5">
+                    <span class="text-[9px] uppercase tracking-wider text-space-500 font-bold block mb-1.5">Mythology & Info</span>
+                    <p id="obj-desc" class="text-[11.5px] text-slate-300 leading-relaxed">Detailed astronomical and historical lore describing coordinates...</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- INLINE CANVAS INTERACTION UTILITIES -->
+    <script>
+        // Curated precise 2D Coordinates for stars inside custom sky dome
+        const starDatabase = [
+            // Big Dipper (Ursa Major)
+            { id: "alkaid", name: "Alkaid", bayer: "η UMa", mag: 1.85, dist: "101 LY", x: 250, y: 150, desc: "A bright blue-white star marking the tip of the Great Bear's tail." },
+            { id: "mizar", name: "Mizar", bayer: "ζ UMa", mag: 2.23, dist: "83 LY", x: 280, y: 170, desc: "Famous double star system with Alcor, used to test visual acuity in antiquity." },
+            { id: "alioth", name: "Alioth", bayer: "ε UMa", mag: 1.76, dist: "81 LY", x: 310, y: 180, desc: "The brightest star in Ursa Major, serving as the tail joint close to the bowl." },
+            { id: "megrez", name: "Megrez", bayer: "δ UMa", mag: 3.32, dist: "81 LY", x: 340, y: 190, desc: "The dimmest star of the Big Dipper asterism, connecting the handle to the bowl." },
+            { id: "phecda", name: "Phecda", bayer: "γ UMa", mag: 2.41, dist: "83 LY", x: 330, y: 230, desc: "Forms the bottom left corner of the Big Dipper's bucket bowl." },
+            { id: "merak", name: "Merak", bayer: "β UMa", mag: 2.34, dist: "79 LY", x: 370, y: 240, desc: "One of the two pointer stars used to find Polaris." },
+            { id: "dubhe", name: "Dubhe", bayer: "α UMa", mag: 1.81, dist: "123 LY", x: 380, y: 200, desc: "An orange giant pointer star facing directly towards Polaris." },
+
+            // Polaris / Ursa Minor (Little Dipper)
+            { id: "polaris", name: "Polaris", bayer: "α UMi", mag: 1.97, dist: "433 LY", x: 420, y: 80, desc: "The North Star, situated nearly exactly above the Earth's celestial axis of rotation." },
+            { id: "yildun", name: "Yildun", bayer: "δ UMi", mag: 4.35, dist: "172 LY", x: 400, y: 110, desc: "A white main-sequence star inside the tail of the Little Dipper." },
+            { id: "urop", name: "Urodelus", bayer: "ε UMi", mag: 4.21, dist: "300 LY", x: 385, y: 125, desc: "A giant star forming the middle handle of Ursa Minor." },
+            { id: "kochab", name: "Kochab", bayer: "β UMi", mag: 2.07, dist: "130 LY", x: 350, y: 140, desc: "A giant orange star standing as the brightest star in the bowl of the Little Dipper." },
+            { id: "pherkad", name: "Pherkad", bayer: "γ UMi", mag: 3.00, dist: "480 LY", x: 340, y: 115, desc: "Part of the outer edge of the Little Dipper bowl, known alongside Kochab as Guardians of the Pole." },
+
+            // Orion
+            { id: "betelgeuse", name: "Betelgeuse", bayer: "α Ori", mag: 0.50, dist: "640 LY", x: 180, y: 340, desc: "A colossal red supergiant expected to explode as a spectacular supernova soon." },
+            { id: "bellatrix", name: "Bellatrix", bayer: "γ Ori", mag: 1.64, dist: "250 LY", x: 230, y: 350, desc: "The Amazon Star, marking the right shoulder of the hunter Orion." },
+            { id: "alnitak", name: "Alnitak", bayer: "ζ Ori", mag: 1.74, dist: "700 LY", x: 190, y: 390, desc: "The easternmost star of Orion's famous three-star Belt." },
+            { id: "alnilam", name: "Alnilam", bayer: "ε Ori", mag: 1.69, dist: "1340 LY", x: 205, y: 395, desc: "The bright blue supergiant star sitting directly in the center of the Belt." },
+            { id: "mintaka", name: "Mintaka", bayer: "δ Ori", mag: 2.25, dist: "915 LY", x: 220, y: 400, desc: "The westernmost star of Orion's Belt, sitting almost exactly on the celestial equator." },
+            { id: "saiph", name: "Saiph", bayer: "κ Ori", mag: 2.06, dist: "720 LY", x: 185, y: 440, desc: "Marks the left knee of Orion." },
+            { id: "rigel", name: "Rigel", bayer: "β Ori", mag: 0.13, dist: "860 LY", x: 240, y: 450, desc: "A dazzling blue supergiant star representing Orion's right foot." },
+
+            // Cassiopeia
+            { id: "caph", name: "Caph", bayer: "β Cas", mag: 2.28, dist: "54 LY", x: 550, y: 100, desc: "The westernmost star of the distinct W shape of Cassiopeia." },
+            { id: "schedar", name: "Schedar", bayer: "α Cas", mag: 2.24, dist: "228 LY", x: 580, y: 115, desc: "An orange giant, usually the brightest star of Cassiopeia." },
+            { id: "gammacas", name: "Gamma Cas", bayer: "γ Cas", mag: 2.15, dist: "610 LY", x: 600, y: 90, desc: "An eruptive shell star that dynamically fluctuates in brightness." },
+            { id: "ruchbah", name: "Ruchbah", bayer: "δ Cas", mag: 2.66, dist: "99 LY", x: 630, y: 110, desc: "An eclipsing binary system whose name translates as 'The Knee'." },
+            { id: "segin", name: "Segin", bayer: "ε Cas", mag: 3.35, dist: "440 LY", x: 650, y: 85, desc: "A bright blue-white giant completing the final point of the Queen's W outline." },
+
+            // Cygnus
+            { id: "deneb", name: "Deneb", bayer: "α Cyg", mag: 1.25, dist: "2600 LY", x: 480, y: 350, desc: "An extremely distant white supergiant that shines with incredible intrinsic luminosity." },
+            { id: "sadr", name: "Sadr", bayer: "γ Cyg", mag: 2.23, dist: "1500 LY", x: 510, y: 380, desc: "Marks the intersection of the Northern Cross, surrounded by rich nebulosity." },
+            { id: "albireo", name: "Albireo", bayer: "β Cyg", mag: 3.05, dist: "430 LY", x: 550, y: 430, desc: "A visually stunning double star system displaying sapphire blue and gold companions." },
+            { id: "fawaris", name: "Fawaris", bayer: "δ Cyg", mag: 2.87, dist: "165 LY", x: 470, y: 390, desc: "An elegant white star marking the left wingtip of the Swan." },
+            { id: "gienah", name: "Gienah", bayer: "ε Cyg", mag: 2.48, dist: "72 LY", x: 540, y: 360, desc: "An orange giant star marking the right wing of Cygnus." }
+        ];
+
+        // Custom Constellations ordered sequentially for SINGLE-LINE sequential drawing
+        const constellations = [
+            {
+                id: "ursamajor",
+                name: "Ursa Major",
+                latin: "Great Bear",
+                abbrev: "UMa",
+                brightest: "Alioth",
+                // Sequential single-line path (returns back to complete loop shapes cleanly)
+                sequence: ["alkaid", "mizar", "alioth", "megrez", "phecda", "merak", "dubhe", "megrez"],
+                mythology: "In Greek mythology, Ursa Major represents Callisto, a wood nymph transformed into a great bear by Hera and placed safely among the northern sky stars."
+            },
+            {
+                id: "ursaminor",
+                name: "Ursa Minor",
+                latin: "Little Bear",
+                abbrev: "UMi",
+                brightest: "Polaris",
+                sequence: ["polaris", "yildun", "urop", "kochab", "pherkad", "urop"],
+                mythology: "The Little Bear. Historically linked to Arcas, the son of Callisto, who was placed alongside his mother in the heavens to guide sailors."
+            },
+            {
+                id: "orion",
+                name: "Orion",
+                latin: "The Hunter",
+                abbrev: "Ori",
+                brightest: "Rigel",
+                // An exquisite sequence that draws Orion with a single continuous laser path
+                sequence: ["betelgeuse", "bellatrix", "mintaka", "alnilam", "alnitak", "saiph", "rigel", "mintaka"],
+                mythology: "Orion was a giant, supernatural hunter of classical Greek lore, placed in the stars by Zeus after meeting his fate by the sting of a giant scorpion."
+            },
+            {
+                id: "cassiopeia",
+                name: "Cassiopeia",
+                latin: "The Queen",
+                abbrev: "Cas",
+                brightest: "Schedar",
+                sequence: ["caph", "schedar", "gammacas", "ruchbah", "segin"],
+                mythology: "The vain mythological Queen condemned to circle the celestial pole upside down for half the year on her throne."
+            },
+            {
+                id: "cygnus",
+                name: "Cygnus",
+                latin: "The Swan",
+                abbrev: "Cyg",
+                brightest: "Deneb",
+                // Tracing Northern Cross in single line
+                sequence: ["deneb", "sadr", "albireo", "sadr", "fawaris", "sadr", "gienah"],
+                mythology: "Associated with several myths where Zeus transforms into a majestic swan to woo the beautiful Leda of Sparta."
+            }
+        ];
+
+        // --------------------------------------------------
+        // STATE MANAGEMENT
+        // --------------------------------------------------
+        const state = {
+            panX: 0,
+            panY: 0,
+            zoom: 1.0,
+            targetPanX: 0,
+            targetPanY: 0,
+            targetZoom: 1.0,
+            activeConst: null,
+            // Single line progressive drawing states
+            drawProgress: 0, // 0 to sequence.length
+            drawSpeed: 0.05,  // Speed of drawing segments
+            twinkles: []
+        };
+
+        const canvas = document.getElementById('sky-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Toggle properties
+        const viewToggle = {
+            lines: true,
+            labels: true,
+            grid: false
+        };
+
+        // --------------------------------------------------
+        // CANVAS INITIALIZATION & AMBIENT STARFIELDS
+        // --------------------------------------------------
+        function initCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            // Center camera viewport initially
+            state.panX = canvas.width / 2 - 350;
+            state.panY = canvas.height / 2 - 250;
+            state.targetPanX = state.panX;
+            state.targetPanY = state.panY;
+
+            // Generate ambient twinkling background starfield particles
+            state.twinkles = [];
+            for (let i = 0; i < 400; i++) {
+                state.twinkles.push({
+                    x: Math.random() * 2000 - 1000,
+                    y: Math.random() * 2000 - 1000,
+                    size: Math.random() * 1.5 + 0.5,
+                    opacity: Math.random()
+                });
+            }
+        }
+
+        // Convert world coords to screen viewport coords
+        function worldToScreen(wx, wy) {
+            return {
+                x: wx * state.zoom + state.panX,
+                y: wy * state.zoom + state.panY
+            };
+        }
+
+        // Convert screen coords back to world coords
+        function screenToWorld(sx, sy) {
+            return {
+                x: (sx - state.panX) / state.zoom,
+                y: (sy - state.panY) / state.zoom
+            };
+        }
+
+        // --------------------------------------------------
+        // CORE RENDER LOOP
+        // --------------------------------------------------
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Interpolate/Ease Camera zoom and pan positions smoothly
+            state.zoom += (state.targetZoom - state.zoom) * 0.1;
+            state.panX += (state.targetPanX - state.panX) * 0.1;
+            state.panY += (state.targetPanY - state.panY) * 0.1;
+
+            // 1. Draw Space Background Nebula ambient glows
+            const grad = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 10, canvas.width/2, canvas.height/2, Math.max(canvas.width, canvas.height));
+            grad.addColorStop(0, '#070b1a');
+            grad.addColorStop(0.5, '#040610');
+            grad.addColorStop(1, '#010206');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 2. Render background twinkle stars (relative to coordinate pan)
+            state.twinkles.forEach(s => {
+                const pos = worldToScreen(s.x, s.y);
+                
+                // Keep stars sparkling
+                s.opacity += (Math.random() - 0.5) * 0.1;
+                s.opacity = Math.max(0.1, Math.min(1.0, s.opacity));
+
+                ctx.fillStyle = `rgba(255, 255, 255, ${s.opacity})`;
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, s.size * (state.zoom * 0.8), 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // 3. Render Coordinate Grid if activated
+            if (viewToggle.grid) {
+                ctx.strokeStyle = "rgba(56, 189, 248, 0.05)";
+                ctx.lineWidth = 1;
+                const gridSpacing = 100 * state.zoom;
+                
+                // Draw vertical grid lines
+                const startX = state.panX % gridSpacing;
+                for (let x = startX; x < canvas.width; x += gridSpacing) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, canvas.height);
+                    ctx.stroke();
+                }
+
+                // Draw horizontal grid lines
+                const startY = state.panY % gridSpacing;
+                for (let y = startY; y < canvas.height; y += gridSpacing) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(canvas.width, y);
+                    ctx.stroke();
+                }
+            }
+
+            // 4. Render Constellation Lines with Single Line progressive animation
+            if (viewToggle.lines) {
+                // Background quiet constellation lines
+                constellations.forEach(c => {
+                    if (state.activeConst === c) return; // Animated one will be drawn separately over top
+
+                    ctx.strokeStyle = "rgba(255, 255, 255, 0.04)";
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+
+                    for (let i = 0; i < c.sequence.length; i++) {
+                        const star = starDatabase.find(s => s.id === c.sequence[i]);
+                        if (!star) continue;
+                        const pos = worldToScreen(star.x, star.y);
+                        if (i === 0) ctx.moveTo(pos.x, pos.y);
+                        else ctx.lineTo(pos.x, pos.y);
+                    }
+                    ctx.stroke();
+                });
+
+                // Progressive laser-line drawing animation of the active constellation
+                if (state.activeConst) {
+                    const c = state.activeConst;
+                    const seq = c.sequence;
+                    
+                    // Progress animation incrementing
+                    if (state.drawProgress < seq.length - 1) {
+                        state.drawProgress += state.drawSpeed;
+                        if (state.drawProgress > seq.length - 1) {
+                            state.drawProgress = seq.length - 1;
+                        }
+                    }
+
+                    // Draw completed paths
+                    ctx.strokeStyle = "#38bdf8";
+                    ctx.shadowColor = "#0ea5e9";
+                    ctx.shadowBlur = 10;
+                    ctx.lineWidth = 2.5;
+                    ctx.beginPath();
+
+                    let drawnCount = Math.floor(state.drawProgress);
+                    let fractionalPart = state.drawProgress - drawnCount;
+
+                    for (let i = 0; i <= drawnCount; i++) {
+                        const star = starDatabase.find(s => s.id === seq[i]);
+                        if (!star) continue;
+                        const pos = worldToScreen(star.x, star.y);
+                        if (i === 0) ctx.moveTo(pos.x, pos.y);
+                        else ctx.lineTo(pos.x, pos.y);
+                    }
+
+                    // Interpolate the fractional current segment line being dynamically drawn
+                    if (drawnCount < seq.length - 1 && fractionalPart > 0) {
+                        const currentStar = starDatabase.find(s => s.id === seq[drawnCount]);
+                        const nextStar = starDatabase.find(s => s.id === seq[drawnCount + 1]);
+                        if (currentStar && nextStar) {
+                            const curPos = worldToScreen(currentStar.x, currentStar.y);
+                            const nextPos = worldToScreen(nextStar.x, nextStar.y);
+
+                            const interX = curPos.x + (nextPos.x - curPos.x) * fractionalPart;
+                            const interY = curPos.y + (nextPos.y - curPos.y) * fractionalPart;
+                            ctx.lineTo(interX, interY);
+                        }
+                    }
+                    ctx.stroke();
+                    ctx.shadowBlur = 0; // Reset shadow effects
+                }
+            }
+
+            // 5. Draw Star Spheres
+            starDatabase.forEach(star => {
+                const pos = worldToScreen(star.x, star.y);
+                const size = Math.max(3.0, (5.0 - star.mag)) * (state.zoom * 0.9);
+
+                // Glow ring for stars participating inside active constellation W / structure
+                if (state.activeConst && state.activeConst.sequence.includes(star.id)) {
+                    ctx.fillStyle = "rgba(56, 189, 248, 0.25)";
+                    ctx.beginPath();
+                    ctx.arc(pos.x, pos.y, size * 2.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // Star core physical drawing
+                const spectralColor = star.mag < 1.0 ? "#9bb0ff" : star.mag > 2.5 ? "#ffd2a1" : "#ffffff";
+                ctx.fillStyle = spectralColor;
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, size, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Dynamic naming labels
+                if (viewToggle.labels && state.zoom > 0.6) {
+                    ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+                    ctx.font = `${Math.max(8, 10 * state.zoom)}px 'JetBrains Mono', monospace`;
+                    ctx.fillText(star.name, pos.x + size + 4, pos.y + 3);
+                }
+            });
+
+            // Smooth render loop tick
+            requestAnimationFrame(render);
+        }
+
+        // --------------------------------------------------
+        // FLY TO & INTERPOLATE EASING LOGIC
+        // --------------------------------------------------
+        function flyToCoordinates(worldX, worldY, zoomFactor = 1.3) {
+            state.targetZoom = zoomFactor;
+            // Center target position in client viewport width
+            state.targetPanX = canvas.width / 2 - worldX * zoomFactor;
+            state.targetPanY = canvas.height / 2 - worldY * zoomFactor;
+
+            document.getElementById('hud-zoom').textContent = `Zoom ${state.targetZoom.toFixed(1)}x`;
+        }
+
+        // --------------------------------------------------
+        // SELECTION & INTERACTION BINDINGS
+        // --------------------------------------------------
+        function selectConstellation(c) {
+            state.activeConst = c;
+            state.drawProgress = 0; // Reset progressive single-line trace
+
+            // Calculate bounding average centers to fly-to constellation comfortably
+            let avgX = 0, avgY = 0, count = 0;
+            c.sequence.forEach(sid => {
+                const s = starDatabase.find(star => star.id === sid);
+                if (s) {
+                    avgX += s.x;
+                    avgY += s.y;
+                    count++;
+                }
+            });
+            if (count > 0) {
+                flyToCoordinates(avgX / count, avgY / count, 1.3);
+            }
+
+            // Update Almanac Tab details
+            switchTab('almanac');
+            document.getElementById('almanac-empty').classList.add('hidden');
+            const dataPanel = document.getElementById('almanac-data');
+            dataPanel.classList.remove('hidden');
+
+            document.getElementById('obj-type').textContent = "IAU Constellation System";
+            document.getElementById('obj-name').textContent = c.name;
+            document.getElementById('obj-sub').textContent = `${c.latin} (${c.abbrev})`;
+            document.getElementById('stat-mag').textContent = `α ${c.brightest}`;
+            document.getElementById('stat-dist').textContent = "Varies";
+            document.getElementById('obj-desc').textContent = c.mythology;
+        }
+
+        function selectStar(star) {
+            state.activeConst = null; // Clear active constellation laser
+            flyToCoordinates(star.x, star.y, 2.0);
+
+            switchTab('almanac');
+            document.getElementById('almanac-empty').classList.add('hidden');
+            const dataPanel = document.getElementById('almanac-data');
+            dataPanel.classList.remove('hidden');
+
+            document.getElementById('obj-type').textContent = `Spectral class star • ${star.bayer}`;
+            document.getElementById('obj-name').textContent = star.name;
+            document.getElementById('obj-sub').textContent = star.bayer;
+            document.getElementById('stat-mag').textContent = star.mag.toFixed(2);
+            document.getElementById('stat-dist').textContent = star.dist;
+            document.getElementById('obj-desc').textContent = star.desc;
+        }
+
+        // --------------------------------------------------
+        // SYSTEM INTERACTIVITY & DRAG EVENT LISTENERS
+        // --------------------------------------------------
+        function setupInteractions() {
+            let isDragging = false;
+            let startMouseX = 0, startMouseY = 0;
+            let startPanX = 0, startPanY = 0;
+
+            canvas.addEventListener('mousedown', (e) => {
+                if (e.target !== canvas) return;
+                isDragging = true;
+                startMouseX = e.clientX;
+                startMouseY = e.clientY;
+                startPanX = state.panX;
+                startPanY = state.panY;
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const dx = e.clientX - startMouseX;
+                const dy = e.clientY - startMouseY;
+                
+                // Set coordinate targets
+                state.targetPanX = startPanX + dx;
+                state.targetPanY = startPanY + dy;
+            });
+
+            window.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+
+            // Wheel zoom gesture
+            canvas.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const zoomFactor = e.deltaY < 0 ? 1.15 : 0.85;
+                state.targetZoom = Math.max(0.4, Math.min(4.0, state.targetZoom * zoomFactor));
+                document.getElementById('hud-zoom').textContent = `Zoom ${state.targetZoom.toFixed(1)}x`;
+            });
+
+            // Tap/Touch handler support
+            canvas.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    isDragging = true;
+                    startMouseX = e.touches[0].clientX;
+                    startMouseY = e.touches[0].clientY;
+                    startPanX = state.panX;
+                    startPanY = state.panY;
+                }
+            });
+
+            canvas.addEventListener('touchmove', (e) => {
+                if (!isDragging || e.touches.length !== 1) return;
+                const dx = e.touches[0].clientX - startMouseX;
+                const dy = e.touches[0].clientY - startMouseY;
+                state.targetPanX = startPanX + dx;
+                state.targetPanY = startPanY + dy;
+            });
+
+            canvas.addEventListener('touchend', () => {
+                isDragging = false;
+            });
+
+            // Canvas coordinate clicks
+            canvas.addEventListener('click', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const clickY = e.clientY - rect.top;
+
+                // Hit detection (Raycasting relative to world coordinates scale)
+                let clickedStar = null;
+                for (let i = 0; i < starDatabase.length; i++) {
+                    const star = starDatabase[i];
+                    const pos = worldToScreen(star.x, star.y);
+                    const dist = Math.hypot(clickX - pos.x, clickY - pos.y);
+                    
+                    if (dist < 12) { // 12 pixel radius hit detection buffer
+                        clickedStar = star;
+                        break;
+                    }
+                }
+
+                if (clickedStar) {
+                    selectStar(clickedStar);
+                }
+            });
+
+            // Control panel adjustments
+            setupToggle('btn-lines', 'lines', (v) => viewToggle.lines = v);
+            setupToggle('btn-labels', 'labels', (v) => viewToggle.labels = v);
+            setupToggle('btn-grid', 'grid', (v) => viewToggle.grid = v);
+
+            document.getElementById('btn-zoom-in').addEventListener('click', () => {
+                state.targetZoom = Math.min(4.0, state.targetZoom * 1.35);
+                document.getElementById('hud-zoom').textContent = `Zoom ${state.targetZoom.toFixed(1)}x`;
+            });
+
+            document.getElementById('btn-zoom-out').addEventListener('click', () => {
+                state.targetZoom = Math.max(0.4, state.targetZoom * 0.7);
+                document.getElementById('hud-zoom').textContent = `Zoom ${state.targetZoom.toFixed(1)}x`;
+            });
+
+            document.getElementById('btn-reset').addEventListener('click', () => {
+                state.targetZoom = 1.0;
+                state.targetPanX = canvas.width / 2 - 350;
+                state.targetPanY = canvas.height / 2 - 250;
+                state.activeConst = null;
+                document.getElementById('hud-zoom').textContent = `Zoom 1.0x`;
+            });
+
+            // Fullscreen toggle
+            const btnFullscreen = document.getElementById('btn-fullscreen');
+            const fullscreenIcon = btnFullscreen.querySelector('i');
+            const docEl = document.documentElement;
+
+            function isFullscreen() {
+                return !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+            }
+
+            function updateFullscreenIcon() {
+                if (isFullscreen()) {
+                    fullscreenIcon.classList.remove('fa-expand');
+                    fullscreenIcon.classList.add('fa-compress');
+                    btnFullscreen.title = "Exit Fullscreen";
+                } else {
+                    fullscreenIcon.classList.remove('fa-compress');
+                    fullscreenIcon.classList.add('fa-expand');
+                    btnFullscreen.title = "Enter Fullscreen";
+                }
+            }
+
+            btnFullscreen.addEventListener('click', () => {
+                if (!isFullscreen()) {
+                    const request = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.msRequestFullscreen;
+                    if (request) request.call(docEl);
+                } else {
+                    const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+                    if (exit) exit.call(document);
+                }
+            });
+
+            ['fullscreenchange', 'webkitfullscreenchange', 'msfullscreenchange'].forEach(evt => {
+                document.addEventListener(evt, updateFullscreenIcon);
+            });
+
+            // 'F' key shortcut for fullscreen
+            window.addEventListener('keydown', (e) => {
+                if ((e.key === 'f' || e.key === 'F') && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+                    btnFullscreen.click();
+                }
+            });
+
+            const speedSlider = document.getElementById('speed-slider');
+            const speedDisplay = document.getElementById('speed-display');
+            speedSlider.addEventListener('input', (e) => {
+                const val = parseInt(e.target.value);
+                state.drawSpeed = val / 1000; // Base value 50 becomes 0.05
+                
+                // Calculate and format the display multiplier relative to the default speed (50)
+                const multiplier = (val / 50).toFixed(1);
+                speedDisplay.textContent = `${multiplier}x`;
+            });
+
+            // Search implementation
+            const searchInput = document.getElementById('search-input');
+            const clearSearch = document.getElementById('clear-search');
+            const searchResults = document.getElementById('search-results');
+
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                if (query.length > 0) {
+                    clearSearch.classList.remove('hidden');
+                    searchResults.classList.remove('hidden');
+                    performQuery(query);
+                } else {
+                    clearSearch.classList.add('hidden');
+                    searchResults.classList.add('hidden');
+                }
+            });
+
+            clearSearch.addEventListener('click', () => {
+                searchInput.value = "";
+                clearSearch.classList.add('hidden');
+                searchResults.classList.add('hidden');
+            });
+        }
+
+        function setupToggle(id, key, callback) {
+            const el = document.getElementById(id);
+            el.addEventListener('click', () => {
+                el.classList.toggle('active');
+                const isActive = el.classList.contains('active');
+                callback(isActive);
+            });
+        }
+
+        function performQuery(query) {
+            const resultsContainer = document.getElementById('search-results');
+            let html = "";
+            let matched = 0;
+
+            constellations.forEach(c => {
+                if (c.name.toLowerCase().includes(query) || c.latin.toLowerCase().includes(query)) {
+                    html += `
+                        <div class="p-2.5 border-b border-white/5 hover:bg-space-500/10 cursor-pointer flex justify-between items-center" onclick="handleSearchSelect('const', '${c.id}')">
+                            <span class="font-medium text-white text-[11px]">${c.name}</span>
+                            <span class="text-[8px] uppercase px-1.5 py-0.5 bg-space-500/20 text-space-500 rounded font-semibold border border-space-500/30 shrink-0 ml-2">Constellation</span>
+                        </div>
+                    `;
+                    matched++;
+                }
+            });
+
+            starDatabase.forEach(s => {
+                if (s.name.toLowerCase().includes(query) || s.bayer.toLowerCase().includes(query)) {
+                    html += `
+                        <div class="p-2.5 border-b border-white/5 hover:bg-space-500/10 cursor-pointer flex justify-between items-center" onclick="handleSearchSelect('star', '${s.id}')">
+                            <span class="font-medium text-white text-[11px]">${s.name} <span class="text-slate-400 font-mono text-[9px]">${s.bayer}</span></span>
+                            <span class="text-[8px] uppercase px-1.5 py-0.5 bg-gold-500/20 text-gold-500 rounded font-semibold border border-gold-500/30 shrink-0 ml-2">Star</span>
+                        </div>
+                    `;
+                    matched++;
+                }
+            });
+
+            if (matched === 0) {
+                html = `<div class="p-3 text-center text-slate-400 text-[11px]">No sky coordinates matched.</div>`;
+            }
+
+            resultsContainer.innerHTML = html;
+        }
+
+        window.handleSearchSelect = function(type, id) {
+            document.getElementById('search-results').classList.add('hidden');
+            document.getElementById('search-input').value = "";
+            document.getElementById('clear-search').classList.add('hidden');
+
+            if (type === 'const') {
+                const c = constellations.find(x => x.id === id);
+                if (c) selectConstellation(c);
+            } else if (type === 'star') {
+                const s = starDatabase.find(x => x.id === id);
+                if (s) selectStar(s);
+            }
+        };
+
+        // --------------------------------------------------
+        // INTERFACE COMPONENT RENDERING
+        // --------------------------------------------------
+        function renderInterfaces() {
+            const listContainer = document.getElementById('const-list');
+            listContainer.innerHTML = "";
+
+            constellations.forEach(c => {
+                const item = document.createElement('div');
+                item.className = "p-2.5 rounded-lg bg-slate-900/30 hover:bg-space-500/10 border border-white/5 hover:border-space-500/20 transition-all cursor-pointer flex justify-between items-center";
+                item.setAttribute('data-id', c.id);
+                item.innerHTML = `
+                    <div>
+                        <span class="font-display text-base font-semibold text-white block leading-tight">${c.name}</span>
+                        <span class="text-[9px] text-slate-400 font-mono">${c.latin} • Brightest: ${c.brightest}</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-slate-500 text-[9px]"></i>
+                `;
+
+                item.addEventListener('click', () => {
+                    document.querySelectorAll('#const-list > div').forEach(el => el.classList.remove('border-space-500/50', 'bg-space-500/5'));
+                    item.classList.add('border-space-500/50', 'bg-space-500/5');
+                    selectConstellation(c);
+                });
+
+                listContainer.appendChild(item);
+            });
+        }
+
+        function switchTab(tab) {
+            if (tab === 'const') {
+                btnTabConst.className = "flex-1 py-1.5 text-[10px] font-semibold uppercase tracking-wider rounded-md transition-all text-white bg-space-500/20 border border-space-500/30";
+                btnTabAlmanac.className = "flex-1 py-1.5 text-[10px] font-semibold uppercase tracking-wider rounded-md transition-all text-slate-400 hover:text-white";
+                panelConst.classList.remove('hidden');
+                panelAlmanac.classList.add('hidden');
+            } else {
+                btnTabAlmanac.className = "flex-1 py-1.5 text-[10px] font-semibold uppercase tracking-wider rounded-md transition-all text-white bg-space-500/20 border border-space-500/30";
+                btnTabConst.className = "flex-1 py-1.5 text-[10px] font-semibold uppercase tracking-wider rounded-md transition-all text-slate-400 hover:text-white";
+                panelAlmanac.classList.remove('hidden');
+                panelConst.classList.add('hidden');
+            }
+        }
+
+        // DOM Element Definitions for Tabs
+        const btnTabConst = document.getElementById('tab-const');
+        const btnTabAlmanac = document.getElementById('tab-almanac');
+        const panelConst = document.getElementById('panel-const');
+        const panelAlmanac = document.getElementById('panel-almanac');
+
+        btnTabConst.addEventListener('click', () => switchTab('const'));
+        btnTabAlmanac.addEventListener('click', () => switchTab('almanac'));
+
+        // --------------------------------------------------
+        // RUNTIME INITS & LOADING SEQUENCE
+        // --------------------------------------------------
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            // Keep centered roughly on resize
+            state.targetPanX = canvas.width / 2 - 350;
+            state.targetPanY = canvas.height / 2 - 250;
+        });
+
+        // Application Bootstrap
+        window.onload = function() {
+            let loadProgress = 0;
+            const loaderBar = document.getElementById('loader-bar');
+            const loaderStatus = document.getElementById('loader-status');
+            const loader = document.getElementById('loader');
+            const loaderTwinkles = document.getElementById('loader-twinkles');
+
+            // Scatter a few faint ambient stars behind the loader mark
+            for (let i = 0; i < 60; i++) {
+                const dot = document.createElement('div');
+                const size = Math.random() * 2 + 0.5;
+                dot.style.position = 'absolute';
+                dot.style.left = `${Math.random() * 100}%`;
+                dot.style.top = `${Math.random() * 100}%`;
+                dot.style.width = `${size}px`;
+                dot.style.height = `${size}px`;
+                dot.style.borderRadius = '50%';
+                dot.style.background = '#ffffff';
+                dot.style.opacity = (Math.random() * 0.5 + 0.1).toFixed(2);
+                loaderTwinkles.appendChild(dot);
+            }
+
+            // Loading milestones, staged to feel like real initialization steps
+            const stages = [
+                { at: 0, label: "Charting stellar coordinates" },
+                { at: 35, label: "Plotting constellation lines" },
+                { at: 70, label: "Calibrating vector optics" },
+                { at: 100, label: "Ready" }
+            ];
+            let stageIndex = 0;
+
+            const loadInterval = setInterval(() => {
+                loadProgress += Math.random() * 16 + 4;
+
+                while (stageIndex < stages.length - 1 && loadProgress >= stages[stageIndex + 1].at) {
+                    stageIndex++;
+                    loaderStatus.textContent = stages[stageIndex].label;
+                }
+
+                if (loadProgress >= 100) {
+                    loadProgress = 100;
+                    clearInterval(loadInterval);
+                    loaderStatus.textContent = "Ready";
+
+                    // Fade out loader
+                    setTimeout(() => {
+                        loader.style.opacity = '0';
+                        setTimeout(() => {
+                            loader.classList.add('hidden');
+
+                            // Boot up the Engine
+                            initCanvas();
+                            renderInterfaces();
+                            setupInteractions();
+                            render(); // Start continuous rendering loop
+
+                        }, 500); // Wait for CSS transition
+                    }, 350);
+                }
+                loaderBar.style.width = `${loadProgress}%`;
+            }, 90);
+        };
+    </script>
+</body>
+</html>

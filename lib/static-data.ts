@@ -208,4 +208,12 @@ export const simulations: Simulation[] = [
     type: "html",
     created_at: "2026-06-20T19:54:00.000Z",
   },
+  {id: "sim-16",
+    title: "Constellation 2D",
+    description: "Interactive simulation of constellations in 2D",
+    subject: "Astronomy",
+    url: "/simulations/2d_constellation.html",
+    type: "html",
+    created_at: "2026-06-20T19:54:00.000Z",
+  },
 ]
