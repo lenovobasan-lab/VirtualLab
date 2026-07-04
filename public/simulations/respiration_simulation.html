@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Respiration System | श्वासप्रश्वास प्रणाली</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  :root{
+    --bg1:#eaf6fb; --bg2:#fdf6ee; --panel:#ffffff; --ink:#1e293b; --sub:#5b6b7c;
+    --accent:#e11d48; --accent2:#0ea5e9; --o2:#38bdf8; --co2:#94a3b8;
+    --glu:#f59e0b; --h2o:#60a5fa; --energy:#facc15;
+    --card-shadow: 0 10px 30px rgba(30,41,59,0.10);
+    --border: rgba(30,41,59,0.08);
+  }
+  [data-theme="dark"]{
+    --bg1:#0b1220; --bg2:#111827; --panel:#161f2e; --ink:#e5e7eb; --sub:#9aa7b8;
+    --accent:#fb7185; --accent2:#38bdf8; --o2:#38bdf8; --co2:#64748b;
+    --glu:#fbbf24; --h2o:#38bdf8; --energy:#fde047;
+    --card-shadow: 0 10px 30px rgba(0,0,0,0.45);
+    --border: rgba(255,255,255,0.08);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:'Segoe UI', 'Noto Sans Devanagari', system-ui, sans-serif;
+    background: linear-gradient(135deg,var(--bg1),var(--bg2));
+    color:var(--ink); min-height:100vh; transition: background .4s, color .4s;
+  }
+  .wrap{max-width:1360px; margin:0 auto; padding:20px 16px 60px;}
+  header{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px;}
+  h1{font-size:1.5rem; margin:0;}
+  h1 span{display:block; font-size:0.95rem; color:var(--sub); font-weight:500;}
+  .top-btns{display:flex; gap:8px;}
+  .icon-btn{
+    background:var(--panel); border:1px solid var(--border); color:var(--ink);
+    border-radius:10px; padding:8px 12px; cursor:pointer; font-size:0.9rem;
+    box-shadow: var(--card-shadow); transition: transform .15s;
+  }
+  .icon-btn:hover{transform:translateY(-2px);}
+  .grid{display:grid; grid-template-columns: minmax(260px,300px) 1fr; gap:18px; align-items:start;}
+  @media (max-width:920px){ .grid{grid-template-columns:1fr;} }
+  .card{
+    background:var(--panel); border-radius:18px; padding:16px;
+    box-shadow: var(--card-shadow); border:1px solid var(--border);
+  }
+  .right-col{display:flex; flex-direction:column; gap:18px;}
+  .stage{position:relative;}
+  .badge{
+    position:absolute; top:14px; left:14px; background:var(--accent);
+    color:white; padding:6px 14px; border-radius:999px; font-weight:700;
+    font-size:0.95rem; letter-spacing:.3px; box-shadow:0 4px 10px rgba(225,29,72,.35);
+    transition: background .3s;
+  }
+  .badge.exhale{background:var(--accent2); box-shadow:0 4px 10px rgba(14,165,233,.35);}
+  .stat-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;}
+  .stat{
+    flex:1; min-width:110px; background:linear-gradient(180deg, transparent, rgba(0,0,0,0.02));
+    border:1px solid var(--border); border-radius:12px; padding:10px 12px; text-align:center;
+  }
+  .stat .val{font-size:1.3rem; font-weight:800; color:var(--accent2);}
+  .stat .lab{font-size:0.75rem; color:var(--sub); margin-top:2px;}
+  .controls{display:flex; flex-direction:column; gap:14px;}
+  .row{display:flex; flex-direction:column; gap:6px;}
+  .row label{font-size:0.82rem; color:var(--sub);}
+  input[type=range]{width:100%; accent-color:var(--accent2);}
+  .play-btn{
+    background:var(--accent2); color:white; border:none; border-radius:12px;
+    padding:12px 16px; font-size:0.95rem; font-weight:700; cursor:pointer;
+    box-shadow:0 6px 16px rgba(14,165,233,.35); transition: transform .15s, background .3s;
+    width:100%;
+  }
+  .play-btn.paused{background:var(--accent); box-shadow:0 6px 16px rgba(225,29,72,.35);}
+  .play-btn:hover{transform:translateY(-2px);}
+  .sound-row{display:flex; align-items:center; gap:8px;}
+  .sound-btn{
+    background:transparent; border:1px solid var(--border); color:var(--ink);
+    border-radius:10px; padding:9px 12px; cursor:pointer; font-size:0.95rem; flex-shrink:0;
+  }
+  .sound-btn.muted{opacity:0.5;}
+  .presets{display:flex; gap:6px; flex-wrap:wrap;}
+  .preset{
+    border:1px solid var(--border); background:transparent; color:var(--ink);
+    padding:6px 10px; border-radius:999px; cursor:pointer; font-size:0.76rem; flex:1; min-width:70px;
+  }
+  .preset.active{background:var(--accent2); color:white; border-color:transparent;}
+  .legend{display:flex; flex-direction:column; gap:6px; margin-top:4px; font-size:0.78rem; color:var(--sub);}
+  .legend span{display:inline-flex; align-items:center; gap:6px;}
+  .dot{width:10px; height:10px; border-radius:50%; display:inline-block; flex-shrink:0;}
+  .zoom-toggle{display:flex; flex-direction:column; gap:6px;}
+  .zoom-toggle button{
+    padding:9px; border-radius:10px; border:1px solid var(--border);
+    background:transparent; color:var(--ink); cursor:pointer; font-size:0.82rem; font-weight:600;
+  }
+  .zoom-toggle button.active{background:var(--accent2); color:#fff; border-color:transparent;}
+  hr.sep{border:none; border-top:1px solid var(--border); margin:2px 0;}
+  .info h2{font-size:1.05rem; margin:0 0 6px;}
+  .phase-desc{
+    background: rgba(14,165,233,0.08); border-left:4px solid var(--accent2);
+    padding:10px 12px; border-radius:8px; font-size:0.88rem; min-height:48px;
+    transition: all .3s;
+  }
+  .phase-desc.exhale{background: rgba(225,29,72,0.08); border-left-color:var(--accent);}
+  footer{text-align:center; color:var(--sub); font-size:0.8rem; margin-top:30px;}
+  .lang-toggle{display:flex; gap:4px; background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:4px;}
+  .lang-toggle button{border:none; background:transparent; padding:6px 10px; border-radius:8px; cursor:pointer; font-size:0.85rem; color:var(--ink);}
+  .lang-toggle button.active{background:var(--accent2); color:white;}
+  .reaction-card h2{font-size:1.05rem; margin:0 0 4px;}
+  .reaction-sub{font-size:0.85rem; color:var(--sub); margin:0 0 10px;}
+  .eq-labels{display:flex; justify-content:space-around; font-size:0.72rem; color:var(--sub); margin-top:4px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 id="title">Respiration System <span id="subtitle">Developed by Basanta Bhattarai</span></h1>
+    <div class="top-btns">
+      <div class="lang-toggle">
+        <button id="btnEN" class="active">EN</button>
+        <button id="btnNP">नेपाली</button>
+      </div>
+      <button class="icon-btn" id="themeBtn">🌙 Dark</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- LEFT: narrow control panel -->
+    <div class="card">
+      <div class="controls">
+        <button class="play-btn" id="playBtn">⏸ Pause</button>
+
+        <div class="sound-row">
+          <button class="sound-btn" id="soundBtn">🔊</button>
+          <input type="range" id="volumeSlider" min="0" max="100" value="55">
+        </div>
+
+        <hr class="sep">
+
+        <div class="row">
+          <label id="lblRate">Breathing Rate: <b id="rateVal">14</b> /min</label>
+          <input type="range" id="rateSlider" min="6" max="40" value="14">
+        </div>
+        <div class="row">
+          <label id="lblDepth">Breath Depth</label>
+          <input type="range" id="depthSlider" min="40" max="100" value="70">
+        </div>
+
+        <div class="presets" id="presets">
+          <button class="preset" data-bpm="8" data-depth="90">😌 Resting</button>
+          <button class="preset active" data-bpm="14" data-depth="70">🚶 Normal</button>
+          <button class="preset" data-bpm="28" data-depth="55">🏃 Exercise</button>
+          <button class="preset" data-bpm="35" data-depth="35">😰 Panting</button>
+        </div>
+
+        <hr class="sep">
+
+        <div class="zoom-toggle">
+          <button id="viewChest" class="active">Chest View</button>
+          <button id="viewAlveoli">Alveoli Zoom (Gas Exchange)</button>
+        </div>
+
+        <hr class="sep">
+
+        <div class="legend">
+          <span><i class="dot" style="background:var(--o2)"></i> <span id="legO2">Oxygen (O₂) in</span></span>
+          <span><i class="dot" style="background:var(--co2)"></i> <span id="legCO2">Carbon dioxide (CO₂) out</span></span>
+          <span><i class="dot" style="background:var(--glu)"></i> <span id="legGlu">Glucose (fuel)</span></span>
+          <span><i class="dot" style="background:var(--energy)"></i> <span id="legEnergy">Energy (ATP) released</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: wide simulation area -->
+    <div class="right-col">
+      <div class="card stage">
+        <div class="badge" id="phaseBadge">INHALING</div>
+        <svg id="lungsSvg" viewBox="0 0 600 640" width="100%" height="560"></svg>
+        <div class="stat-row">
+          <div class="stat"><div class="val" id="statBPM">14</div><div class="lab" id="labBPM">Breaths / min</div></div>
+          <div class="stat"><div class="val" id="statVolume">500</div><div class="lab" id="labVolume">Tidal Volume (mL)</div></div>
+          <div class="stat"><div class="val" id="statO2">98%</div><div class="lab" id="labO2">Blood O₂ (approx.)</div></div>
+          <div class="stat"><div class="val" id="statTimer">00:00</div><div class="lab" id="labTimer">Elapsed Time</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="info">
+          <h2 id="phaseTitle">Inhalation (Breathing In)</h2>
+          <div class="phase-desc" id="phaseDesc">
+            The diaphragm contracts and moves down, the rib cage lifts up and out, and the lungs expand.
+          </div>
+        </div>
+      </div>
+
+      <div class="card reaction-card">
+        <h2 id="reactionTitle">🧪 Cellular Respiration (Chemical Reaction)</h2>
+        <p class="reaction-sub" id="reactionSub">The oxygen you inhale is used to release energy from glucose inside your cells.</p>
+        <svg id="reactionSvg" viewBox="0 0 720 150" width="100%" height="140"></svg>
+        <div class="eq-labels">
+          <span id="eqLabelReactants">Reactants (breathed in / eaten)</span>
+          <span id="eqLabelProducts">Products (breathed out / made)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer id="footer">Free interactive science simulation — built for classroom use. No external dependencies.</footer>
+</div>
+
+<script>
+(function(){
+  const svg = document.getElementById('lungsSvg');
+  const NS = "http://www.w3.org/2000/svg";
+
+  /* ---------------- State ---------------- */
+  let bpm = 14, depth = 70, playing = true, phase = 'inhale';
+  let cycleStart = performance.now();
+  let elapsed = 0, lastTs = null;
+  let view = 'chest';
+  let lang = 'en';
+  let theme = 'light';
+  let soundOn = true, volume = 0.55;
+
+  /* ---------------- Text ---------------- */
+  const T = {
+    en: {
+      title: "Respiration Simulation",
+      subtitle: "How your lungs breathe — for Grades 4–10",
+      inhaleBadge: "INHALING", exhaleBadge: "EXHALING",
+      bpmLab: "Breaths / min", volLab: "Tidal Volume (mL)", o2Lab: "Blood O₂ (approx.)", timerLab:"Elapsed Time",
+      inhaleTitle: "Inhalation (Breathing In)",
+      exhaleTitle: "Exhalation (Breathing Out)",
+      inhaleDesc: "The diaphragm contracts and moves down, the rib cage lifts up and out, and the lungs expand. Air pressure inside the lungs drops below atmospheric pressure, so fresh air rich in oxygen flows in.",
+      exhaleDesc: "The diaphragm relaxes and moves up, the rib cage falls, and the lungs shrink. Pressure inside rises above atmospheric pressure, pushing carbon-dioxide-rich air back out.",
+      legO2: "Oxygen (O₂) in", legCO2: "Carbon dioxide (CO₂) out", legGlu:"Glucose (fuel)", legEnergy:"Energy (ATP) released",
+      rate: "Breathing Rate:", depth: "Breath Depth",
+      play: "⏸ Pause", pause: "▶ Play",
+      chest: "Chest View", alveoli: "Alveoli Zoom (Gas Exchange)",
+      presets: ["😌 Resting","🚶 Normal","🏃 Exercise","😰 Panting"],
+      footer: "Free interactive science simulation — built for classroom use. No external dependencies.",
+      reactionTitle: "🧪 Cellular Respiration (Chemical Reaction)",
+      reactionSub: "The oxygen you inhale is used to release energy from glucose inside your cells.",
+      eqReactants: "Reactants (breathed in / eaten)",
+      eqProducts: "Products (breathed out / made)"
+    },
+    np: {
+      title: "श्वासप्रश्वास प्रणाली ",
+      subtitle: "बसन्त भट्टराई द्वारा निर्मित",
+      inhaleBadge: "सास भित्र्याउँदै", exhaleBadge: "सास बाहिर निकाल्दै",
+      bpmLab: "सास/मिनेट", volLab: "आयतन (mL)", o2Lab: "रगतमा O₂ (अनुमानित)", timerLab:"बितेको समय",
+      inhaleTitle: "सास भित्र लिने (इन्हेलेसन)",
+      exhaleTitle: "सास बाहिर छोड्ने (एक्स्हेलेसन)",
+      inhaleDesc: "डायाफ्राम खुम्चिन्छ र तल झर्छ, पसुली माथि र बाहिर उठ्छ, अनि फोक्सो फुल्छ। फोक्सो भित्रको हावाको चाप वायुमण्डलीय चापभन्दा कम हुन्छ, त्यसैले अक्सिजन युक्त ताजा हावा भित्र पस्छ।",
+      exhaleDesc: "डायाफ्राम खुकुलो हुन्छ र माथि उठ्छ, पसुली तल झर्छ, अनि फोक्सो साना हुन्छ। भित्रको चाप वायुमण्डलीय चापभन्दा बढी हुन्छ, जसले कार्बन डाइअक्साइड युक्त हावालाई बाहिर धकेल्छ।",
+      legO2: "अक्सिजन (O₂) भित्र", legCO2: "कार्बन डाइअक्साइड (CO₂) बाहिर", legGlu:"ग्लुकोज (ऊर्जाको स्रोत)", legEnergy:"ऊर्जा (ATP) निस्कन्छ",
+      rate: "सास दर:", depth: "सासको गहिराइ",
+      play: "⏸ रोक्नुहोस्", pause: "▶ चलाउनुहोस्",
+      chest: "छाती", alveoli: "आल्भियोलाई जुम (ग्यास आदानप्रदान)",
+      presets: ["😌 आराम","🚶 सामान्य","🏃 व्यायाम","😰 हाँफ्दै"],
+      footer: "निःशुल्क अन्तरक्रियात्मक विज्ञान सिमुलेसन — कक्षाकोठाको प्रयोगका लागि बनाइएको।",
+      reactionTitle: "🧪 कोषीय श्वसन (रासायनिक प्रतिक्रिया)",
+      reactionSub: "तपाईंले सास फेर्दा भित्र्याउने अक्सिजनले कोषभित्र ग्लुकोजबाट ऊर्जा निकाल्न प्रयोग हुन्छ।",
+      eqReactants: "अभिकारक (सास/खानाबाट)",
+      eqProducts: "उत्पादन (बाहिर निस्कने)"
+    }
+  };
+
+  /* ============================================================
+     SOUND ENGINE (Web Audio API) — breathing whoosh + reaction chime
+     ============================================================ */
+  let actx = null, noiseSrc = null, noiseFilter = null, noiseGain = null, masterGain = null;
+  function ensureAudio(){
+    if(actx) return;
+    actx = new (window.AudioContext || window.webkitAudioContext)();
+    // master gain
+    masterGain = actx.createGain();
+    masterGain.gain.value = volume;
+    masterGain.connect(actx.destination);
+
+    // looping noise buffer for breath whoosh
+    const bufferSize = actx.sampleRate * 2;
+    const buffer = actx.createBuffer(1, bufferSize, actx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for(let i=0;i<bufferSize;i++) data[i] = Math.random()*2-1;
+    noiseSrc = actx.createBufferSource();
+    noiseSrc.buffer = buffer;
+    noiseSrc.loop = true;
+
+    noiseFilter = actx.createBiquadFilter();
+    noiseFilter.type = 'bandpass';
+    noiseFilter.Q.value = 0.7;
+    noiseFilter.frequency.value = 500;
+
+    noiseGain = actx.createGain();
+    noiseGain.gain.value = 0;
+
+    noiseSrc.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(masterGain);
+    noiseSrc.start();
+  }
+
+  function updateBreathSound(norm, phaseNow){
+    if(!actx || !soundOn) return;
+    const now = actx.currentTime;
+    // volume follows breathing envelope; louder mid-breath, quieter at turnarounds
+    const envelope = Math.pow(Math.sin(Math.min(1,Math.max(0,norm))*Math.PI), 0.6);
+    const targetGain = 0.02 + envelope*0.10;
+    noiseGain.gain.setTargetAtTime(targetGain, now, 0.05);
+    const freq = phaseNow === 'inhale' ? (420 + norm*500) : (900 - norm*450);
+    noiseFilter.frequency.setTargetAtTime(freq, now, 0.08);
+  }
+
+  function playChime(){
+    if(!actx || !soundOn) return;
+    const now = actx.currentTime;
+    const osc = actx.createOscillator();
+    const g = actx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(660, now);
+    osc.frequency.exponentialRampToValueAtTime(990, now+0.18);
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.exponentialRampToValueAtTime(volume*0.35+0.02, now+0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001, now+0.4);
+    osc.connect(g); g.connect(masterGain);
+    osc.start(now); osc.stop(now+0.42);
+  }
+
+  function setSound(on){
+    soundOn = on;
+    const btn = document.getElementById('soundBtn');
+    btn.textContent = on ? '🔊' : '🔇';
+    btn.classList.toggle('muted', !on);
+    if(!on && noiseGain){ noiseGain.gain.setTargetAtTime(0, actx.currentTime, 0.05); }
+  }
+  document.getElementById('soundBtn').addEventListener('click', ()=>{
+    ensureAudio();
+    if(actx.state === 'suspended') actx.resume();
+    setSound(!soundOn);
+  });
+  document.getElementById('volumeSlider').addEventListener('input', (e)=>{
+    volume = e.target.value/100;
+    if(masterGain) masterGain.gain.setTargetAtTime(volume, actx.currentTime, 0.05);
+  });
+  // unlock audio on first interaction anywhere on the page
+  window.addEventListener('pointerdown', function unlock(){
+    ensureAudio();
+    if(actx.state === 'suspended') actx.resume();
+    window.removeEventListener('pointerdown', unlock);
+  }, {once:true});
+
+  /* ---------------- Build static SVG defs & groups (chest view) ---------------- */
+  svg.innerHTML = `
+    <defs>
+      <radialGradient id="lungGrad" cx="35%" cy="30%" r="80%">
+        <stop offset="0%" stop-color="#ff8a93"/>
+        <stop offset="55%" stop-color="#e94057"/>
+        <stop offset="100%" stop-color="#b8283e"/>
+      </radialGradient>
+      <radialGradient id="lungGradDark" cx="35%" cy="30%" r="80%">
+        <stop offset="0%" stop-color="#f43f5e"/>
+        <stop offset="60%" stop-color="#be123c"/>
+        <stop offset="100%" stop-color="#7f1d2e"/>
+      </radialGradient>
+      <linearGradient id="diaGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f3a683"/>
+        <stop offset="100%" stop-color="#e17055"/>
+      </linearGradient>
+      <radialGradient id="alvGrad" cx="40%" cy="35%" r="70%">
+        <stop offset="0%" stop-color="#ffb4bd"/>
+        <stop offset="100%" stop-color="#e94057"/>
+      </radialGradient>
+    </defs>
+    <g id="chestGroup"></g>
+    <g id="alvGroup" style="display:none"></g>
+  `;
+
+  const chestGroup = document.getElementById('chestGroup');
+  const alvGroup = document.getElementById('alvGroup');
+
+  function el(tag, attrs){
+    const e = document.createElementNS(NS, tag);
+    for(const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  const torso = el('path', {
+    d: "M 150 40 Q 300 -10 450 40 L 470 300 Q 480 480 420 620 L 180 620 Q 120 480 130 300 Z",
+    fill: "none", stroke: "var(--sub)", 'stroke-width':"2", 'stroke-dasharray':"6 6", opacity:"0.35"
+  });
+  chestGroup.appendChild(torso);
+
+  const trachea = el('rect', {x:288, y:60, width:24, height:90, rx:10, fill:"#f1c6c9"});
+  chestGroup.appendChild(trachea);
+  for(let i=0;i<5;i++){
+    chestGroup.appendChild(el('line',{x1:288,y1:70+i*16,x2:312,y2:70+i*16,stroke:'#d99',['stroke-width']:2}));
+  }
+
+  const bronchL = el('path', {d:"M300 150 Q 250 180 210 220", stroke:"#e94057", 'stroke-width':16, fill:"none", 'stroke-linecap':"round"});
+  const bronchR = el('path', {d:"M300 150 Q 350 180 390 220", stroke:"#e94057", 'stroke-width':16, fill:"none", 'stroke-linecap':"round"});
+  chestGroup.appendChild(bronchL);
+  chestGroup.appendChild(bronchR);
+
+  const ribsGroup = el('g', {id:'ribsGroup'});
+  const ribPathsL = [], ribPathsR = [];
+  for(let i=0;i<6;i++){
+    const y = 130 + i*35;
+    const rl = el('path', {d:`M300 ${y} Q 220 ${y+10} 160 ${y+40}`, stroke:'#c9d3dc', 'stroke-width':7, fill:'none', 'stroke-linecap':'round', opacity:0.8});
+    const rr = el('path', {d:`M300 ${y} Q 380 ${y+10} 440 ${y+40}`, stroke:'#c9d3dc', 'stroke-width':7, fill:'none', 'stroke-linecap':'round', opacity:0.8});
+    ribsGroup.appendChild(rl); ribsGroup.appendChild(rr);
+    ribPathsL.push(rl); ribPathsR.push(rr);
+  }
+  chestGroup.appendChild(ribsGroup);
+
+  const lungLGroup = el('g', {id:'lungL', transform:'translate(210,220)'});
+  const lungRGroup = el('g', {id:'lungR', transform:'translate(390,220)'});
+  const lungLShape = el('path', {d:"M0,0 C-70,-10 -95,60 -80,140 C-68,210 -20,250 10,230 C 35,215 30,150 25,90 C 22,50 25,10 0,0 Z", fill:"url(#lungGrad)"});
+  const lungRShape = el('path', {d:"M0,0 C70,-10 95,60 80,140 C68,210 20,250 -10,230 C -35,215 -30,150 -25,90 C -22,50 -25,10 0,0 Z", fill:"url(#lungGrad)"});
+  lungLGroup.appendChild(lungLShape);
+  lungRGroup.appendChild(lungRShape);
+  chestGroup.appendChild(lungLGroup);
+  chestGroup.appendChild(lungRGroup);
+
+  function makeAlveoliCluster(cx, cy, count){
+    const g = el('g', {class:'alvCluster'});
+    for(let i=0;i<count;i++){
+      const ang = (i/count)*Math.PI*2;
+      const r = 14 + (i%3)*4;
+      const cxp = cx + Math.cos(ang)*22;
+      const cyp = cy + Math.sin(ang)*22;
+      const c = el('circle', {cx:cxp, cy:cyp, r:r*0.5, fill:'url(#alvGrad)', opacity:0.85});
+      g.appendChild(c);
+    }
+    return g;
+  }
+  const alvClusterL = makeAlveoliCluster(-15, 170, 8);
+  const alvClusterR = makeAlveoliCluster(15, 170, 8);
+  lungLGroup.appendChild(alvClusterL);
+  lungRGroup.appendChild(alvClusterR);
+
+  const diaphragm = el('path', {id:'diaphragm', d:"M140 430 Q 300 400 460 430 Q 460 460 300 470 Q 140 460 140 430 Z", fill:"url(#diaGrad)"});
+  chestGroup.appendChild(diaphragm);
+
+  const heart = el('path', {
+    d:"M300 250 C 292 238 270 238 270 258 C 270 275 300 292 300 292 C 300 292 330 275 330 258 C 330 238 308 238 300 250 Z",
+    fill:"#c81e3d", opacity:0.9
+  });
+  chestGroup.appendChild(heart);
+
+  const particlesGroup = el('g', {id:'particles'});
+  chestGroup.appendChild(particlesGroup);
+  let particles = [];
+  function spawnParticle(inhaling){
+    particles.push({
+      x: 300 + (Math.random()*10-5),
+      y: inhaling ? 20 : 150,
+      dir: inhaling ? 1 : -1,
+      color: inhaling ? 'var(--o2)' : 'var(--co2)',
+      life: 0,
+      speed: 1.2 + Math.random()*0.6
+    });
+  }
+
+  /* ---------------- Alveoli zoom view ---------------- */
+  alvGroup.innerHTML = `
+    <g id="alvScene" transform="translate(300,300)">
+      <circle id="alvSac" cx="0" cy="0" r="120" fill="url(#alvGrad)" opacity="0.9"/>
+      <circle cx="0" cy="0" r="120" fill="none" stroke="#7f1d2e" stroke-width="3" opacity="0.4"/>
+      <path id="capillary" d="M -220 0 Q -140 -40 -60 0 Q 0 40 60 0 Q 140 -40 220 0" fill="none" stroke="#b91c3c" stroke-width="14" opacity="0.6"/>
+      <path d="M -220 0 Q -140 -40 -60 0 Q 0 40 60 0 Q 140 -40 220 0" fill="none" stroke="#7f1d2e" stroke-width="1" opacity="0.3"/>
+    </g>
+    <g id="alvParticles"></g>
+  `;
+  let alvParticles = [];
+  const alvParticlesGroupEl = alvGroup.querySelector('#alvParticles');
+  function spawnAlvParticle(kind){
+    const angle = Math.random()*Math.PI*2;
+    if(kind === 'o2'){
+      alvParticles.push({kind, t:0, sx:Math.cos(angle)*40, sy:Math.sin(angle)*40-20, ex:Math.cos(angle)*210, ey:Math.sin(angle)*40, color:'var(--o2)'});
+    } else {
+      alvParticles.push({kind, t:0, sx:Math.cos(angle)*210, sy:Math.sin(angle)*30, ex:Math.cos(angle)*30, ey:Math.sin(angle)*30-40, color:'var(--co2)'});
+    }
+  }
+
+  /* ============================================================
+     CHEMICAL REACTION PANEL (cellular respiration)
+     C6H12O6 + 6O2 -> 6CO2 + 6H2O + Energy
+     ============================================================ */
+  const rsvg = document.getElementById('reactionSvg');
+  rsvg.innerHTML = `
+    <g id="reactants">
+      <g id="gluMol" transform="translate(60,75)">
+        <polygon points="-22,-13 0,-26 22,-13 22,13 0,26 -22,13" fill="var(--glu)" opacity="0.95"/>
+        <text x="0" y="5" text-anchor="middle" font-size="11" font-weight="700" fill="#3a2a06">C₆H₁₂O₆</text>
+      </g>
+      <text x="112" y="80" font-size="22" fill="var(--sub)" text-anchor="middle">+</text>
+      <g id="o2Mol" transform="translate(165,75)">
+        <circle cx="-9" cy="0" r="14" fill="var(--o2)"/>
+        <circle cx="9" cy="0" r="14" fill="var(--o2)"/>
+        <text x="0" y="34" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ink)">6 O₂</text>
+      </g>
+    </g>
+
+    <g id="arrowGroup">
+      <line x1="230" y1="75" x2="330" y2="75" stroke="var(--ink)" stroke-width="3" marker-end="url(#arrowhead)"/>
+      <text x="280" y="60" text-anchor="middle" font-size="10" fill="var(--sub)">enzymes</text>
+    </g>
+    <defs>
+      <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L8,3 L0,6 Z" fill="var(--ink)"/>
+      </marker>
+    </defs>
+
+    <g id="burstGroup" transform="translate(280,75)" opacity="0"></g>
+
+    <g id="products">
+      <g id="co2Mol" transform="translate(400,75)">
+        <circle cx="-16" cy="0" r="11" fill="var(--co2)"/>
+        <circle cx="0" cy="0" r="13" fill="#6b7c8f"/>
+        <circle cx="16" cy="0" r="11" fill="var(--co2)"/>
+        <text x="0" y="34" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ink)">6 CO₂</text>
+      </g>
+      <text x="450" y="80" font-size="22" fill="var(--sub)" text-anchor="middle">+</text>
+      <g id="h2oMol" transform="translate(500,75)">
+        <path d="M0,-16 C10,-2 12,10 0,16 C-12,10 -10,-2 0,-16 Z" fill="var(--h2o)"/>
+        <text x="0" y="34" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ink)">6 H₂O</text>
+      </g>
+      <text x="545" y="80" font-size="22" fill="var(--sub)" text-anchor="middle">+</text>
+      <g id="energyMol" transform="translate(610,75)">
+        <path d="M0,-24 L8,-6 L26,-4 L12,10 L16,28 L0,18 L-16,28 L-12,10 L-26,-4 L-8,-6 Z" fill="var(--energy)"/>
+        <text x="0" y="46" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ink)">Energy (ATP)</text>
+      </g>
+    </g>
+  `;
+  const reactantsG = document.getElementById('reactants');
+  const productsG = document.getElementById('products');
+  const burstG = document.getElementById('burstGroup');
+  let burstAnim = 0; // 0..1 progress when active, -1 idle
+  let reactionFiredThisCycle = false;
+
+  function triggerBurst(){
+    burstAnim = 0.0001;
+    playChime();
+  }
+
+  /* ---------------- UI refs ---------------- */
+  const phaseBadge = document.getElementById('phaseBadge');
+  const phaseTitle = document.getElementById('phaseTitle');
+  const phaseDesc = document.getElementById('phaseDesc');
+  const statBPM = document.getElementById('statBPM');
+  const statVolume = document.getElementById('statVolume');
+  const statO2 = document.getElementById('statO2');
+  const statTimer = document.getElementById('statTimer');
+  const rateSlider = document.getElementById('rateSlider');
+  const depthSlider = document.getElementById('depthSlider');
+  const rateVal = document.getElementById('rateVal');
+  const playBtn = document.getElementById('playBtn');
+  const presets = document.querySelectorAll('.preset');
+  const viewChestBtn = document.getElementById('viewChest');
+  const viewAlvBtn = document.getElementById('viewAlveoli');
+
+  rateSlider.addEventListener('input', ()=>{
+    bpm = parseInt(rateSlider.value);
+    rateVal.textContent = bpm;
+    clearPresetActive();
+  });
+  depthSlider.addEventListener('input', ()=>{
+    depth = parseInt(depthSlider.value);
+    clearPresetActive();
+  });
+  function clearPresetActive(){ presets.forEach(b=>b.classList.remove('active')); }
+
+  presets.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      clearPresetActive();
+      btn.classList.add('active');
+      bpm = parseInt(btn.dataset.bpm);
+      depth = parseInt(btn.dataset.depth);
+      rateSlider.value = bpm;
+      depthSlider.value = depth;
+      rateVal.textContent = bpm;
+    });
+  });
+
+  playBtn.addEventListener('click', ()=>{
+    ensureAudio();
+    if(actx.state === 'suspended') actx.resume();
+    if(!playing){ cycleStart = performance.now() - (frame.frozenT||0)*1000; }
+    playing = !playing;
+    updatePlayBtn();
+  });
+  function updatePlayBtn(){
+    playBtn.textContent = playing ? T[lang].play : T[lang].pause;
+    playBtn.classList.toggle('paused', !playing);
+  }
+
+  viewChestBtn.addEventListener('click', ()=>{
+    view='chest';
+    viewChestBtn.classList.add('active'); viewAlvBtn.classList.remove('active');
+    chestGroup.style.display='block'; alvGroup.style.display='none';
+  });
+  viewAlvBtn.addEventListener('click', ()=>{
+    view='alveoli';
+    viewAlvBtn.classList.add('active'); viewChestBtn.classList.remove('active');
+    chestGroup.style.display='none'; alvGroup.style.display='block';
+  });
+
+  document.getElementById('themeBtn').addEventListener('click', ()=>{
+    theme = theme==='light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', theme);
+    document.getElementById('themeBtn').textContent = theme==='light' ? '🌙 Dark' : '☀️ Light';
+    lungLShape.setAttribute('fill', theme==='dark' ? 'url(#lungGradDark)' : 'url(#lungGrad)');
+    lungRShape.setAttribute('fill', theme==='dark' ? 'url(#lungGradDark)' : 'url(#lungGrad)');
+  });
+
+  document.getElementById('btnEN').addEventListener('click', ()=>setLang('en'));
+  document.getElementById('btnNP').addEventListener('click', ()=>setLang('np'));
+  function setLang(l){
+    lang = l;
+    document.getElementById('btnEN').classList.toggle('active', l==='en');
+    document.getElementById('btnNP').classList.toggle('active', l==='np');
+    document.getElementById('title').childNodes[0].textContent = T[l].title + ' ';
+    document.getElementById('subtitle').textContent = T[l].subtitle;
+    document.getElementById('labBPM').textContent = T[l].bpmLab;
+    document.getElementById('labVolume').textContent = T[l].volLab;
+    document.getElementById('labO2').textContent = T[l].o2Lab;
+    document.getElementById('labTimer').textContent = T[l].timerLab;
+    document.getElementById('lblRate').innerHTML = T[l].rate + ' <b id="rateVal">'+bpm+'</b> /min';
+    document.getElementById('lblDepth').textContent = T[l].depth;
+    document.getElementById('legO2').textContent = T[l].legO2;
+    document.getElementById('legCO2').textContent = T[l].legCO2;
+    document.getElementById('legGlu').textContent = T[l].legGlu;
+    document.getElementById('legEnergy').textContent = T[l].legEnergy;
+    viewChestBtn.textContent = T[l].chest;
+    viewAlvBtn.textContent = T[l].alveoli;
+    document.getElementById('footer').textContent = T[l].footer;
+    presets.forEach((b,i)=> b.textContent = T[l].presets[i]);
+    document.getElementById('reactionTitle').textContent = T[l].reactionTitle;
+    document.getElementById('reactionSub').textContent = T[l].reactionSub;
+    document.getElementById('eqLabelReactants').textContent = T[l].eqReactants;
+    document.getElementById('eqLabelProducts').textContent = T[l].eqProducts;
+    updatePlayBtn();
+    updatePhaseTexts();
+  }
+
+  function updatePhaseTexts(){
+    if(phase==='inhale'){
+      phaseBadge.textContent = T[lang].inhaleBadge;
+      phaseBadge.classList.remove('exhale');
+      phaseTitle.textContent = T[lang].inhaleTitle;
+      phaseDesc.textContent = T[lang].inhaleDesc;
+      phaseDesc.classList.remove('exhale');
+    } else {
+      phaseBadge.textContent = T[lang].exhaleBadge;
+      phaseBadge.classList.add('exhale');
+      phaseTitle.textContent = T[lang].exhaleTitle;
+      phaseDesc.textContent = T[lang].exhaleDesc;
+      phaseDesc.classList.add('exhale');
+    }
+  }
+  updatePhaseTexts();
+  setSound(true);
+
+  /* ---------------- Animation loop ---------------- */
+  function formatTime(s){
+    const m = Math.floor(s/60).toString().padStart(2,'0');
+    const sec = Math.floor(s%60).toString().padStart(2,'0');
+    return m+':'+sec;
+  }
+
+  let lastSpawn = 0;
+  let lastAlvSpawn = 0;
+
+  function frame(ts){
+    if(lastTs === null) lastTs = ts;
+    const dt = (ts - lastTs)/1000;
+    lastTs = ts;
+    if(playing) elapsed += dt;
+    statTimer.textContent = formatTime(elapsed);
+
+    const period = 60/bpm;
+    let t;
+    if(playing){
+      t = ((ts - cycleStart)/1000) % period;
+      frame.frozenT = t;
+    } else {
+      t = frame.frozenT || 0;
+    }
+
+    const frac = t / period;
+    const wave = Math.sin(frac * Math.PI * 2 - Math.PI/2);
+    const norm = (wave + 1)/2;
+    const newPhase = frac < 0.5 ? 'inhale' : 'exhale';
+    if(newPhase !== phase){
+      phase = newPhase;
+      updatePhaseTexts();
+      if(phase === 'exhale' && !reactionFiredThisCycle){
+        triggerBurst();
+        reactionFiredThisCycle = true;
+      }
+      if(phase === 'inhale') reactionFiredThisCycle = false;
+    }
+
+    const depthFactor = depth/100;
+    const scale = 0.82 + norm*0.30*depthFactor;
+    lungLGroup.setAttribute('transform', `translate(210,220) scale(${scale})`);
+    lungRGroup.setAttribute('transform', `translate(390,220) scale(${scale})`);
+
+    const ribShift = norm*14*depthFactor;
+    ribPathsL.forEach((p,i)=>{
+      const y = 130+i*35;
+      p.setAttribute('d', `M300 ${y} Q ${220-ribShift*0.5} ${y+10} ${160-ribShift} ${y+40}`);
+    });
+    ribPathsR.forEach((p,i)=>{
+      const y = 130+i*35;
+      p.setAttribute('d', `M300 ${y} Q ${380+ribShift*0.5} ${y+10} ${440+ribShift} ${y+40}`);
+    });
+
+    const diaDrop = norm*40*depthFactor;
+    diaphragm.setAttribute('d', `M140 ${430+diaDrop} Q 300 ${400+diaDrop*1.3} 460 ${430+diaDrop} Q 460 ${460+diaDrop} 300 ${470+diaDrop} Q 140 ${460+diaDrop} 140 ${430+diaDrop} Z`);
+
+    const pulse = 0.6 + norm*0.4;
+    alvClusterL.setAttribute('opacity', pulse);
+    alvClusterR.setAttribute('opacity', pulse);
+
+    statBPM.textContent = bpm;
+    const tidal = Math.round(300 + depthFactor*400);
+    statVolume.textContent = tidal;
+    const o2level = Math.min(99, Math.round(94 + depthFactor*5 - Math.max(0,(bpm-30))*0.15));
+    statO2.textContent = o2level + '%';
+
+    updateBreathSound(norm, phase);
+
+    if(view==='chest' && playing){
+      if(ts - lastSpawn > 110){
+        lastSpawn = ts;
+        spawnParticle(phase==='inhale');
+      }
+    }
+    particlesGroup.innerHTML = '';
+    particles = particles.filter(p=>{
+      p.y += p.dir * p.speed * 4;
+      p.life += 1;
+      const alive = p.life < 60 && p.y > 10 && p.y < 230;
+      if(alive){
+        const c = el('circle', {cx:p.x, cy:p.y, r:4, fill:p.color, opacity: Math.max(0,1-p.life/60)});
+        particlesGroup.appendChild(c);
+      }
+      return alive;
+    });
+
+    if(view==='alveoli'){
+      const alvSac = document.getElementById('alvSac');
+      if(alvSac) alvSac.setAttribute('r', 95 + norm*30*depthFactor);
+      if(playing && ts - lastAlvSpawn > 250){
+        lastAlvSpawn = ts;
+        spawnAlvParticle(phase==='inhale' ? 'o2' : 'co2');
+      }
+      alvParticlesGroupEl.innerHTML = '';
+      alvParticles = alvParticles.filter(p=>{
+        p.t += 0.02;
+        const alive = p.t < 1;
+        if(alive){
+          const x = p.sx + (p.ex-p.sx)*p.t;
+          const y = p.sy + (p.ey-p.sy)*p.t;
+          const c = el('circle', {cx:x, cy:y, r:6, fill:p.color, opacity: 1-p.t*0.6});
+          alvParticlesGroupEl.appendChild(c);
+        }
+        return alive;
+      });
+    }
+
+    /* --- chemical reaction panel animation --- */
+    const reactWeight = 0.35 + 0.65*Math.max(0, Math.cos(frac*Math.PI*2)); // peaks at frac 0 (inhale start)
+    reactantsG.setAttribute('opacity', (0.45 + reactWeight*0.55).toFixed(2));
+    productsG.setAttribute('opacity', (1.0 - reactWeight*0.55).toFixed(2));
+    reactantsG.setAttribute('transform', `scale(${0.95+reactWeight*0.08})`);
+    productsG.setAttribute('transform', `scale(${1.03-reactWeight*0.08})`);
+
+    if(burstAnim > 0){
+      burstAnim += 0.045;
+      if(burstAnim >= 1){
+        burstAnim = 0;
+        burstG.setAttribute('opacity','0');
+      } else {
+        const r = 6 + burstAnim*46;
+        const op = 1 - burstAnim;
+        burstG.setAttribute('opacity', op.toFixed(2));
+        burstG.innerHTML = `
+          <circle r="${r}" fill="none" stroke="var(--energy)" stroke-width="4"/>
+          <circle r="${r*0.5}" fill="var(--energy)" opacity="0.5"/>
+        `;
+      }
+    }
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+})();
+</script>
+</body>
+</html>

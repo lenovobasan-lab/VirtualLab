@@ -442,6 +442,15 @@ const simulations = [
         url: "/simulations/2d_constellation.html",
         type: "html",
         created_at: "2026-06-20T19:54:00.000Z"
+    },
+    {
+        id: "sim-17",
+        title: "Respiration System",
+        description: "Interactive simulation of the respiration system",
+        subject: "Biology",
+        url: "/simulations/respiration_simulation.html",
+        type: "html",
+        created_at: "2026-06-20T19:54:00.000Z"
     }
 ];
 }),
