@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cell Explorer · कोष अन्वेषक</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f4efe4;
+    --paper-dark:#e9e1cf;
+    --ink:#e20707;
+    --ink-soft:#ec0505fa;
+    --brass:#a9822f;
+    --brass-dark:#7c5e21;
+    --plant:#0d7a45;
+    --plant-soft:#dbe9de;
+    --animal:#050000;
+    --animal-soft:#f1ded4;
+    --line:#c9bd9f;
+    --card:#fffdf7;
+    --shadow: 0 12px 30px rgba(30,42,36,0.14);
+    --accent: var(--plant);
+    --accent-soft: var(--plant-soft);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 15% 10%, rgba(169,130,47,0.07), transparent 40%),
+      radial-gradient(circle at 90% 85%, rgba(47,109,79,0.08), transparent 45%),
+      var(--paper);
+    font-family:'Inter', 'Noto Sans Devanagari', sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+    padding:28px 18px 60px;
+  }
+  [lang-np]{ font-family:'Noto Sans Devanagari','Inter',sans-serif; }
+
+  .wrap{max-width:1180px; margin:0 auto;}
+
+  /* ---------- Header ---------- */
+  header{
+    display:flex; align-items:flex-end; justify-content:space-between;
+    gap:20px; flex-wrap:wrap;
+    border-bottom:2px solid var(--line);
+    padding-bottom:18px; margin-bottom:26px;
+  }
+  .brand{display:flex; align-items:center; gap:14px;}
+  .brand-mark{
+    width:46px; height:46px; border-radius:50%;
+    background:conic-gradient(from 200deg, var(--plant), var(--brass), var(--animal), var(--plant));
+    position:relative; flex-shrink:0;
+    box-shadow:inset 0 0 0 3px var(--paper), 0 0 0 2px var(--line);
+  }
+  .brand-mark::after{
+    content:"";
+    position:absolute; inset:9px; border-radius:50%;
+    background:var(--card);
+  }
+  h1{
+    font-family:'Fraunces', serif; font-weight:600;
+    font-size:clamp(1.5rem, 2.6vw, 2.15rem);
+    margin:0; letter-spacing:-0.01em; line-height:1.05;
+  }
+  .kicker{
+    font-family:'JetBrains Mono', monospace; font-size:0.68rem;
+    letter-spacing:0.14em; text-transform:uppercase; color:var(--brass-dark);
+    margin:0 0 4px;
+  }
+  .subtitle{margin:6px 0 0; color:var(--ink-soft); font-size:0.92rem; max-width:46ch;}
+  .subtitle .np{display:block; margin-top:2px; font-size:0.9rem;}
+
+  /* language toggle */
+  .lang-toggle{
+    display:inline-flex; background:var(--card); border:1.5px solid var(--line);
+    border-radius:999px; padding:4px; gap:2px; box-shadow:var(--shadow);
+  }
+  .lang-toggle button{
+    border:none; background:transparent; padding:8px 16px; border-radius:999px;
+    font:600 0.82rem/1 'Inter', sans-serif; cursor:pointer; color:var(--ink-soft);
+    transition:all .2s ease;
+  }
+  .lang-toggle button[lang-np]{font-family:'Noto Sans Devanagari', sans-serif;}
+  .lang-toggle button.active{background:var(--ink); color:var(--paper);}
+
+  /* ---------- Cell type tabs ---------- */
+  .cell-tabs{
+    display:flex; gap:10px; margin-bottom:22px; flex-wrap:wrap;
+  }
+  .cell-tab{
+    flex:1; min-width:220px;
+    display:flex; align-items:center; gap:12px;
+    padding:14px 18px; border-radius:16px;
+    border:1.5px solid var(--line); background:var(--card);
+    cursor:pointer; text-align:left; transition:all .25s ease;
+    position:relative; overflow:hidden;
+  }
+  .cell-tab .swatch{
+    width:34px; height:34px; border-radius:50%; flex-shrink:0;
+    box-shadow:inset 0 0 0 2px rgba(255,255,255,0.5);
+  }
+  .cell-tab.plant .swatch{background:radial-gradient(circle at 35% 30%, #6fae82, var(--plant));}
+  .cell-tab.animal .swatch{background:radial-gradient(circle at 35% 30%, #d98866, var(--animal));}
+  .cell-tab .tt{font-family:'Fraunces',serif; font-weight:600; font-size:1.02rem; margin:0;}
+  .cell-tab .st{font-size:0.78rem; color:var(--ink-soft); margin:1px 0 0;}
+  .cell-tab.selected{border-color:transparent; box-shadow:var(--shadow);}
+  .cell-tab.plant.selected{background:linear-gradient(135deg, var(--plant-soft), var(--card));}
+  .cell-tab.animal.selected{background:linear-gradient(135deg, var(--animal-soft), var(--card));}
+  .cell-tab.selected::after{
+    content:"✓"; position:absolute; top:10px; right:14px;
+    font-size:0.8rem; color:var(--accent); font-weight:700;
+  }
+
+  /* ---------- Main layout ---------- */
+  .stage{
+    display:grid; grid-template-columns:1.15fr 0.85fr; gap:24px;
+    align-items:stretch;
+  }
+  @media (max-width:880px){ .stage{grid-template-columns:1fr;} }
+
+  /* microscope viewport */
+  .scope{
+    position:relative; background:var(--card);
+    border-radius:24px; border:1.5px solid var(--line);
+    box-shadow:var(--shadow);
+    padding:18px; display:flex; flex-direction:column;
+  }
+  .scope-head{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:10px; gap:10px; flex-wrap:wrap;
+  }
+  .scope-head .label{
+    font-family:'JetBrains Mono', monospace; font-size:0.72rem;
+    letter-spacing:0.08em; color:var(--brass-dark); text-transform:uppercase;
+  }
+  .reset-btn{
+    border:1px solid var(--line); background:var(--paper); color:var(--ink-soft);
+    padding:6px 12px; border-radius:999px; font-size:0.75rem; cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+  .reset-btn:hover{background:var(--paper-dark);}
+
+  .lens{
+    position:relative; border-radius:18px; overflow:hidden;
+    aspect-ratio:1/1;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(255,255,255,0.9), rgba(240,235,222,0.3) 60%, rgba(200,190,165,0.35) 100%),
+      repeating-radial-gradient(circle at 50% 50%, transparent 0 34px, rgba(169,130,47,0.045) 34px 35px);
+    box-shadow:inset 0 0 0 10px var(--paper), inset 0 0 34px rgba(30,42,36,0.18);
+  }
+  .lens::before{ /* crosshair ticks like a microscope reticle */
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background-image:
+      linear-gradient(to right, rgba(30,42,36,0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(30,42,36,0.06) 1px, transparent 1px);
+    background-size:12.5% 12.5%;
+  }
+  .cell-img{
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:contain; padding:6%;
+    filter:drop-shadow(0 10px 18px rgba(30,42,36,0.18));
+    transition:opacity .35s ease;
+  }
+
+  .hotspot{
+    position:absolute; transform:translate(-50%,-50%);
+    width:26px; height:26px; border-radius:50%;
+    border:none; cursor:pointer; z-index:5;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .hotspot .dot{
+    width:14px; height:14px; border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 0 0 4px rgba(255,255,255,0.75), 0 2px 6px rgba(228, 4, 4, 0.844);
+    transition:all .2s ease;
+  }
+  .hotspot .ring{
+    position:absolute; inset:0; border-radius:50%;
+    border:2px solid var(--accent); opacity:0.55;
+    animation:pulse 2.4s ease-out infinite;
+  }
+  .hotspot:nth-child(3n+1) .ring{animation-delay:0s;}
+  .hotspot:nth-child(3n+2) .ring{animation-delay:.6s;}
+  .hotspot:nth-child(3n+3) .ring{animation-delay:1.2s;}
+  @keyframes pulse{
+    0%{transform:scale(0.55); opacity:0.6;}
+    80%{opacity:0;}
+    100%{transform:scale(1.5); opacity:0;}
+  }
+  .hotspot.active .dot{
+    background:var(--ink); transform:scale(1.25);
+    box-shadow:0 0 0 5px rgba(255,255,255,0.9), 0 2px 8px rgba(212, 6, 6, 0.727);
+  }
+  .hotspot:hover .dot{transform:scale(1.15);}
+  .hotspot .tag{
+    position:absolute; bottom:130%; left:50%; transform:translateX(-50%);
+    background:var(--ink); color:var(--paper); padding:4px 9px;
+    border-radius:7px; font-size:0.68rem; white-space:nowrap;
+    opacity:0; pointer-events:none; transition:opacity .15s ease;
+    font-family:'Inter',sans-serif; font-weight:500;
+  }
+  .hotspot .tag[lang-np]{font-family:'Noto Sans Devanagari',sans-serif;}
+  .hotspot:hover .tag{opacity:1;}
+
+  .scope-caption{
+    margin-top:12px; font-size:0.76rem; color:var(--ink-soft);
+    text-align:center; font-style:italic; font-family:'Fraunces',serif;
+  }
+
+  /* ---------- Sidebar ---------- */
+  .side{
+    display:flex; flex-direction:column; gap:16px;
+  }
+  .detail-card{
+    background:var(--card); border:1.5px solid var(--line); border-radius:20px;
+    box-shadow:var(--shadow); padding:22px 22px 20px;
+    flex:1; display:flex; flex-direction:column; min-height:300px;
+  }
+  .detail-eyebrow{
+    font-family:'JetBrains Mono',monospace; font-size:0.68rem; letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--accent); margin:0 0 6px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .detail-eyebrow::before{
+    content:""; width:7px; height:7px; border-radius:50%; background:var(--accent);
+  }
+  .detail-name{
+    font-family:'Fraunces',serif; font-weight:700; font-size:1.55rem;
+    margin:0 0 2px; line-height:1.1;
+  }
+  .detail-name-np{
+    font-family:'Noto Sans Devanagari',sans-serif; font-weight:600; font-size:1.1rem;
+    color:var(--ink-soft); margin:0 0 14px;
+  }
+  .detail-fun{margin:0; padding-left:0; list-style:none; display:flex; flex-direction:column; gap:9px;}
+  .detail-fun li{
+    display:flex; gap:10px; font-size:0.93rem; line-height:1.5;
+    color:var(--ink);
+  }
+  .detail-fun li .num{
+    font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--accent);
+    background:var(--accent-soft); border-radius:6px; width:20px; height:20px;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px;
+    font-weight:700;
+  }
+  .fun-block[lang-np]{font-family:'Noto Sans Devanagari',sans-serif;}
+  .also-known{
+    margin-top:14px; padding-top:12px; border-top:1px dashed var(--line);
+    font-size:0.85rem; color:var(--brass-dark); font-style:italic;
+  }
+  .placeholder{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; gap:8px; color:var(--ink-soft); flex:1; padding:20px 6px;
+  }
+  .placeholder .big-emoji{font-size:2.2rem;}
+  .placeholder p{margin:0; font-size:0.88rem; max-width:30ch;}
+
+  /* organelle chip list */
+  .chip-list{
+    background:var(--card); border:1.5px solid var(--line); border-radius:20px;
+    box-shadow:var(--shadow); padding:16px;
+  }
+  .chip-list .cl-title{
+    font-family:'JetBrains Mono',monospace; font-size:0.68rem; letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--ink-soft); margin:2px 4px 10px;
+  }
+  .chips{display:flex; flex-wrap:wrap; gap:8px;}
+  .chip{
+    border:1.5px solid var(--line); background:var(--paper);
+    padding:7px 13px; border-radius:999px; font-size:0.8rem; cursor:pointer;
+    color:var(--ink); transition:all .18s ease; font-family:'Inter',sans-serif;
+  }
+  .chip[lang-np]{font-family:'Noto Sans Devanagari',sans-serif;}
+  .chip:hover{background:var(--accent-soft); border-color:var(--accent);}
+  .chip.active{background:var(--ink); border-color:var(--ink); color:var(--paper);}
+
+  footer{
+    text-align:center; margin-top:30px; font-size:0.72rem; color:var(--ink-soft);
+    font-family:'JetBrains Mono',monospace; letter-spacing:0.03em;
+  }
+
+  .hide{display:none !important;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true"></div>
+      <div>
+        <p class="kicker">Interactive Biology · Cell Structure</p>
+        <h1>Cell Explorer <span style="opacity:.35;">/</span> <span lang-np>कोष अन्वेषक</span></h1>
+        <p class="subtitle">
+          <span lang-en-block>Tap any glowing marker on the cell to learn what that part does.</span>
+          <span class="np" lang-np-block>कोषमा देखिने कुनै पनि चम्किलो चिन्हमा थिच्नुहोस् र त्यो भागले के काम गर्छ भन्ने थाहा पाउनुहोस्।</span>
+        </p>
+      </div>
+    </div>
+    <div class="lang-toggle" role="group" aria-label="Language toggle">
+      <button type="button" id="btn-en" class="active">English</button>
+      <button type="button" id="btn-np" lang-np>नेपाली</button>
+    </div>
+  </header>
+
+  <div class="cell-tabs">
+    <button class="cell-tab plant selected" id="tab-plant" data-cell="plant">
+      <span class="swatch"></span>
+      <span>
+        <p class="tt"><span lang-en-block>Plant Cell</span><span lang-np-block lang-np class="hide">बिरुवा कोष</span></p>
+        <p class="st"><span lang-en-block>Cell wall, chloroplast &amp; a big vacuole</span><span lang-np-block lang-np class="hide">कोष भित्ता, हरितलवक र ठूलो रिक्तिका</span></p>
+      </span>
+    </button>
+    <button class="cell-tab animal" id="tab-animal" data-cell="animal">
+      <span class="swatch"></span>
+      <span>
+        <p class="tt"><span lang-en-block>Animal Cell</span><span lang-np-block lang-np class="hide">जन्तु कोष</span></p>
+        <p class="st"><span lang-en-block>No wall, round shape, centrioles</span><span lang-np-block lang-np class="hide">भित्ता नभएको, गोलाकार, सेन्ट्रियोलसहित</span></p>
+      </span>
+    </button>
+  </div>
+
+  <div class="stage">
+    <div class="scope">
+      <div class="scope-head">
+        <span class="label" id="scope-label">Specimen slide · Plant cell</span>
+        <button class="reset-btn" id="reset-btn"><span lang-en-block>Clear selection</span><span lang-np-block lang-np class="hide">चयन हटाउनुहोस्</span></button>
+      </div>
+      <div class="lens">
+        <img class="cell-img" id="cell-img" src="assets/plant-cell.png" alt="Plant cell illustration">
+        <div id="hotspot-layer"></div>
+      </div>
+      <p class="scope-caption" id="scope-caption">"Parts of Plant and Animal Cell and their functions"</p>
+    </div>
+
+    <div class="side">
+      <div class="detail-card" id="detail-card">
+        <div class="placeholder" id="placeholder">
+          <div class="big-emoji">🔬</div>
+          <p><span lang-en-block>Select a part of the cell — from the image or the list below — to see its name and function here.</span><span lang-np-block lang-np class="hide">यहाँ नाम र काम हेर्न माथिको चित्र वा तलको सूचीबाट कोषको कुनै भाग छान्नुहोस्।</span></p>
+        </div>
+        <div id="detail-content" class="hide">
+          <p class="detail-eyebrow" id="detail-eyebrow">Organelle</p>
+          <h2 class="detail-name" id="detail-name-en"></h2>
+          <h3 class="detail-name-np" lang-np id="detail-name-np"></h3>
+          <ul class="detail-fun fun-block" id="detail-fun-en"></ul>
+          <ul class="detail-fun fun-block hide" lang-np id="detail-fun-np"></ul>
+          <p class="also-known hide" id="detail-also"></p>
+        </div>
+      </div>
+
+      <div class="chip-list">
+        <p class="cl-title"><span lang-en-block>All parts</span><span lang-np-block lang-np class="hide">सबै भागहरू</span></p>
+        <div class="chips" id="chips"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Based on "Types of Cell" · GeoGebra original by Basanta Bhattarai · rebuilt as a bilingual web simulation</footer>
+</div>
+
+<script>
+/* ---------------- DATA ---------------- */
+const CELLS = {
+  plant: {
+    label_en: "Specimen slide · Plant cell",
+    label_np: "नमुना स्लाइड · बिरुवा कोष",
+    img: "assets/plant-cell.png",
+    parts: [
+      { id:"cellwall", x:20, y:50, en:"Cell Wall", np:"कोष भित्ता",
+        fun_en:["It provides structural support to the plant cell.","It protects the cell from external injuries."],
+        fun_np:["बिरुवाको कोषलाई संरचनात्मक सहयोग दिन्छ।","बाहिरी चोटपटकबाट कोषलाई सुरक्षा दिन्छ।", "यो केवल वनस्पति कोषमा मात्र पाइन्छ।"] },
+      { id:"membrane", x:50, y:13, en:"Cell Membrane", np:"कोष झिल्ली",
+        fun_en:["It works as the protective barrier of the cell.","It controls the entry  and exit of different materials.","It maintains homeostasis inside the cell."],
+        fun_np:["यसले कोषको सुरक्षा पर्खालको रूपमा काम गर्छ।","विभिन्न पदार्थहरूको प्रवेश र निकास नियन्त्रण गर्छ।","कोष भित्रको सन्तुलन (homeostasis) कायम राख्छ।"] },
+      { id:"chloroplast", x:27, y:20, en:"Plastid", np:"प्लास्टिड",
+        fun_en:["It gives green colour to the plant.","It conducts the photosynthesis process.","It produces glucose and oxygen."],
+        fun_np:["बिरुवालाई हरियो रङ दिन्छ।","प्रकाश संश्लेषण (photosynthesis) प्रक्रिया सञ्चालन गर्छ।","ग्लुकोज र अक्सिजन उत्पादन गर्छ।", "यो केवल वनस्पति कोषमा मात्र पाइन्छ।"] },
+      { id:"chloroplast2", x:63, y:23, en:"Plastid", np:"प्लास्टिड",
+        fun_en:["It gives green colour to the plant.","It conducts the photosynthesis process.","It produces glucose and oxygen."],
+        fun_np:["बिरुवालाई हरियो रङ दिन्छ।","प्रकाश संश्लेषण (photosynthesis) प्रक्रिया सञ्चालन गर्छ।","ग्लुकोज र अक्सिजन उत्पादन गर्छ।", "यो केवल वनस्पति कोषमा मात्र पाइन्छ।"] },
+      { id:"nucleus", x:38, y:38, en:"Nucleus", np:"न्युक्लियस",
+        fun_en:["It controls all the activities of the cell.","It stores genetic material.","Helps in cell growth.","It regulates cell division.","It produces ribosomes."],
+        fun_np:["कोषका सबै गतिविधि नियन्त्रण गर्छ।","आनुवंशिक सामग्री भण्डारण गर्छ।","कोष वृद्धिमा सहयोग गर्छ।","कोष विभाजन नियन्त्रण गर्छ।","राइबोसोम उत्पादन गर्छ।"] },
+      { id:"nucleolus", x:45, y:36, en:"Nucleolus", np:"न्युक्लिओलस",
+        fun_en:["It regulates the cell cycle.","It makes rRNA."],
+        fun_np:["कोष चक्र (cell cycle) नियमन गर्छ।","rRNA बनाउँछ।"] },
+      { id:"golgi", x:40, y:52, en:"Golgi Apparatus", np:"गल्जी बडी",
+        fun_en:["Helps in protein modification.","Helps in the formation of lysosomes.","Helps in the formation of the plasma membrane."],
+        fun_np:["प्रोटिन परिमार्जनमा मद्दत गर्छ।","लाइसोसोम निर्माणमा सहयोग गर्छ।","प्लाज्मा झिल्ली निर्माणमा सहयोग गर्छ।"] },
+      { id:"er", x:50, y:20, en:"Endoplasmic Reticulum", np:"इन्डोप्लाज्मिक रेटिकुलम",
+        fun_en:["It supports cell growth.","Helps in protein synthesis."],
+        fun_np:["कोष वृद्धिमा सहयोग गर्छ।","प्रोटिन संश्लेषणमा मद्दत गर्छ।"] },
+      { id:"ribosome", x:63, y:36, en:"Ribosome", np:"राइबोसोम",
+        fun_en:["Helps in protein synthesis.","It translates genetic codes.","Helps in enzyme production."],
+        fun_np:["प्रोटिन संश्लेषणमा मद्दत गर्छ।","आनुवंशिक सङ्केत अनुवाद गर्छ।","इन्जाइम उत्पादनमा सहयोग गर्छ।"] },
+      { id:"mitochondria", x:25, y:33, en:"Mitochondria", np:"माइटोकोन्ड्रिया",
+        fun_en:["It produces energy in the form of ATP.","It helps in cellular respiration.","Helps in the regulation of metabolism."],
+        fun_np:["यसले ATP को रूपमा ऊर्जा उत्पादन गर्छ।","कोषीय श्वसनमा मद्दत गर्छ।","उपापचय नियन्त्रणमा सहयोग गर्छ।"],
+        also_en:"Also called the powerhouse of the cell.", also_np:"यसलाई कोषको \u201cशक्तिको भण्डार\u201d पनि भनिन्छ।" },
+      { id:"vacuole", x:60, y:70, en:"Central Vacuole", np:"भ्याकुल",
+        fun_en:["Helps to store nutrients, ions, amino acids etc.","Helps to remove waste from the cell.","Helps to balance and maintain water level."],
+        fun_np:["पोषक तत्व, आयन, अमिनो एसिड आदि भण्डारण गर्न मद्दत गर्छ।","कोषबाट फोहोर पदार्थ हटाउन मद्दत गर्छ।","पानीको सन्तुलन कायम राख्न मद्दत गर्छ।"] },
+      { id:"cytoplasm", x:70, y:82, en:"Cytoplasm", np:"साइटोप्लाज्म",
+        fun_en:["Helps to transport materials inside the cell.","It absorbs shock and protects organelles from damage.","Helps organelles float within it."],
+        fun_np:["कोष भित्र पदार्थ ढुवानीमा मद्दत गर्छ।","धक्का अवशोषण गरी कोषांगहरूलाई क्षतिबाट जोगाउँछ।","कोषांगहरूलाई यसमा उत्प्लावित गर्न मद्दत गर्छ।"] },
+    ]
+  },
+  animal: {
+    label_en: "Specimen slide · Animal cell",
+    label_np: "नमुना स्लाइड · जन्तु कोष",
+    img: "assets/animal-cell.png",
+    parts: [
+      { id:"membrane", x:21, y:45, en:"Cell Membrane", np:"कोष झिल्ली",
+        fun_en:["It works as the protective barrier of the cell.","It controls the entry and exit of different materials.","It maintains homeostasis inside the cell."],
+        fun_np:["यसले कोषको सुरक्षा पर्खालको रूपमा काम गर्छ।","विभिन्न पदार्थहरूको प्रवेश र निकास नियन्त्रण गर्छ।","कोष भित्रको सन्तुलन (homeostasis) कायम राख्छ।"] },
+      { id:"nucleus", x:35, y:50, en:"Nucleus", np:"न्युक्लियस",
+        fun_en:["It controls all the activities of the cell.","Stores DNA in the form of chromatin, which helps transmit genetic material.","Helps in DNA replication.","It regulates cell division."],
+        fun_np:["यसले कोषका सबै गतिविधि नियन्त्रण गर्छ।","क्रोमेटिनको रूपमा DNA भण्डारण गरी आनुवंशिक सामग्री सार्न मद्दत गर्छ।","DNA प्रतिकृति (replication) मा मद्दत गर्छ।","कोष विभाजन नियन्त्रण गर्छ।"],
+        also_en:"Also known as the controlling centre of the cell.", also_np:"यसलाई कोषको \u201cनियन्त्रण केन्द्र\u201d पनि भनिन्छ।" },
+      { id:"nucleolus", x:34, y:43, en:"Nucleolus", np:"न्युक्लिओलस",
+        fun_en:["Helps to regulate the cell cycle.","Helps produce rRNA.","Has a specific role in cellular ageing."],
+        fun_np:["कोष चक्र नियमन गर्न मद्दत गर्छ।","rRNA उत्पादनमा मद्दत गर्छ।","कोषीय बुढ्यौलीमा विशेष भूमिका खेल्छ।"] },
+      { id:"mitochondria", x:58, y:17, en:"Mitochondria", np:"माइटोकोन्ड्रिया",
+        fun_en:["It produces energy in the form of ATP.","It helps in cellular respiration.","Helps in the regulation of metabolism."],
+        fun_np:["यसले ATP को रूपमा ऊर्जा उत्पादन गर्छ।","कोषीय श्वसनमा मद्दत गर्छ।","उपापचय नियन्त्रणमा सहयोग गर्छ।"],
+        also_en:"Also called the powerhouse of the cell.", also_np:"यसलाई कोषको \u201cशक्तिको भण्डार\u201d पनि भनिन्छ।" },
+      { id:"golgi", x:37, y:70, en:"Golgi Apparatus", np:"गल्जी बडी",
+        fun_en:["Helps in protein modification.","Helps in the formation of lysosomes.","Helps in the formation of the plasma membrane."],
+        fun_np:["प्रोटिन परिमार्जनमा मद्दत गर्छ।","लाइसोसोम निर्माणमा सहयोग गर्छ।","प्लाज्मा झिल्ली निर्माणमा सहयोग गर्छ।"] },
+      { id:"roughER", x:49, y:48, en:"Rough Endoplasmic Reticulum", np:"खस्रो इन्डोप्लाज्मिक रेटिकुलम",
+        fun_en:["Helps in protein synthesis.","Helps in the formation of enzymes.","Supports cell growth."],
+        fun_np:["प्रोटिन संश्लेषणमा मद्दत गर्छ।","इन्जाइम निर्माणमा सहयोग गर्छ।","कोष वृद्धिमा सहयोग गर्छ।"] },
+      { id:"lysosome", x:49, y:18, en:"Lysosome", np:"लाइसोसोम",
+        fun_en:["Helps in intracellular digestion.","It removes worn-out cell organelles.","It acts as the cell's defence system."],
+        fun_np:["अन्तःकोषीय पाचनमा मद्दत गर्छ।","पुराना, बिग्रिएका कोषांगहरूलाई हटाउँछ।","कोषको सुरक्षा प्रणालीको रूपमा काम गर्छ।", "यो केवल जीव कोषमा मात्र पाइन्छ।"],
+        also_en:"Also called the suicidal bag of the cell.", also_np:"यसलाई कोषको \u201cआत्मघाती थैली\u201d पनि भनिन्छ।" },
+      { id:"ribosome", x:48, y:75, en:"Ribosome", np:"राइबोसोम",
+        fun_en:["Helps in protein synthesis.","It translates genetic codes.","Helps in enzyme production."],
+        fun_np:["प्रोटिन संश्लेषणमा मद्दत गर्छ।","आनुवंशिक सङ्केत अनुवाद गर्छ।","इन्जाइम उत्पादनमा सहयोग गर्छ।"] },
+      { id:"centrioles", x:57, y:36, en:"Centrioles", np:"सेन्ट्रियोल",
+        fun_en:["Helps in cell division.","Helps organize microtubules.","Helps in the formation of cilia and flagella."],
+        fun_np:["कोष विभाजनमा मद्दत गर्छ।","सूक्ष्मनलिका व्यवस्थित गर्न मद्दत गर्छ।","सिलिया र फ्ल्याजेला निर्माणमा सहयोग गर्छ।"] },
+      { id:"vacuole", x:70, y:74, en:"Vacuole", np:"भ्याकुल",
+        fun_en:["Helps store nutrients, ions, amino acids etc.","Helps remove waste from the cell.","Helps balance and maintain water level."],
+        fun_np:["पोषक तत्व, आयन, अमिनो एसिड आदि भण्डारण गर्न मद्दत गर्छ।","कोषबाट फोहोर पदार्थ हटाउन मद्दत गर्छ।","पानीको सन्तुलन कायम राख्न मद्दत गर्छ।"] },
+      { id:"peroxisome", x:74, y:58, en:"Peroxisome", np:"पेरोक्सिसोम",
+        fun_en:["Helps break down fatty acids.","Helps detoxify hydrogen peroxide.","Detoxifies drugs and toxins."],
+        fun_np:["फ्याटी एसिड भाँच्न मद्दत गर्छ।","हाइड्रोजन पेरअक्साइड निष्क्रिय बनाउँछ।","औषधि र विषाक्त पदार्थलाई निष्क्रिय पार्छ।"] },
+      { id:"microtubule", x:32, y:28, en:"Microtubule", np:"सूक्ष्मनलिका",
+        fun_en:["It maintains cell shape.","Helps in intracellular transport.","Helps in cell division."],
+        fun_np:["कोषको आकार कायम राख्छ।","अन्तःकोषीय ढुवानीमा मद्दत गर्छ।","कोष विभाजनमा सहयोग गर्छ।"] },
+      { id:"cytoplasm", x:70, y:41, en:"Cytoplasm", np:"साइटोप्लाज्म",
+        fun_en:["Helps transport materials inside the cell.","It absorbs shock and protects organelles from damage.","Helps organelles float within it."],
+        fun_np:["कोष भित्र पदार्थ ढुवानीमा मद्दत गर्छ।","धक्का अवशोषण गरी कोषांगहरूलाई क्षतिबाट जोगाउँछ।","कोषांगहरूलाई यसमा उत्प्लावित गर्न मद्दत गर्छ।"] },
+    ]
+  }
+};
+
+/* ---------------- STATE ---------------- */
+let currentCell = "plant";
+let currentLang = "en"; // 'en' or 'np'
+let currentPartId = null;
+
+const hotspotLayer = document.getElementById("hotspot-layer");
+const cellImg = document.getElementById("cell-img");
+const scopeLabel = document.getElementById("scope-label");
+const chipsEl = document.getElementById("chips");
+const placeholder = document.getElementById("placeholder");
+const detailContent = document.getElementById("detail-content");
+
+function partsOf(cellKey){ return CELLS[cellKey].parts; }
+
+function setLang(lang){
+  currentLang = lang;
+  document.getElementById("btn-en").classList.toggle("active", lang==="en");
+  document.getElementById("btn-np").classList.toggle("active", lang==="np");
+  document.querySelectorAll("[lang-en-block]").forEach(el=> el.classList.toggle("hide", lang!=="en"));
+  document.querySelectorAll("[lang-np-block]").forEach(el=> el.classList.toggle("hide", lang!=="np"));
+  document.getElementById("detail-fun-en").classList.toggle("hide", lang!=="en");
+  document.getElementById("detail-fun-np").classList.toggle("hide", lang!=="np");
+  scopeLabel.textContent = lang==="en" ? CELLS[currentCell].label_en : CELLS[currentCell].label_np;
+  renderChips();
+}
+
+function selectCell(cellKey){
+  currentCell = cellKey;
+  currentPartId = null;
+  document.getElementById("tab-plant").classList.toggle("selected", cellKey==="plant");
+  document.getElementById("tab-animal").classList.toggle("selected", cellKey==="animal");
+  document.documentElement.style.setProperty("--accent", cellKey==="plant" ? "var(--plant)" : "var(--animal)");
+  document.documentElement.style.setProperty("--accent-soft", cellKey==="plant" ? "var(--plant-soft)" : "var(--animal-soft)");
+  cellImg.style.opacity = 0;
+  setTimeout(()=>{
+    cellImg.src = CELLS[cellKey].img;
+    cellImg.alt = cellKey==="plant" ? "Plant cell illustration" : "Animal cell illustration";
+    cellImg.style.opacity = 1;
+  }, 150);
+  scopeLabel.textContent = currentLang==="en" ? CELLS[cellKey].label_en : CELLS[cellKey].label_np;
+  renderHotspots();
+  renderChips();
+  showPlaceholder();
+}
+
+function renderHotspots(){
+  hotspotLayer.innerHTML = "";
+  partsOf(currentCell).forEach(part=>{
+    const btn = document.createElement("button");
+    btn.className = "hotspot";
+    btn.style.left = part.x + "%";
+    btn.style.top = part.y + "%";
+    btn.setAttribute("aria-label", part.en);
+    btn.innerHTML = `<span class="ring"></span><span class="dot"></span><span class="tag" lang-en-block>${part.en}</span><span class="tag hide" lang-np-block lang-np>${part.np}</span>`;
+    btn.addEventListener("click", ()=> selectPart(part.id));
+    hotspotLayer.appendChild(btn);
+  });
+  // re-apply language visibility to freshly created tags
+  document.querySelectorAll("#hotspot-layer [lang-en-block]").forEach(el=> el.classList.toggle("hide", currentLang!=="en"));
+  document.querySelectorAll("#hotspot-layer [lang-np-block]").forEach(el=> el.classList.toggle("hide", currentLang!=="np"));
+}
+
+function renderChips(){
+  chipsEl.innerHTML = "";
+  partsOf(currentCell).forEach(part=>{
+    const chip = document.createElement("button");
+    chip.className = "chip" + (part.id===currentPartId ? " active":"");
+    if(currentLang==="np") chip.setAttribute("lang-np","");
+    chip.textContent = currentLang==="en" ? part.en : part.np;
+    chip.addEventListener("click", ()=> selectPart(part.id));
+    chipsEl.appendChild(chip);
+  });
+}
+
+function showPlaceholder(){
+  placeholder.classList.remove("hide");
+  detailContent.classList.add("hide");
+}
+
+function selectPart(id){
+  currentPartId = id;
+  const part = partsOf(currentCell).find(p=>p.id===id);
+  if(!part) return;
+
+  document.querySelectorAll(".hotspot").forEach(h=> h.classList.remove("active"));
+  const idx = partsOf(currentCell).findIndex(p=>p.id===id);
+  const hotspotEls = document.querySelectorAll(".hotspot");
+  if(hotspotEls[idx]) hotspotEls[idx].classList.add("active");
+
+  placeholder.classList.add("hide");
+  detailContent.classList.remove("hide");
+
+  document.getElementById("detail-eyebrow").textContent = currentCell==="plant" ? (currentLang==="en"?"Plant cell part":"बिरुवा कोषको भाग") : (currentLang==="en"?"Animal cell part":"जन्तु कोषको भाग");
+  document.getElementById("detail-name-en").textContent = part.en;
+  document.getElementById("detail-name-np").textContent = part.np;
+
+  const ulEn = document.getElementById("detail-fun-en");
+  const ulNp = document.getElementById("detail-fun-np");
+  ulEn.innerHTML = part.fun_en.map((f,i)=>`<li><span class="num">${i+1}</span><span>${f}</span></li>`).join("");
+  ulNp.innerHTML = part.fun_np.map((f,i)=>`<li><span class="num">${i+1}</span><span>${f}</span></li>`).join("");
+
+  const also = document.getElementById("detail-also");
+  if(part.also_en){
+    also.classList.remove("hide");
+    also.textContent = currentLang==="en" ? part.also_en : part.also_np;
+  } else {
+    also.classList.add("hide");
+  }
+
+  renderChips();
+}
+
+/* ---------------- WIRE UP ---------------- */
+document.getElementById("btn-en").addEventListener("click", ()=> { setLang("en"); if(currentPartId) selectPart(currentPartId); });
+document.getElementById("btn-np").addEventListener("click", ()=> { setLang("np"); if(currentPartId) selectPart(currentPartId); });
+document.getElementById("tab-plant").addEventListener("click", ()=> selectCell("plant"));
+document.getElementById("tab-animal").addEventListener("click", ()=> selectCell("animal"));
+document.getElementById("reset-btn").addEventListener("click", ()=>{
+  currentPartId = null;
+  document.querySelectorAll(".hotspot").forEach(h=> h.classList.remove("active"));
+  showPlaceholder();
+  renderChips();
+});
+
+/* init */
+document.documentElement.style.setProperty("--accent", "var(--plant)");
+document.documentElement.style.setProperty("--accent-soft", "var(--plant-soft)");
+renderHotspots();
+renderChips();
+setLang("en");
+</script>
+</body>
+</html>

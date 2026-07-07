@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algebraic Identities - Algebra Tiles</title>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg: #F3F4F6;
+            --panel-bg: #FFFFFF;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --border: #E5E7EB;
+            
+            /* Tile Colors */
+            --color-a2: #3B82F6;     /* Blue */
+            --color-b2: #10B981;     /* Green */
+            --color-ab: #F59E0B;     /* Amber */
+            --color-amb: #8B5CF6;    /* Purple */
+            --color-sub: rgba(239, 68, 68, 0.6); /* Red transparent for subtraction */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            flex-direction: row;
+        }
+
+        /* Panel Styles */
+        .panel {
+            width: 22%;
+            min-width: 280px;
+            max-width: 320px;
+            background-color: var(--panel-bg);
+            box-shadow: 2px 0 12px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            z-index: 10;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .lang-btn {
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .lang-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+            background: var(--bg);
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        select, input[type="range"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: white;
+            font-family: inherit;
+        }
+
+        .val-display {
+            float: right;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .btn-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .btn-full {
+            width: 100%;
+            grid-column: span 2;
+        }
+
+        button.action-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+
+        button.action-btn:hover {
+            background-color: var(--primary-hover);
+        }
+        
+        button.action-btn:active {
+            transform: scale(0.98);
+        }
+
+        button.action-btn.secondary {
+            background-color: white;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        button.action-btn.secondary:hover {
+            background-color: #EEF2FF;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .checkbox-group input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .legend {
+            margin-top: auto;
+            padding-top: 20px;
+            font-size: 0.85rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .color-box {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+
+        /* Canvas Container Styles */
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .equation-display {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px 30px;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            pointer-events: none;
+            transition: all 0.3s ease;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 800px) {
+            body {
+                flex-direction: column;
+            }
+            .panel {
+                width: 100%;
+                max-width: 100%;
+                height: 45%;
+                border-bottom: 1px solid var(--border);
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+            .canvas-container {
+                height: 55%;
+            }
+            .equation-display {
+                font-size: 1.2rem;
+                bottom: 15px;
+                padding: 10px 20px;
+            }
+            .legend {
+                display: none; /* Hide legend on mobile to save space */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="panel">
+        <div class="header">
+            <h1 data-i18n="title">Algebra Tiles</h1>
+            <button class="lang-btn" id="langToggle">नेपाली</button>
+        </div>
+
+        <div class="control-group">
+            <label data-i18n="formula">Formula</label>
+            <select id="formulaSelect">
+                <option value="1">(a+b)² = a² + 2ab + b²</option>
+                <option value="2">(a-b)² = a² - 2ab + b²</option>
+                <option value="3">a² + b²</option>
+                <option value="4">a² - b² = (a+b)(a-b)</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>
+                <span data-i18n="a_val">Value of a</span>
+                <span class="val-display" id="aVal">5</span>
+            </label>
+            <input type="range" id="sliderA" min="2" max="10" value="5">
+            
+            <label style="margin-top: 10px;">
+                <span data-i18n="b_val">Value of b</span>
+                <span class="val-display" id="bVal">3</span>
+            </label>
+            <input type="range" id="sliderB" min="1" max="9" value="3">
+        </div>
+
+        <div class="control-group">
+            <label data-i18n="controls">Animation Controls</label>
+            <div class="btn-grid">
+                <button class="action-btn secondary" id="btnPrev" data-i18n="prev">Prev</button>
+                <button class="action-btn secondary" id="btnNext" data-i18n="next">Next</button>
+                <button class="action-btn btn-full" id="btnPlay" data-i18n="play">Play Auto</button>
+                <button class="action-btn btn-full secondary" id="btnReset" data-i18n="reset">Reset Step</button>
+            </div>
+            
+            <label style="margin-top:15px;" data-i18n="speed">Speed</label>
+            <input type="range" id="sliderSpeed" min="0.5" max="3" step="0.1" value="1.5">
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="chkLabels" checked>
+                <label for="chkLabels" style="margin:0;" data-i18n="labels">Show Labels</label>
+            </div>
+        </div>
+
+        <div class="legend">
+            <strong style="display:block; margin-bottom:8px;" data-i18n="legend">Legend:</strong>
+            <div class="legend-item"><div class="color-box" style="background: var(--color-a2)"></div> <span data-i18n="l_a2">a² Area</span></div>
+            <div class="legend-item"><div class="color-box" style="background: var(--color-b2)"></div> <span data-i18n="l_b2">b² Area</span></div>
+            <div class="legend-item"><div class="color-box" style="background: var(--color-ab)"></div> <span data-i18n="l_ab">ab Area</span></div>
+            <div class="legend-item"><div class="color-box" style="background: var(--color-amb)"></div> <span data-i18n="l_amb">(a-b)² Area</span></div>
+        </div>
+    </aside>
+
+    <main class="canvas-container" id="canvasContainer">
+        <canvas id="canvas"></canvas>
+        <div class="equation-display" id="eqDisplay">Select a formula to begin</div>
+    </main>
+
+    <script>
+        // Internationalization
+        const i18n = {
+            en: {
+                title: "Algebra Tiles",
+                formula: "Formula",
+                a_val: "Value of a", b_val: "Value of b",
+                controls: "Animation Controls",
+                speed: "Speed", labels: "Show Labels",
+                prev: "Prev", next: "Next", play: "Play Auto", pause: "Pause Auto", reset: "Restart",
+                legend: "Legend:",
+                l_a2: "a² Area", l_b2: "b² Area", l_ab: "ab Area", l_amb: "(a-b)² Area",
+                lang: "नेपाली"
+            },
+            ne: {
+                title: "बीजगणित टायलहरू",
+                formula: "सूत्र",
+                a_val: "a को मान", b_val: "b को मान",
+                controls: "एनिमेसन नियन्त्रण",
+                speed: "गति", labels: "लेबल देखाउनुहोस्",
+                prev: "अघिल्लो", next: "अर्को", play: "स्वतः सुरु", pause: "रोक्नुहोस्", reset: "पुनः सुरु",
+                legend: "संकेत:",
+                l_a2: "a² क्षेत्रफल", l_b2: "b² क्षेत्रफल", l_ab: "ab क्षेत्रफल", l_amb: "(a-b)² क्षेत्रफल",
+                lang: "English"
+            }
+        };
+
+        // State variables
+        let state = {
+            lang: 'en',
+            formula: 1,
+            a: 5,
+            b: 3,
+            step: 0,
+            playing: false,
+            speed: 1.5,
+            showLabels: true
+        };
+
+        const maxSteps = { 1: 4, 2: 4, 3: 2, 4: 3 };
+
+        // DOM Elements
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('canvasContainer');
+        const eqDisplay = document.getElementById('eqDisplay');
+        const sliderA = document.getElementById('sliderA');
+        const sliderB = document.getElementById('sliderB');
+        const btnPlay = document.getElementById('btnPlay');
+
+        // Colors
+        const C = {
+            a2: '#3B82F6', b2: '#10B981', ab: '#F59E0B', amb: '#8B5CF6',
+            sub: 'rgba(239, 68, 68, 0.7)'
+        };
+
+        class Tile {
+            constructor(id, color, text) {
+                this.id = id;
+                this.color = color;
+                this.text = text;
+                // Current visual state
+                this.cx = 0; this.cy = 0;
+                this.w = 0; this.h = 0;
+                this.angle = 0;
+                this.alpha = 0;
+                // Target state for animation
+                this.tx = 0; this.ty = 0;
+                this.tw = 0; this.th = 0;
+                this.tAngle = 0;
+                this.tAlpha = 0;
+                this.initialized = false;
+            }
+
+            setTarget(cx, cy, w, h, angle, alpha, instant = false) {
+                this.tx = cx; this.ty = cy;
+                this.tw = w; this.th = h;
+                this.tAngle = angle;
+                this.tAlpha = alpha;
+                if (instant || !this.initialized) {
+                    this.cx = cx; this.cy = cy;
+                    this.w = w; this.h = h;
+                    this.angle = angle;
+                    this.alpha = alpha;
+                    this.initialized = true;
+                }
+            }
+
+            update(dt) {
+                const lerp = (start, end, amt) => (1 - amt) * start + amt * end;
+                // adjust smoothness based on frame delta and speed slider
+                const speedFactor = Math.min(1.0, dt * 5 * state.speed); 
+                
+                this.cx = lerp(this.cx, this.tx, speedFactor);
+                this.cy = lerp(this.cy, this.ty, speedFactor);
+                this.w = lerp(this.w, this.tw, speedFactor);
+                this.h = lerp(this.h, this.th, speedFactor);
+                this.angle = lerp(this.angle, this.tAngle, speedFactor);
+                this.alpha = lerp(this.alpha, this.tAlpha, speedFactor);
+            }
+
+            draw(ctx) {
+                if (this.alpha < 0.01) return;
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.translate(this.cx, this.cy);
+                ctx.rotate(this.angle);
+
+                // Shadow for floating effect
+                if (this.alpha > 0.5) {
+                    ctx.shadowColor = 'rgba(0,0,0,0.15)';
+                    ctx.shadowBlur = 10;
+                    ctx.shadowOffsetX = 3;
+                    ctx.shadowOffsetY = 3;
+                }
+
+                // Tile Body
+                ctx.fillStyle = this.color;
+                ctx.fillRect(-this.w/2, -this.h/2, this.w, this.h);
+
+                // Tile Border
+                ctx.shadowColor = 'transparent';
+                ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(-this.w/2, -this.h/2, this.w, this.h);
+
+                // Label Text
+                if (state.showLabels && this.w > 25 && this.h > 25) {
+                    ctx.fillStyle = '#ffffff';
+                    // Font size responsive to tile size
+                    let fontSize = Math.max(12, Math.min(this.w, this.h, 40) * 0.3);
+                    ctx.font = `bold ${fontSize}px Inter, sans-serif`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(this.text, 0, 0);
+                }
+                ctx.restore();
+            }
+        }
+
+        let tiles = [];
+
+        function initTiles() {
+            tiles = [];
+            let f = state.formula;
+            if (f === 1) {
+                tiles.push(new Tile('a2', C.a2, 'a²'));
+                tiles.push(new Tile('ab1', C.ab, 'ab'));
+                tiles.push(new Tile('ab2', C.ab, 'ab'));
+                tiles.push(new Tile('b2', C.b2, 'b²'));
+            } else if (f === 2) {
+                tiles.push(new Tile('base_a2', C.a2, 'a²'));
+                tiles.push(new Tile('sub_ab1', C.sub, '-ab'));
+                tiles.push(new Tile('sub_ab2', C.sub, '-ab'));
+                tiles.push(new Tile('overlap_b2', C.b2, '+b²'));
+                tiles.push(new Tile('result_amb2', C.amb, '(a-b)²'));
+            } else if (f === 3) {
+                tiles.push(new Tile('a2', C.a2, 'a²'));
+                tiles.push(new Tile('b2', C.b2, 'b²'));
+            } else if (f === 4) {
+                tiles.push(new Tile('p1', C.a2, ''));
+                tiles.push(new Tile('p2', C.a2, ''));
+                tiles.push(new Tile('p3', C.b2, 'b²'));
+            }
+            updateStep(true); // force instant placement
+        }
+
+        function updateStep(instant = false) {
+            let a = state.a;
+            let b = state.b;
+            let f = state.formula;
+            let s = state.step;
+            
+            // Calculate base unit pixel size based on canvas dimensions to always fit
+            let maxDim = a + b + 2; 
+            let unit = Math.min(canvas.width, canvas.height) / maxDim;
+            unit = Math.max(15, Math.min(unit, 45)); // clamp scale
+
+            let cx = canvas.width / 2;
+            let cy = canvas.height / 2;
+
+            if (f === 1) {
+                // (a+b)^2
+                let totalW = (a + b) * unit;
+                let ox = cx - totalW/2;
+                let oy = cy - totalW/2;
+
+                let t_a2 = tiles.find(t=>t.id==='a2');
+                let t_ab1 = tiles.find(t=>t.id==='ab1');
+                let t_ab2 = tiles.find(t=>t.id==='ab2');
+                let t_b2 = tiles.find(t=>t.id==='b2');
+
+                t_a2.setTarget(ox + a*unit/2, oy + a*unit/2, a*unit, a*unit, 0, s>=1?1:0, instant);
+                t_ab1.setTarget(ox + a*unit + b*unit/2, oy + a*unit/2, b*unit, a*unit, 0, s>=2?1:0, instant);
+                t_ab2.setTarget(ox + a*unit/2, oy + a*unit + b*unit/2, a*unit, b*unit, 0, s>=3?1:0, instant);
+                t_b2.setTarget(ox + a*unit + b*unit/2, oy + a*unit + b*unit/2, b*unit, b*unit, 0, s>=4?1:0, instant);
+
+                const eq = ["(a+b)²", "a²", "a² + ab", "a² + 2ab", "a² + 2ab + b²"];
+                eqDisplay.innerText = s === 0 ? eq[0] : `(a+b)² = ${eq[s]}`;
+            } 
+            else if (f === 2) {
+                // (a-b)^2
+                let totalW = a * unit;
+                let ox = cx - totalW/2;
+                let oy = cy - totalW/2;
+
+                let t_base = tiles.find(t=>t.id==='base_a2');
+                let t_s1 = tiles.find(t=>t.id==='sub_ab1');
+                let t_s2 = tiles.find(t=>t.id==='sub_ab2');
+                let t_ov = tiles.find(t=>t.id==='overlap_b2');
+                let t_res = tiles.find(t=>t.id==='result_amb2');
+
+                t_base.setTarget(ox + a*unit/2, oy + a*unit/2, a*unit, a*unit, 0, s<4?1:0, instant);
+                t_s1.setTarget(ox + a*unit - b*unit/2, oy + a*unit/2, b*unit, a*unit, 0, (s>=1 && s<4)?1:0, instant);
+                t_s2.setTarget(ox + a*unit/2, oy + a*unit - b*unit/2, a*unit, b*unit, 0, (s>=2 && s<4)?1:0, instant);
+                t_ov.setTarget(ox + a*unit - b*unit/2, oy + a*unit - b*unit/2, b*unit, b*unit, 0, (s>=3 && s<4)?1:0, instant);
+                
+                // final result
+                t_res.setTarget(ox + (a-b)*unit/2, oy + (a-b)*unit/2, (a-b)*unit, (a-b)*unit, 0, s>=4?1:0, instant);
+
+                const eq = ["a²", "a² - ab", "a² - 2ab", "a² - 2ab + b²", "(a-b)² = a² - 2ab + b²"];
+                eqDisplay.innerText = s<4 ? `Area = ${eq[s]}` : eq[s];
+            }
+            else if (f === 3) {
+                // a^2 + b^2
+                let totalW = (a + b + 1) * unit; 
+                let ox = cx - totalW/2;
+                
+                let t_a = tiles.find(t=>t.id==='a2');
+                let t_b = tiles.find(t=>t.id==='b2');
+
+                t_a.setTarget(ox + a*unit/2, cy, a*unit, a*unit, 0, s>=1?1:0, instant);
+                t_b.setTarget(ox + a*unit + 1*unit + b*unit/2, cy + (a-b)*unit/2, b*unit, b*unit, 0, s>=2?1:0, instant);
+
+                const eq = ["", "a²", "a² + b²"];
+                eqDisplay.innerText = s === 0 ? "Squares Area" : `Area = ${eq[s]}`;
+            }
+            else if (f === 4) {
+                // a^2 - b^2 = (a-b)(a+b)
+                let totalW = (a+b) * unit; 
+                let ox = cx - totalW/2;
+                let oy = cy - (a+b)*unit/4; // approximate center Y offset
+
+                let t_p1 = tiles.find(t=>t.id==='p1'); // left vertical rect (a-b x a)
+                let t_p2 = tiles.find(t=>t.id==='p2'); // top right rect (b x a-b)
+                let t_p3 = tiles.find(t=>t.id==='p3'); // removed b2 (b x b)
+
+                if (s < 2) {
+                    // Shape forms a^2 minus b^2
+                    t_p1.setTarget(ox + (a-b)*unit/2, oy + a*unit/2, (a-b)*unit, a*unit, 0, 1, instant);
+                    t_p2.setTarget(ox + (a-b)*unit + b*unit/2, oy + (a-b)*unit/2, b*unit, (a-b)*unit, 0, 1, instant);
+                    t_p3.setTarget(ox + (a-b)*unit + b*unit/2, oy + (a-b)*unit + b*unit/2, b*unit, b*unit, 0, s===0?1:0, instant);
+                    
+                    t_p1.text = s===0 ? "" : "(a-b) × a";
+                    t_p2.text = s===0 ? "" : "b × (a-b)";
+                } else {
+                    // Reassemble into (a-b) x (a+b)
+                    // Move p2 below p1, rotate by 90deg (Math.PI/2)
+                    t_p1.setTarget(ox + (a-b)*unit/2, oy + a*unit/2, (a-b)*unit, a*unit, 0, 1, instant);
+                    // The rotated center is precisely at the bottom of p1
+                    t_p2.setTarget(ox + (a-b)*unit/2, oy + a*unit + b*unit/2, b*unit, (a-b)*unit, Math.PI/2, 1, instant);
+                    t_p3.setTarget(ox + (a-b)*unit + b*unit/2, oy + (a-b)*unit + b*unit/2, b*unit, b*unit, 0, 0, instant);
+                    
+                    t_p1.text = ""; t_p2.text = "";
+                }
+
+                const eq = ["a²", "a² - b²", "Rearranging parts...", "(a-b)(a+b) = a² - b²"];
+                eqDisplay.innerText = eq[s];
+            }
+        }
+
+        let lastTime = 0;
+        let playTimer = 0;
+
+        function drawGrid() {
+            ctx.strokeStyle = 'rgba(0,0,0,0.05)';
+            ctx.lineWidth = 1;
+            let step = 30;
+            ctx.beginPath();
+            for(let x=0; x<canvas.width; x+=step) { ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); }
+            for(let y=0; y<canvas.height; y+=step) { ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); }
+            ctx.stroke();
+        }
+
+        function loop(timestamp) {
+            let dt = (timestamp - lastTime) / 1000 || 0;
+            lastTime = timestamp;
+
+            // Auto-play logic
+            if (state.playing) {
+                playTimer += dt * state.speed;
+                if (playTimer > 1.8) {
+                    playTimer = 0;
+                    if (state.step < maxSteps[state.formula]) {
+                        state.step++;
+                        updateStep();
+                    } else {
+                        state.playing = false;
+                        updateUI();
+                    }
+                }
+            }
+
+            // Clear and render canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawGrid();
+
+            // Update & Draw Tiles
+            tiles.forEach(t => {
+                t.update(dt);
+                t.draw(ctx);
+            });
+
+            requestAnimationFrame(loop);
+        }
+
+        function resize() {
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            if (tiles.length > 0) {
+                updateStep(true);
+            }
+        }
+        window.addEventListener('resize', resize);
+
+        function applyI18n() {
+            const dict = i18n[state.lang];
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                let key = el.getAttribute('data-i18n');
+                if(dict[key]) {
+                    // Special case for buttons with icons/state
+                    if (key === 'play') el.innerText = state.playing ? dict['pause'] : dict['play'];
+                    else el.innerText = dict[key];
+                }
+            });
+            document.getElementById('langToggle').innerText = dict['lang'];
+            // Also need to re-render texts in canvas next frame
+        }
+
+        document.getElementById('langToggle').addEventListener('click', () => {
+            state.lang = state.lang === 'en' ? 'ne' : 'en';
+            applyI18n();
+        });
+
+        function updateUI() {
+            document.getElementById('aVal').innerText = state.a;
+            document.getElementById('bVal').innerText = state.b;
+            applyI18n(); // Updates Play/Pause button text
+        }
+
+        function validateSliders(triggerUpdate = true) {
+            let a = parseInt(sliderA.value);
+            let b = parseInt(sliderB.value);
+            // Ensure a > b for specific formulas
+            if (state.formula === 2 || state.formula === 4) {
+                if (a <= b) {
+                    b = a - 1;
+                    if (b < 1) { b = 1; a = 2; sliderA.value = 2; }
+                    sliderB.value = b;
+                }
+            }
+            state.a = a;
+            state.b = b;
+            updateUI();
+            if (triggerUpdate) {
+                updateStep();
+            }
+        }
+
+        sliderA.addEventListener('input', () => validateSliders(true));
+        sliderB.addEventListener('input', () => validateSliders(true));
+
+        document.getElementById('formulaSelect').addEventListener('change', (e) => {
+            state.formula = parseInt(e.target.value);
+            state.step = 0;
+            state.playing = false;
+            validateSliders(false); // Enforce rules safely without running updates on mismatched tiles
+            initTiles();
+            updateUI();
+        });
+
+        document.getElementById('btnPrev').addEventListener('click', () => {
+            if (state.step > 0) {
+                state.step--;
+                state.playing = false;
+                updateUI();
+                updateStep();
+            }
+        });
+
+        document.getElementById('btnNext').addEventListener('click', () => {
+            if (state.step < maxSteps[state.formula]) {
+                state.step++;
+                state.playing = false;
+                updateUI();
+                updateStep();
+            }
+        });
+
+        document.getElementById('btnReset').addEventListener('click', () => {
+            state.step = 0;
+            state.playing = false;
+            playTimer = 0;
+            updateUI();
+            updateStep();
+        });
+
+        btnPlay.addEventListener('click', () => {
+            if (state.step >= maxSteps[state.formula]) {
+                state.step = 0; // loop back if at end
+                updateStep();
+            }
+            state.playing = !state.playing;
+            playTimer = 0;
+            updateUI();
+        });
+
+        document.getElementById('sliderSpeed').addEventListener('input', (e) => {
+            state.speed = parseFloat(e.target.value);
+        });
+
+        document.getElementById('chkLabels').addEventListener('change', (e) => {
+            state.showLabels = e.target.checked;
+        });
+
+        // Initialize Application
+        resize();
+        initTiles();
+        applyI18n();
+        requestAnimationFrame(loop);
+
+    </script>
+</body>
+</html>
