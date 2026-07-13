@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cell Explorer · कोष अन्वेषक</title>
+<title>Cell Explorer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -293,10 +293,10 @@
       <div class="brand-mark" aria-hidden="true"></div>
       <div>
         <p class="kicker">Interactive Biology · Cell Structure</p>
-        <h1>Cell Explorer <span style="opacity:.35;">/</span> <span lang-np>कोष अन्वेषक</span></h1>
+        <h1>The Cell <span style="opacity:.35;">/</span> <span lang-np>कोष</span></h1>
         <p class="subtitle">
           <span lang-en-block>Tap any glowing marker on the cell to learn what that part does.</span>
-          <span class="np" lang-np-block>कोषमा देखिने कुनै पनि चम्किलो चिन्हमा थिच्नुहोस् र त्यो भागले के काम गर्छ भन्ने थाहा पाउनुहोस्।</span>
+          <span class="np" lang-np-block>कोषमा देखिने कुनै पनि चम्किलो चिन्हमा थिच्‍नुहोस र त्यो भागले के काम गर्छ भन्ने थाहा पाउनुहोस्।</span>
         </p>
       </div>
     </div>
@@ -310,15 +310,15 @@
     <button class="cell-tab plant selected" id="tab-plant" data-cell="plant">
       <span class="swatch"></span>
       <span>
-        <p class="tt"><span lang-en-block>Plant Cell</span><span lang-np-block lang-np class="hide">बिरुवा कोष</span></p>
-        <p class="st"><span lang-en-block>Cell wall, chloroplast &amp; a big vacuole</span><span lang-np-block lang-np class="hide">कोष भित्ता, हरितलवक र ठूलो रिक्तिका</span></p>
+        <p class="tt"><span lang-en-block>Plant Cell</span><span lang-np-block lang-np class="hide">वनस्पति कोष</span></p>
+        <p class="st"><span lang-en-block>Cell wall, chloroplast &amp; a big vacuole</span><span lang-np-block lang-np class="hide">कोष भित्ता, प्लास्टिड र ठूलो भ्याकुल</span></p>
       </span>
     </button>
     <button class="cell-tab animal" id="tab-animal" data-cell="animal">
       <span class="swatch"></span>
       <span>
         <p class="tt"><span lang-en-block>Animal Cell</span><span lang-np-block lang-np class="hide">जन्तु कोष</span></p>
-        <p class="st"><span lang-en-block>No wall, round shape, centrioles</span><span lang-np-block lang-np class="hide">भित्ता नभएको, गोलाकार, सेन्ट्रियोलसहित</span></p>
+        <p class="st"><span lang-en-block>No Cell wall, round shape, centrioles</span><span lang-np-block lang-np class="hide">कोषभित्ता नभएको, गोलाकार, सेन्ट्रियोलसहित</span></p>
       </span>
     </button>
   </div>
@@ -327,7 +327,7 @@
     <div class="scope">
       <div class="scope-head">
         <span class="label" id="scope-label">Specimen slide · Plant cell</span>
-        <button class="reset-btn" id="reset-btn"><span lang-en-block>Clear selection</span><span lang-np-block lang-np class="hide">चयन हटाउनुहोस्</span></button>
+        <button class="reset-btn" id="reset-btn"><span lang-en-block>Clear selection</span><span lang-np-block lang-np class="hide">हटाउनुहोस्</span></button>
       </div>
       <div class="lens">
         <img class="cell-img" id="cell-img" src="assets/plant-cell.png" alt="Plant cell illustration">
@@ -340,7 +340,7 @@
       <div class="detail-card" id="detail-card">
         <div class="placeholder" id="placeholder">
           <div class="big-emoji">🔬</div>
-          <p><span lang-en-block>Select a part of the cell — from the image or the list below — to see its name and function here.</span><span lang-np-block lang-np class="hide">यहाँ नाम र काम हेर्न माथिको चित्र वा तलको सूचीबाट कोषको कुनै भाग छान्नुहोस्।</span></p>
+          <p><span lang-en-block>Select a part of the cell — from the image or the list below — to see its name and function here.</span><span lang-np-block lang-np class="hide">यहाँ नाम र काम हेर्न माथिको चित्र वा तलको सूचीबाट कोषको कुनै भाग छान्‍नुहोस्।</span></p>
         </div>
         <div id="detail-content" class="hide">
           <p class="detail-eyebrow" id="detail-eyebrow">Organelle</p>
@@ -359,7 +359,7 @@
     </div>
   </div>
 
-  <footer>Based on "Types of Cell" · GeoGebra original by Basanta Bhattarai · rebuilt as a bilingual web simulation</footer>
+  <footer>Based on "Types of Cell" · Developed by Basanta Bhattarai · </footer>
 </div>
 
 <script>
@@ -367,7 +367,7 @@
 const CELLS = {
   plant: {
     label_en: "Specimen slide · Plant cell",
-    label_np: "नमुना स्लाइड · बिरुवा कोष",
+    label_np: "नमुना स्लाइड · वनस्पति कोष",
     img: "assets/plant-cell.png",
     parts: [
       { id:"cellwall", x:20, y:50, en:"Cell Wall", np:"कोष भित्ता",
@@ -399,7 +399,7 @@ const CELLS = {
         fun_np:["प्रोटिन संश्लेषणमा मद्दत गर्छ।","आनुवंशिक सङ्केत अनुवाद गर्छ।","इन्जाइम उत्पादनमा सहयोग गर्छ।"] },
       { id:"mitochondria", x:25, y:33, en:"Mitochondria", np:"माइटोकोन्ड्रिया",
         fun_en:["It produces energy in the form of ATP.","It helps in cellular respiration.","Helps in the regulation of metabolism."],
-        fun_np:["यसले ATP को रूपमा ऊर्जा उत्पादन गर्छ।","कोषीय श्वसनमा मद्दत गर्छ।","उपापचय नियन्त्रणमा सहयोग गर्छ।"],
+        fun_np:["यसले ATP को रूपमा ऊर्जा उत्पादन गर्छ।","कोषीय श्‍वासप्रश्‍वास क्रियामा मद्दत गर्छ।","उपापचय नियन्त्रणमा सहयोग गर्छ।"],
         also_en:"Also called the powerhouse of the cell.", also_np:"यसलाई कोषको \u201cशक्तिको भण्डार\u201d पनि भनिन्छ।" },
       { id:"vacuole", x:60, y:70, en:"Central Vacuole", np:"भ्याकुल",
         fun_en:["Helps to store nutrients, ions, amino acids etc.","Helps to remove waste from the cell.","Helps to balance and maintain water level."],
