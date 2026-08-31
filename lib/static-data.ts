@@ -240,4 +240,12 @@ export const simulations: Simulation[] = [
     type: "html",
     created_at: "2026-06-20T19:54:00.000Z",
   },
+  {id: "sim-20",
+    title: "Invertebrate Scanner",
+    description: "Interactive simulation of invertebrate scanning",
+    subject: "Biology",
+    url: "/simulations/invertebrate_scanner.html",
+    type: "html",
+    created_at: "2026-06-20T19:54:00.000Z",
+  },
 ]
