@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invertebrate Scanner — Hand Gesture VFX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-void:#041417;
+    --bg-panel: rgba(7,28,32,0.88);
+    --bg-panel-2: rgba(10,36,41,0.7);
+    --cyan:#2FE5C9;
+    --cyan-dim:#1B8F7E;
+    --violet:#8B7CFF;
+    --amber:#FFB84D;
+    --coral:#FF6B5D;
+    --ink:#EAF6F4;
+    --ink-dim:#7FA6A0;
+    --line: rgba(47,229,201,0.25);
+    --mono:'IBM Plex Mono', monospace;
+    --display:'Space Grotesk', sans-serif;
+    --body:'IBM Plex Sans', sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  html,body{
+    margin:0; padding:0; height:100%;
+    background:
+      radial-gradient(ellipse at 50% -10%, rgba(47,229,201,0.10), transparent 55%),
+      radial-gradient(ellipse at 90% 110%, rgba(139,124,255,0.10), transparent 50%),
+      var(--bg-void);
+    color:var(--ink);
+    font-family:var(--body);
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{
+    min-height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:22px 16px 34px;
+    gap:16px;
+  }
+  .masthead{
+    width:100%;
+    max-width:920px;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+    border-bottom:1px solid var(--line);
+    padding-bottom:12px;
+  }
+  .masthead .brand{
+    display:flex; align-items:baseline; gap:10px;
+  }
+  .brand .mark{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:0.18em;
+    color:var(--cyan);
+    border:1px solid var(--cyan-dim);
+    padding:3px 7px;
+    border-radius:3px;
+  }
+  .brand h1{
+    font-family:var(--display);
+    font-weight:600;
+    font-size:22px;
+    margin:0;
+    letter-spacing:0.01em;
+  }
+  .masthead .sub{
+    font-family:var(--mono);
+    font-size:11.5px;
+    color:var(--ink-dim);
+    letter-spacing:0.04em;
+  }
+
+  .stage-wrap{
+    position:relative;
+    width:100%;
+    max-width:920px;
+    aspect-ratio: 4 / 3;
+    background:#01090b;
+    border-radius:14px;
+    overflow:hidden;
+    border:1px solid var(--line);
+    box-shadow: 0 30px 80px -30px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(255,255,255,0.02);
+  }
+  .mirrorbox{
+    position:absolute; inset:0;
+    transform: scaleX(-1);
+  }
+  video, canvas.output{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    object-fit:cover;
+  }
+  video{ opacity:0; } /* video is only the source; canvas draws the visible frame */
+
+  /* reticle frame */
+  .reticle{ position:absolute; inset:14px; pointer-events:none; }
+  .reticle .corner{
+    position:absolute; width:26px; height:26px;
+    border-color:var(--cyan);
+    opacity:0.85;
+  }
+  .corner.tl{ top:0; left:0; border-top:2px solid; border-left:2px solid; border-radius:4px 0 0 0;}
+  .corner.tr{ top:0; right:0; border-top:2px solid; border-right:2px solid; border-radius:0 4px 0 0;}
+  .corner.bl{ bottom:0; left:0; border-bottom:2px solid; border-left:2px solid; border-radius:0 0 0 4px;}
+  .corner.br{ bottom:0; right:0; border-bottom:2px solid; border-right:2px solid; border-radius:0 0 4px 0;}
+
+  /* top HUD */
+  .hud-top{
+    position:absolute; top:14px; left:14px; right:14px;
+    display:flex; justify-content:space-between; align-items:flex-start;
+    font-family:var(--mono); font-size:11px; color:var(--cyan);
+    pointer-events:none; z-index:5;
+  }
+  .hud-chip{
+    background:var(--bg-panel);
+    border:1px solid var(--line);
+    padding:6px 10px;
+    border-radius:6px;
+    backdrop-filter: blur(6px);
+    letter-spacing:0.05em;
+  }
+  .hud-chip.state-open{ color:var(--amber); border-color: rgba(255,184,77,0.4); }
+  .hud-chip.state-closed{ color:var(--cyan); }
+
+  .progress-row{
+    position:absolute; top:14px; left:50%; transform:translateX(-50%);
+    display:flex; gap:6px; z-index:5; pointer-events:none;
+  }
+  .dot{
+    width:8px; height:8px; border-radius:50%;
+    background:rgba(255,255,255,0.15);
+    border:1px solid rgba(255,255,255,0.2);
+    transition: all .25s ease;
+  }
+  .dot.done{ background:var(--cyan); border-color:var(--cyan); box-shadow:0 0 8px rgba(47,229,201,0.7); }
+  .dot.current{ background:var(--amber); border-color:var(--amber); box-shadow:0 0 10px rgba(255,184,77,0.8); transform:scale(1.3); }
+
+  /* bottom ticker */
+  .hud-bottom{
+    position:absolute; left:14px; right:14px; bottom:14px;
+    z-index:5; display:flex; justify-content:space-between; align-items:flex-end; gap:10px;
+    pointer-events:none;
+  }
+  .ticker{
+    font-family:var(--mono); font-size:12px; color:var(--ink);
+    background:var(--bg-panel);
+    border:1px solid var(--line);
+    padding:8px 12px; border-radius:8px;
+    backdrop-filter: blur(6px);
+    max-width:70%;
+  }
+  .ticker b{ color:var(--amber); font-weight:600; }
+
+  /* specimen card, positioned dynamically over the hand */
+  .specimen-card{
+    position:absolute;
+    top:0; left:0;
+    width:212px;
+    transform: translate(-50%,-115%) scale(0.85);
+    background: linear-gradient(180deg, var(--bg-panel), var(--bg-panel-2));
+    border:1px solid var(--cyan-dim);
+    border-radius:12px;
+    padding:12px 12px 10px;
+    box-shadow: 0 18px 40px -14px rgba(0,0,0,0.75), 0 0 0 1px rgba(47,229,201,0.08), 0 0 26px rgba(47,229,201,0.18);
+    opacity:0;
+    pointer-events:auto;
+    z-index:8;
+    transition: opacity .28s ease, transform .32s cubic-bezier(.2,.9,.25,1.2);
+    backdrop-filter: blur(4px);
+  }
+  .specimen-card.visible{
+    opacity:1;
+    transform: translate(-50%,-125%) scale(1);
+  }
+  .specimen-card .scanline{
+    position:absolute; left:0; right:0; height:2px;
+    background:linear-gradient(90deg, transparent, var(--cyan), transparent);
+    top:0; opacity:0.9;
+    animation: scan 1.6s linear infinite;
+    border-radius:2px;
+    pointer-events:none;
+  }
+  @keyframes scan{
+    0%{ top:6px; opacity:0; }
+    10%{ opacity:0.9; }
+    90%{ opacity:0.9; }
+    100%{ top:calc(100% - 6px); opacity:0; }
+  }
+  .specimen-card .tag-row{
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:var(--mono); font-size:9.5px; color:var(--ink-dim);
+    letter-spacing:0.06em; margin-bottom:6px;
+  }
+  .specimen-card .tag-row .no{ color:var(--amber); }
+
+  .specimen-card .photo-frame{
+    position:relative;
+    width:100%; height:140px;
+    border-radius:8px;
+    margin-bottom:8px;
+    overflow:hidden;
+    background:radial-gradient(circle at 50% 38%, rgba(47,229,201,0.16), transparent 70%);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .specimen-card .photo-frame img{
+    width:100%; height:100%; object-fit:cover;
+    display:block;
+  }
+  .specimen-card .photo-frame .fallback-icon{
+    display:none; align-items:center; justify-content:center;
+    width:100%; height:100%;
+    flex-direction:column; gap:4px;
+  }
+  .specimen-card .photo-frame .fallback-icon svg{ width:56px; height:56px; }
+  .specimen-card .photo-frame .fallback-icon .missing-note{
+    font-family:var(--mono); font-size:8.5px; color:var(--ink-dim); text-align:center; padding:0 6px; line-height:1.4;
+  }
+  .specimen-card .photo-frame::after{
+    content:'';
+    position:absolute; left:50%; bottom:8px; transform:translateX(-50%);
+    width:60%; height:8px; border-radius:50%;
+    background:radial-gradient(ellipse at center, rgba(47,229,201,0.4), transparent 72%);
+    filter:blur(1px);
+    pointer-events:none;
+    z-index:1;
+  }
+
+  .specimen-card h3{
+    font-family:var(--display); font-size:14.5px; margin:0 0 2px; color:var(--ink);
+  }
+  .specimen-card .example{
+    font-family:var(--body); font-style:italic; font-size:11.5px; color:var(--cyan); margin:0 0 6px;
+  }
+  .specimen-card p.fact{
+    font-family:var(--body); font-size:10.5px; line-height:1.4; color:var(--ink-dim); margin:0;
+  }
+
+  /* particle canvas sits above mirrorbox, mirrored with it */
+  canvas.fx{ position:absolute; inset:0; width:100%; height:100%; z-index:6; }
+
+  /* start / permission overlay */
+  .veil{
+    position:absolute; inset:0; z-index:20;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:16px; text-align:center; padding:26px;
+    background: radial-gradient(circle at 50% 30%, rgba(47,229,201,0.09), transparent 60%), rgba(2,10,12,0.92);
+  }
+  .veil h2{ font-family:var(--display); font-size:22px; margin:0; }
+  .veil p{ font-family:var(--body); font-size:13px; color:var(--ink-dim); max-width:460px; margin:0; line-height:1.55;}
+  .btn{
+    font-family:var(--mono); font-size:12.5px; letter-spacing:0.05em;
+    background:var(--cyan); color:#04191a; border:none;
+    padding:11px 20px; border-radius:8px; cursor:pointer;
+    font-weight:600;
+    box-shadow: 0 10px 26px -10px rgba(47,229,201,0.6);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .btn:hover{ transform:translateY(-1px); box-shadow:0 14px 30px -10px rgba(47,229,201,0.75); }
+  .btn.secondary{
+    background:transparent; color:var(--ink); border:1px solid var(--line);
+    box-shadow:none;
+  }
+  .veil .steps{
+    display:flex; gap:18px; flex-wrap:wrap; justify-content:center; margin-top:4px;
+  }
+  .veil .step{
+    font-family:var(--mono); font-size:10.5px; color:var(--ink-dim);
+    border:1px solid var(--line); border-radius:8px; padding:8px 10px; width:130px;
+  }
+  .veil .step b{ display:block; color:var(--cyan); font-size:16px; margin-bottom:3px; }
+  .veil .btn-row{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+
+  .hidden{ display:none !important; }
+
+  /* inline error banner */
+  .banner{
+    position:absolute; left:14px; right:14px; top:14px; z-index:30;
+    background:rgba(255,107,93,0.12); border:1px solid var(--coral); color:#ffd8d3;
+    font-family:var(--mono); font-size:11.5px; padding:10px 12px; border-radius:8px;
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+  }
+  .banner button{
+    background:transparent; border:1px solid var(--coral); color:#ffd8d3;
+    font-family:var(--mono); font-size:10.5px; padding:4px 8px; border-radius:5px; cursor:pointer;
+  }
+
+  .footer-row{
+    width:100%; max-width:920px;
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;
+    font-family:var(--mono); font-size:10.5px; color:var(--ink-dim);
+  }
+  .footer-row .controls{ display:flex; gap:8px; flex-wrap:wrap; }
+  .footer-row button.mini{
+    font-family:var(--mono); font-size:10.5px; color:var(--ink-dim);
+    background:transparent; border:1px solid var(--line); border-radius:6px;
+    padding:5px 9px; cursor:pointer;
+  }
+  .footer-row button.mini:hover{ color:var(--ink); border-color:var(--cyan-dim); }
+
+  @media (max-width:560px){
+    .specimen-card{ width:172px; }
+    .specimen-card .photo-frame{ height:110px; }
+    .veil h2{ font-size:19px; }
+    .photo-row .meta .ppath{ display:none; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="masthead">
+    <div class="brand">
+      <span class="mark">◎ LAB-09</span>
+      <h1>Invertebrate Scanner</h1>
+    </div>
+    <div class="sub">GESTURE-DRIVEN SPECIMEN VIEWER · 9 PHYLA</div>
+  </div>
+
+  <div class="stage-wrap" id="stageWrap">
+
+    <!-- permission / start veil -->
+    <div class="veil" id="veil">
+      <h2>Scan invertebrate phyla with your hand</h2>
+    <div class="steps">
+        <div class="step"><b>1</b>Close your fist</div>
+        <div class="step"><b>2</b>Open your palm</div>
+        <div class="step"><b>3</b>Read the specimen card</div>
+        <div class="step"><b>4</b>Repeat ×9</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn" id="startBtn">Enable Camera</button>
+        <button class="btn secondary" id="noCamBtn">Keyboard mode</button>
+      </div>
+    </div>
+
+    <!-- error banner -->
+    <div class="banner hidden" id="banner">
+      <span id="bannerText">Something went wrong.</span>
+      <button id="bannerClose">Dismiss</button>
+    </div>
+
+    <div class="hud-top">
+      <div class="hud-chip" id="handStateChip">HAND: —</div>
+      <div class="hud-chip" id="fpsChip">STATUS: idle</div>
+    </div>
+
+    <div class="progress-row" id="progressRow"></div>
+
+    <div class="mirrorbox">
+      <video id="video" playsinline autoplay muted></video>
+      <canvas class="output" id="outputCanvas"></canvas>
+      <canvas class="fx" id="fxCanvas"></canvas>
+    </div>
+
+    <!-- specimen card is NOT inside mirrorbox so its text/photo reads normally -->
+    <div class="specimen-card" id="specimenCard">
+      <div class="scanline"></div>
+      <div class="tag-row">
+        <span>SPECIMEN PHOTO</span>
+        <span class="no" id="cardNo">01 / 09</span>
+      </div>
+      <div class="photo-frame" id="photoFrame">
+        <img id="specimenImg" alt="" />
+        <div class="fallback-icon" id="fallbackIcon">
+          <svg viewBox="0 0 64 64" id="fallbackSvgHolder"></svg>
+          <div class="missing-note" id="missingNote">photo not found</div>
+        </div>
+      </div>
+      <h3 id="cardPhylum">Phylum</h3>
+      <div class="example" id="cardExample">Example</div>
+      <p class="fact" id="cardFact">Fact.</p>
+    </div>
+
+    <div class="reticle">
+      <div class="corner tl"></div><div class="corner tr"></div>
+      <div class="corner bl"></div><div class="corner br"></div>
+    </div>
+
+    <div class="hud-bottom">
+      <div class="ticker" id="ticker">Close your fist, then <b>open</b> to begin.</div>
+    </div>
+  </div>
+
+  <div class="footer-row">
+    <span id="statusLine">Waiting to start…</span>
+    <div class="controls">
+      <button class="mini" id="resetBtn">Reset sequence</button>
+      <button class="mini" id="stopBtn">Stop camera</button>
+    </div>
+  </div>
+</div>
+
+<!-- MediaPipe Hands (loaded from CDN, runs entirely in-browser) -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------------------------------------------------
+     9 PHYLA DATA — classic invertebrate phylum sequence
+     (Protozoa is included as commonly taught alongside the
+     8 animal phyla in introductory invertebrate zoology.)
+
+     `slug` determines the default local photo path:
+        photo/<slug>.png   (falls back to .jpg, then .jpeg)
+     `icon` is the SVG fallback used if no photo is found.
+  --------------------------------------------------------- */
+  const PHOTO_DIR = 'photo/';               // local folder next to this HTML file
+  const PHOTO_EXT_FALLBACKS = ['png','jpg','jpeg','webp'];
+
+  const PHYLA = [
+    {
+      slug:"protozoa",
+      name:"Protozoa",
+      example:"Amoeba proteus",
+      fact:"Single-celled, moves and feeds using flowing pseudopodia.",
+      color:"#7DE0FF",
+      icon:`<circle cx="32" cy="34" r="15" fill="none" stroke="currentColor" stroke-width="2.4"/>
+            <path d="M14 30 Q6 26 8 18 Q12 20 16 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M48 40 Q58 42 58 50 Q52 50 48 46" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M22 48 Q18 56 24 60 Q28 54 26 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+            <circle cx="35" cy="32" r="4.5" fill="currentColor" opacity="0.85"/>
+            <circle cx="27" cy="40" r="1.6" fill="currentColor" opacity="0.5"/>
+            <circle cx="40" cy="41" r="1.4" fill="currentColor" opacity="0.5"/>`
+    },
+    {
+      slug:"porifera",
+      name:"Porifera",
+      example:"Sycon (sponge)",
+      fact:"Pore-bearing, filter-feeding animal with no true organs.",
+      color:"#FFB84D",
+      icon:`<path d="M24 58 L22 22 Q22 10 32 10 Q42 10 42 22 L40 58 Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
+            <ellipse cx="32" cy="10" rx="8" ry="3" fill="none" stroke="currentColor" stroke-width="2.2"/>
+            <circle cx="27" cy="24" r="1.5" fill="currentColor"/>
+            <circle cx="36" cy="30" r="1.5" fill="currentColor"/>
+            <circle cx="28" cy="38" r="1.5" fill="currentColor"/>
+            <circle cx="35" cy="44" r="1.5" fill="currentColor"/>
+            <circle cx="29" cy="50" r="1.5" fill="currentColor"/>`
+    },
+    {
+      slug:"coelenterata",
+      name:"Coelenterata",
+      example:"Jellyfish (Aurelia)",
+      fact:"Radially symmetric with stinging cells (cnidocytes) on its tentacles.",
+      color:"#8B7CFF",
+      icon:`<line x1="32" y1="20" x2="32" y2="52" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
+            <path d="M32 20 Q22 8 16 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M32 20 Q26 6 20 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M32 20 Q32 4 32 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M32 20 Q38 6 44 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M32 20 Q42 8 48 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <ellipse cx="32" cy="55" rx="8" ry="3" fill="none" stroke="currentColor" stroke-width="2"/>`
+    },
+    {
+      slug:"platyhelminthes",
+      name:"Platyhelminthes",
+      example:"Planaria (Dugesia)",
+      fact:"Flat, bilaterally symmetric worm with a triangular head and eyespots.",
+      color:"#5FD9C0",
+      icon:`<path d="M32 8 L24 18 Q10 24 10 36 Q10 50 32 58 Q54 50 54 36 Q54 24 40 18 Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
+            <circle cx="27" cy="20" r="2" fill="currentColor"/>
+            <circle cx="37" cy="20" r="2" fill="currentColor"/>`
+    },
+    {
+      slug:"nematelminthes",
+      name:"Nematelminthes",
+      example:"Ascaris lumbricoides",
+      fact:"Unsegmented, cylindrical roundworm tapered at both ends.",
+      color:"#FF9E6B",
+      icon:`<path d="M10 22 Q32 8 54 26 Q40 40 50 52 Q30 60 14 44 Q26 34 10 22 Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>`
+    },
+    {
+      slug:"annelida",
+      name:"Annelida",
+      example:"Pheretima (earthworm)",
+      fact:"True segmented body (metameres) repeated along its length.",
+      color:"#C79BFF",
+      icon:`<line x1="10" y1="32" x2="54" y2="32" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+            <line x1="15" y1="26" x2="15" y2="38" stroke="var(--bg-void)" stroke-width="2"/>
+            <line x1="22" y1="26" x2="22" y2="38" stroke="var(--bg-void)" stroke-width="2"/>
+            <line x1="29" y1="26" x2="29" y2="38" stroke="var(--bg-void)" stroke-width="2"/>
+            <line x1="36" y1="26" x2="36" y2="38" stroke="var(--bg-void)" stroke-width="2"/>
+            <line x1="43" y1="26" x2="43" y2="38" stroke="var(--bg-void)" stroke-width="2"/>`
+    },
+    {
+      slug:"arthropoda",
+      name:"Arthropoda",
+      example:"Periplaneta (cockroach)",
+      fact:"Jointed legs and a hard chitin exoskeleton — largest animal phylum.",
+      color:"#FFD166",
+      icon:`<ellipse cx="32" cy="34" rx="14" ry="20" fill="none" stroke="currentColor" stroke-width="2.4"/>
+            <line x1="24" y1="20" x2="16" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="40" y1="20" x2="48" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="19" y1="26" x2="6" y2="20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="19" y1="34" x2="4" y2="34" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="19" y1="42" x2="6" y2="48" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="45" y1="26" x2="58" y2="20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="45" y1="34" x2="60" y2="34" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="45" y1="42" x2="58" y2="48" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>`
+    },
+    {
+      slug:"mollusca",
+      name:"Mollusca",
+      example:"Pila (apple snail)",
+      fact:"Soft, unsegmented body often protected by a coiled calcium shell.",
+      color:"#FF8FA3",
+      icon:`<path d="M32 34 m-18 0 a18 18 0 1 1 36 0 a13 13 0 1 1 -26 0 a8 8 0 1 1 16 0 a4 4 0 1 1 -8 0"
+                  fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+            <path d="M14 44 Q6 52 10 58" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>`
+    },
+    {
+      slug:"echinodermata",
+      name:"Echinodermata",
+      example:"Asterias (starfish)",
+      fact:"Spiny-skinned with radial symmetry and a water-vascular system.",
+      color:"#6FE0FF",
+      icon:`<path d="M32 6 L38 24 L57 24 L42 35 L48 54 L32 43 L16 54 L22 35 L7 24 L26 24 Z"
+                  fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
+            <circle cx="32" cy="30" r="2.2" fill="currentColor"/>`
+    }
+  ];
+
+  /* ---------------------------------------------------------
+     DOM refs
+  --------------------------------------------------------- */
+  const veil = document.getElementById('veil');
+  const startBtn = document.getElementById('startBtn');
+  const noCamBtn = document.getElementById('noCamBtn');
+  const banner = document.getElementById('banner');
+  const bannerText = document.getElementById('bannerText');
+  const bannerClose = document.getElementById('bannerClose');
+  const video = document.getElementById('video');
+  const outputCanvas = document.getElementById('outputCanvas');
+  const fxCanvas = document.getElementById('fxCanvas');
+  const stageWrap = document.getElementById('stageWrap');
+  const specimenCard = document.getElementById('specimenCard');
+  const cardNo = document.getElementById('cardNo');
+  const cardPhylum = document.getElementById('cardPhylum');
+  const cardExample = document.getElementById('cardExample');
+  const cardFact = document.getElementById('cardFact');
+  const photoFrame = document.getElementById('photoFrame');
+  const specimenImg = document.getElementById('specimenImg');
+  const fallbackIcon = document.getElementById('fallbackIcon');
+  const fallbackSvgHolder = document.getElementById('fallbackSvgHolder');
+  const missingNote = document.getElementById('missingNote');
+  const handStateChip = document.getElementById('handStateChip');
+  const fpsChip = document.getElementById('fpsChip');
+  const progressRow = document.getElementById('progressRow');
+  const ticker = document.getElementById('ticker');
+  const statusLine = document.getElementById('statusLine');
+  const resetBtn = document.getElementById('resetBtn');
+  const stopBtn = document.getElementById('stopBtn');
+
+  const outCtx = outputCanvas.getContext('2d');
+  const fxCtx = fxCanvas.getContext('2d');
+
+  /* build progress dots */
+  PHYLA.forEach((p,i)=>{
+    const d = document.createElement('div');
+    d.className='dot';
+    d.id = 'dot'+i;
+    d.title = p.name;
+    progressRow.appendChild(d);
+  });
+
+  function showBanner(msg){
+    bannerText.textContent = msg;
+    banner.classList.remove('hidden');
+  }
+  bannerClose.addEventListener('click', ()=> banner.classList.add('hidden'));
+
+  /* ---------------------------------------------------------
+     PHOTO SOURCING — code-configured only.
+     Photos are never uploaded or changed from the UI. To change
+     a specimen photo, edit PHOTO_DIR / PHOTO_EXT_FALLBACKS above,
+     or the `slug` field on a phylum entry, then replace the file
+     in the local photo/ folder next to this HTML file.
+
+     Each specimen resolves its image in this order:
+       1) photo/<slug>.png → .jpg → .jpeg → .webp (local folder)
+       2) the flat SVG fallback icon (built into the code)
+  --------------------------------------------------------- */
+  const photoStatus = {};      // slug -> 'unknown' | 'found' | 'missing'
+  PHYLA.forEach(p=>{ photoStatus[p.slug] = 'unknown'; });
+
+  function defaultPathFor(slug, extIndex){
+    const ext = PHOTO_EXT_FALLBACKS[extIndex] || PHOTO_EXT_FALLBACKS[0];
+    return PHOTO_DIR + slug + '.' + ext;
+  }
+
+  /* Try each candidate local path in order; resolves with a working
+     src, or null if none load. */
+  function resolveLocalPath(slug){
+    return new Promise((resolve)=>{
+      let i = 0;
+      function tryNext(){
+        if (i >= PHOTO_EXT_FALLBACKS.length){ resolve(null); return; }
+        const testImg = new Image();
+        const path = defaultPathFor(slug, i);
+        testImg.onload = ()=> resolve(path);
+        testImg.onerror = ()=>{ i++; tryNext(); };
+        testImg.src = path;
+      }
+      tryNext();
+    });
+  }
+
+  async function getPhotoSrc(slug){
+    const local = await resolveLocalPath(slug);
+    if (local){ photoStatus[slug] = 'found'; return local; }
+    photoStatus[slug] = 'missing';
+    return null;
+  }
+
+  async function refreshCardPhoto(idx){
+    const p = PHYLA[idx];
+    const src = await getPhotoSrc(p.slug);
+    if (src){
+      specimenImg.src = src;
+      specimenImg.alt = p.name + ' — ' + p.example;
+      specimenImg.style.display = 'block';
+      fallbackIcon.style.display = 'none';
+    } else {
+      specimenImg.style.display = 'none';
+      fallbackIcon.style.display = 'flex';
+      fallbackSvgHolder.setAttribute('style', 'color:'+p.color);
+      fallbackSvgHolder.innerHTML = p.icon;
+      missingNote.textContent = `${defaultPathFor(p.slug,0)} not found`;
+    }
+  }
+
+  /* ---------------------------------------------------------
+     Gesture / tracking state
+  --------------------------------------------------------- */
+  let currentIndex = -1;          // -1 = nothing shown yet
+  let cardVisible = false;
+  let stableOpen = null;          // smoothed boolean, null = unknown
+  let lastCommitted = null;       // last committed stable state
+  let openBuffer = [];            // rolling buffer for smoothing
+  const BUFFER_LEN = 6;
+  let stream = null;
+  let hands = null;
+  let running = false;
+  let rafId = null;
+  let particles = [];
+  let lastPalmPx = {x:0.5,y:0.5}; // normalized (unmirrored) coords
+  let noHandFrames = 0;
+
+  function resizeCanvases(){
+    const rect = stageWrap.getBoundingClientRect();
+    [outputCanvas, fxCanvas].forEach(c=>{
+      c.width = rect.width;
+      c.height = rect.height;
+    });
+  }
+  window.addEventListener('resize', resizeCanvases);
+
+  /* ---------------------------------------------------------
+     Camera / MediaPipe bootstrap
+  --------------------------------------------------------- */
+  async function startCamera(){
+    banner.classList.add('hidden');
+    if (!window.isSecureContext && location.hostname !== 'localhost'){
+      showBanner('Camera requires a secure (https) connection. Try opening this page over https.');
+    }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      showBanner('This browser does not support camera access. Try Chrome, Edge, or Safari, or use keyboard mode below.');
+      return;
+    }
+    statusLine.textContent = 'Requesting camera…';
+    try{
+      stream = await navigator.mediaDevices.getUserMedia({
+        video:{ width:{ideal:640}, height:{ideal:480}, facingMode:'user' },
+        audio:false
+      });
+    }catch(err){
+      let msg = 'Could not access the camera.';
+      if (err && err.name === 'NotAllowedError') msg = 'Camera permission was denied. Allow camera access in your browser settings and try again.';
+      else if (err && err.name === 'NotFoundError') msg = 'No camera was found on this device.';
+      else if (err && err.name === 'NotReadableError') msg = 'The camera is already in use by another application.';
+      showBanner(msg + ' You can still explore using keyboard mode.');
+      statusLine.textContent = 'Camera unavailable.';
+      return;
+    }
+
+    try{
+      video.srcObject = stream;
+      await video.play();
+    }catch(err){
+      showBanner('The video stream could not start. Please retry.');
+      return;
+    }
+
+    resizeCanvases();
+    veil.classList.add('hidden');
+    statusLine.textContent = 'Loading hand-tracking model…';
+    fpsChip.textContent = 'STATUS: loading model';
+
+    try{
+      await initHands();
+    }catch(err){
+      showBanner('Hand-tracking model failed to load (check your internet connection). You can still use keyboard mode.');
+      statusLine.textContent = 'Model failed to load.';
+      return;
+    }
+
+    running = true;
+    statusLine.textContent = 'Tracking hand — close and open your fist.';
+    fpsChip.textContent = 'STATUS: live';
+    loop();
+  }
+
+  function initHands(){
+    return new Promise((resolve,reject)=>{
+      try{
+        if (typeof Hands === 'undefined'){ reject(new Error('MediaPipe not loaded')); return; }
+        hands = new Hands({
+          locateFile:(file)=> `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+        });
+        hands.setOptions({
+          maxNumHands:1,
+          modelComplexity:1,
+          minDetectionConfidence:0.6,
+          minTrackingConfidence:0.6
+        });
+        hands.onResults(onResults);
+        resolve();
+      }catch(e){ reject(e); }
+    });
+  }
+
+  async function loop(){
+    if (!running) return;
+    try{
+      if (video.readyState >= 2){
+        await hands.send({image:video});
+      }
+    }catch(e){
+      /* swallow transient per-frame errors so the loop never dies */
+    }
+    rafId = requestAnimationFrame(loop);
+  }
+
+  /* ---------------------------------------------------------
+     Geometry helpers
+  --------------------------------------------------------- */
+  function dist(a,b){
+    return Math.hypot(a.x-b.x, a.y-b.y);
+  }
+
+  function computeExtendedCount(lm){
+    const wrist = lm[0];
+    const fingerIdx = [ [5,8], [9,12], [13,16], [17,20] ]; // [mcp, tip]
+    let extended = 0;
+    fingerIdx.forEach(([mcpI,tipI])=>{
+      const mcp = lm[mcpI], tip = lm[tipI];
+      if (dist(tip,wrist) > dist(mcp,wrist) * 1.22) extended++;
+    });
+    const palmScale = dist(lm[0], lm[9]) || 0.001;
+    const thumbSpread = dist(lm[4], lm[5]) / palmScale;
+    if (thumbSpread > 0.55) extended++;
+    return extended; // 0..5
+  }
+
+  function palmCenter(lm){
+    const idxs = [0,5,9,13,17];
+    let x=0,y=0;
+    idxs.forEach(i=>{ x+=lm[i].x; y+=lm[i].y; });
+    return { x:x/idxs.length, y:y/idxs.length };
+  }
+
+  /* ---------------------------------------------------------
+     Results handler
+  --------------------------------------------------------- */
+  function onResults(results){
+    outCtx.save();
+    outCtx.clearRect(0,0,outputCanvas.width,outputCanvas.height);
+    outCtx.drawImage(results.image, 0,0, outputCanvas.width, outputCanvas.height);
+
+    const hasHand = results.multiHandLandmarks && results.multiHandLandmarks.length > 0;
+
+    if (hasHand){
+      noHandFrames = 0;
+      const lm = results.multiHandLandmarks[0];
+      drawSkeleton(lm);
+
+      const extended = computeExtendedCount(lm);
+      const isOpenFrame = extended >= 3;
+      const isClosedFrame = extended <= 1;
+
+      openBuffer.push(isOpenFrame ? 1 : (isClosedFrame ? 0 : -1));
+      if (openBuffer.length > BUFFER_LEN) openBuffer.shift();
+
+      const openVotes = openBuffer.filter(v=>v===1).length;
+      const closedVotes = openBuffer.filter(v=>v===0).length;
+
+      if (openBuffer.length === BUFFER_LEN){
+        if (openVotes >= BUFFER_LEN - 1) stableOpen = true;
+        else if (closedVotes >= BUFFER_LEN - 1) stableOpen = false;
+      }
+
+      handStateChip.textContent = 'HAND: ' + (stableOpen===true ? 'OPEN' : stableOpen===false ? 'CLOSED' : 'MOVING');
+      handStateChip.className = 'hud-chip ' + (stableOpen===true ? 'state-open' : stableOpen===false ? 'state-closed' : '');
+
+      const pc = palmCenter(lm);
+      lastPalmPx = pc;
+
+      if (stableOpen !== null && stableOpen !== lastCommitted){
+        if (stableOpen === true){
+          advanceSpecimen(pc);
+        } else {
+          hideSpecimen();
+        }
+        lastCommitted = stableOpen;
+      }
+
+      if (cardVisible){
+        positionCardOverPalm(pc);
+      }
+
+    } else {
+      noHandFrames++;
+      handStateChip.textContent = 'HAND: —';
+      handStateChip.className = 'hud-chip';
+      if (noHandFrames > 15){
+        openBuffer = [];
+        stableOpen = null;
+      }
+    }
+
+    outCtx.restore();
+    drawParticles();
+  }
+
+  /* ---------------------------------------------------------
+     Skeleton drawing (manual — avoids relying on drawing_utils)
+  --------------------------------------------------------- */
+  const CONNECTIONS = [
+    [0,1],[1,2],[2,3],[3,4],
+    [0,5],[5,6],[6,7],[7,8],
+    [5,9],[9,10],[10,11],[11,12],
+    [9,13],[13,14],[14,15],[15,16],
+    [13,17],[17,18],[18,19],[19,20],
+    [0,17]
+  ];
+  function drawSkeleton(lm){
+    const w = outputCanvas.width, h = outputCanvas.height;
+    outCtx.strokeStyle = 'rgba(47,229,201,0.85)';
+    outCtx.lineWidth = 2;
+    outCtx.beginPath();
+    CONNECTIONS.forEach(([a,b])=>{
+      outCtx.moveTo(lm[a].x*w, lm[a].y*h);
+      outCtx.lineTo(lm[b].x*w, lm[b].y*h);
+    });
+    outCtx.stroke();
+    outCtx.fillStyle = '#FFB84D';
+    lm.forEach(p=>{
+      outCtx.beginPath();
+      outCtx.arc(p.x*w, p.y*h, 2.6, 0, Math.PI*2);
+      outCtx.fill();
+    });
+  }
+
+  /* ---------------------------------------------------------
+     Specimen card show / hide + progress dots
+  --------------------------------------------------------- */
+  function updateDots(){
+    PHYLA.forEach((_,i)=>{
+      const d = document.getElementById('dot'+i);
+      d.classList.toggle('done', i < currentIndex);
+      d.classList.toggle('current', i === currentIndex && cardVisible);
+    });
+  }
+
+  function advanceSpecimen(pc){
+    currentIndex = (currentIndex + 1) % PHYLA.length;
+    const p = PHYLA[currentIndex];
+
+    cardNo.textContent = String(currentIndex+1).padStart(2,'0') + ' / ' + String(PHYLA.length).padStart(2,'0');
+    cardPhylum.textContent = p.name;
+    cardExample.textContent = p.example;
+    cardFact.textContent = p.fact;
+    specimenCard.style.borderColor = p.color;
+    refreshCardPhoto(currentIndex);
+
+    positionCardOverPalm(pc);
+    specimenCard.classList.add('visible');
+    cardVisible = true;
+
+    spawnBurst(pc, p.color);
+    ticker.innerHTML = currentIndex === PHYLA.length-1
+      ? `Final specimen! Close fist and open again to <b>loop back to Phylum 1</b>.`
+      : `Showing <b>${p.name}</b>. Close your fist, then open for the next specimen.`;
+    statusLine.textContent = `Specimen ${currentIndex+1}/${PHYLA.length}: ${p.name} (${p.example})`;
+    updateDots();
+  }
+
+  function hideSpecimen(){
+    if (!cardVisible) return;
+    specimenCard.classList.remove('visible');
+    cardVisible = false;
+    if (currentIndex >= 0){
+      spawnBurst(lastPalmPx, PHYLA[currentIndex].color, true);
+    }
+    ticker.innerHTML = `Fist closed. <b>Open</b> your palm to reveal the next specimen.`;
+    updateDots();
+  }
+
+  function positionCardOverPalm(pc){
+    const rect = stageWrap.getBoundingClientRect();
+    // mirror the x coordinate because the video/canvas are visually flipped
+    const px = (1 - pc.x) * rect.width;
+    const py = pc.y * rect.height;
+    specimenCard.style.left = px + 'px';
+    specimenCard.style.top = py + 'px';
+  }
+
+  /* ---------------------------------------------------------
+     Particle VFX (drawn inside the mirrored layer, so raw
+     landmark coordinates line up correctly after CSS flip)
+  --------------------------------------------------------- */
+  function spawnBurst(pcNorm, color, inward){
+    const w = fxCanvas.width, h = fxCanvas.height;
+    const cx = pcNorm.x * w, cy = pcNorm.y * h;
+    const count = 26;
+    for (let i=0;i<count;i++){
+      const angle = (Math.PI*2 * i/count) + Math.random()*0.4;
+      const speed = 1.4 + Math.random()*2.6;
+      particles.push({
+        x: inward ? cx + Math.cos(angle)*60 : cx,
+        y: inward ? cy + Math.sin(angle)*60 : cy,
+        vx: inward ? -Math.cos(angle)*speed*0.5 : Math.cos(angle)*speed,
+        vy: inward ? -Math.sin(angle)*speed*0.5 : Math.sin(angle)*speed,
+        life: 1,
+        decay: 0.012 + Math.random()*0.018,
+        size: 1.5 + Math.random()*2.6,
+        color: color
+      });
+    }
+  }
+
+  function drawParticles(){
+    fxCtx.clearRect(0,0,fxCanvas.width,fxCanvas.height);
+    particles.forEach(p=>{
+      p.x += p.vx; p.y += p.vy;
+      p.vx *= 0.98; p.vy *= 0.98;
+      p.life -= p.decay;
+      if (p.life <= 0) return;
+      fxCtx.globalAlpha = Math.max(0,p.life);
+      fxCtx.fillStyle = p.color;
+      fxCtx.beginPath();
+      fxCtx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+      fxCtx.fill();
+    });
+    fxCtx.globalAlpha = 1;
+    particles = particles.filter(p=>p.life > 0);
+  }
+
+  /* ---------------------------------------------------------
+     Controls
+  --------------------------------------------------------- */
+  resetBtn.addEventListener('click', ()=>{
+    currentIndex = -1;
+    lastCommitted = null;
+    stableOpen = null;
+    openBuffer = [];
+    hideSpecimen();
+    updateDots();
+    ticker.innerHTML = 'Sequence reset. Close your fist, then <b>open</b> to begin.';
+    statusLine.textContent = 'Sequence reset.';
+  });
+
+  stopBtn.addEventListener('click', ()=>{
+    running = false;
+    if (rafId) cancelAnimationFrame(rafId);
+    if (stream){ stream.getTracks().forEach(t=>t.stop()); stream = null; }
+    veil.classList.remove('hidden');
+    fpsChip.textContent = 'STATUS: stopped';
+    statusLine.textContent = 'Camera stopped.';
+  });
+
+  startBtn.addEventListener('click', startCamera);
+
+  /* ---------------------------------------------------------
+     Keyboard fallback (no camera required) — accessibility
+     and a guaranteed error-free demo path.
+     Space = toggle open/closed, R = reset
+  --------------------------------------------------------- */
+  let keyboardOpen = false;
+  noCamBtn.addEventListener('click', ()=>{
+    veil.classList.add('hidden');
+    resizeCanvases();
+    outCtx.fillStyle = '#04141a';
+    outCtx.fillRect(0,0,outputCanvas.width,outputCanvas.height);
+    outCtx.fillStyle = 'rgba(234,246,244,0.55)';
+    outCtx.font = '13px monospace';
+    outCtx.textAlign = 'center';
+    outCtx.fillText('KEYBOARD MODE — press SPACE to open/close your "fist"', outputCanvas.width/2, outputCanvas.height/2);
+    handStateChip.textContent = 'HAND: KEYBOARD MODE';
+    statusLine.textContent = 'Keyboard mode: press Space to toggle, R to reset.';
+    lastPalmPx = {x:0.5,y:0.45};
+    positionCardOverPalm(lastPalmPx);
+  });
+
+  window.addEventListener('keydown', (e)=>{
+    if (e.code === 'Space'){
+      e.preventDefault();
+      keyboardOpen = !keyboardOpen;
+      if (keyboardOpen) advanceSpecimen(lastPalmPx);
+      else hideSpecimen();
+    } else if (e.code === 'KeyR'){
+      resetBtn.click();
+    }
+  });
+
+  /* initial paint so canvases aren't blank before start */
+  resizeCanvases();
+})();
+</script>
+</body>
+</html>
