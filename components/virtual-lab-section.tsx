@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { simulations, type Simulation } from "@/lib/static-data"
 import { Button } from "@/components/ui/button"
-import { FlaskConical, ExternalLink, Monitor, Globe, FileCode, Atom, BookOpen } from "lucide-react"
+import { FlaskConical, ExternalLink, Monitor, Globe, FileCode, Atom, BookOpen, Search, ShieldCheck } from "lucide-react"
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -45,6 +45,8 @@ const subjectColors: Record<string, string> = {
 export default function VirtualLabSection() {
   const [active, setActive]       = useState<Simulation>(simulations[0])
   const [filter, setFilter]       = useState("All")
+  const [query, setQuery]         = useState("")
+  const [verified, setVerified]   = useState(false)
   const [iframeKey, setIframeKey] = useState(0)
 
   const subjects = useMemo(() => {
@@ -53,9 +55,23 @@ export default function VirtualLabSection() {
   }, [])
 
   const filtered = useMemo(
-    () => filter === "All" ? simulations : simulations.filter((s) => s.subject === filter),
-    [filter],
+    () => {
+      const normalizedQuery = query.trim().toLowerCase()
+      return simulations.filter((simulation) => {
+        const matchesSubject = filter === "All" || simulation.subject === filter
+        const searchableText = `${simulation.title} ${simulation.description ?? ""} ${simulation.subject ?? ""}`.toLowerCase()
+        return matchesSubject && (!normalizedQuery || searchableText.includes(normalizedQuery))
+      })
+    },
+    [filter, query],
   )
+
+  useEffect(() => {
+    if (filtered.length > 0 && !filtered.some((simulation) => simulation.id === active.id)) {
+      setActive(filtered[0])
+      setIframeKey((key) => key + 1)
+    }
+  }, [active.id, filtered])
 
   const select = (sim: Simulation) => {
     setActive(sim)
@@ -90,6 +106,17 @@ export default function VirtualLabSection() {
         </div>
 
         {/* subject filter */}
+        <div className="max-w-xl mx-auto mb-4 relative">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search simulations..."
+            aria-label="Search simulations"
+            className="w-full h-11 rounded-xl border border-border bg-card pl-10 pr-4 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+          />
+        </div>
         <div className="flex flex-wrap gap-2 justify-center mb-8">
           {subjects.map((s) => (
             <button
@@ -107,14 +134,14 @@ export default function VirtualLabSection() {
         </div>
 
         {/* sidebar narrower (1/4), viewer wider (3/4) — viewer is where learning happens */}
-        <div className="grid lg:grid-cols-4 gap-6">
+        <div className="grid lg:grid-cols-4 gap-4 md:gap-6">
           {/* ── sidebar ── */}
           <div className="lg:col-span-1 flex flex-col gap-3">
-            <div className="glass-card rounded-xl p-4 flex-1">
+            <div className="glass-card rounded-xl p-3 sm:p-4 flex-1">
               <p className="text-xs text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
                 <BookOpen className="w-3.5 h-3.5" /> {filtered.length} simulation{filtered.length !== 1 ? "s" : ""}
               </p>
-              <div className="space-y-1.5 max-h-[480px] overflow-y-auto pr-0.5">
+              <div className="space-y-1.5 max-h-[34vh] lg:max-h-[480px] overflow-y-auto pr-0.5">
                 {filtered.map((sim) => (
                   <button
                     key={sim.id}
@@ -149,6 +176,9 @@ export default function VirtualLabSection() {
                     </div>
                   </button>
                 ))}
+                {filtered.length === 0 && (
+                  <p className="py-8 text-center text-sm text-muted-foreground">No simulations found.</p>
+                )}
               </div>
             </div>
           </div>
@@ -157,7 +187,7 @@ export default function VirtualLabSection() {
           <div className="lg:col-span-3">
             <div className="glass-card rounded-2xl overflow-hidden">
               {/* topbar */}
-              <div className="flex items-center gap-3 px-5 py-3.5 border-b border-border bg-secondary/40">
+              <div className="flex items-center gap-2 px-3 sm:px-5 py-3.5 border-b border-border bg-secondary/40">
                 {/* window dots */}
                 <div className="flex gap-1.5">
                   <div className="w-3 h-3 rounded-full bg-red-400/70" />
@@ -179,12 +209,12 @@ export default function VirtualLabSection() {
                 </div>
 
                 {/* open external */}
-                <a href={active.url} target="_blank" rel="noopener noreferrer">
-                  <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-muted-foreground hover:text-foreground">
+                {verified && <a href={active.url} target="_blank" rel="noopener noreferrer">
+                  <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-muted-foreground hover:text-foreground px-2">
                     <ExternalLink className="w-3.5 h-3.5" />
-                    Open
+                    <span className="hidden sm:inline">Open</span>
                   </Button>
-                </a>
+                </a>}
               </div>
 
               {/* description */}
@@ -194,18 +224,44 @@ export default function VirtualLabSection() {
                 </div>
               )}
 
-              {/* iframe */}
-              <div className="relative w-full bg-card" style={{ paddingBottom: "62%" }}>
-                <iframe
-                  key={`${active.id}-${iframeKey}`}
-                  src={getEmbedUrl(active)}
-                  title={active.title}
-                  className="absolute inset-0 w-full h-full border-0"
-                  allowFullScreen
-                  loading="lazy"
-                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-pointer-lock"
-                />
-              </div>
+              {/* Verification keeps embedded content behind a clear user action. */}
+              {!verified ? (
+                <div className="min-h-[320px] sm:min-h-[460px] flex items-center justify-center p-5 sm:p-8 bg-card">
+                  <div className="w-full max-w-md rounded-2xl border border-border bg-background p-5 sm:p-7 shadow-sm">
+                    <div className="flex items-start gap-3 mb-5">
+                      <div className="rounded-xl bg-emerald-500/10 p-2.5 text-emerald-600 dark:text-emerald-400">
+                        <ShieldCheck className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h2 className="text-lg font-semibold">Verify before entering the lab</h2>
+                        <p className="text-sm text-muted-foreground mt-1">Confirm that you are human to load the interactive simulation.</p>
+                      </div>
+                    </div>
+                    <label className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 cursor-pointer hover:border-primary/50 transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={verified}
+                        onChange={(event) => setVerified(event.target.checked)}
+                        className="h-5 w-5 accent-primary"
+                      />
+                      <span className="text-sm font-medium">I&apos;m not a robot</span>
+                    </label>
+                    <p className="text-xs text-muted-foreground mt-3">This quick check helps protect the lab from automated traffic.</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="relative w-full bg-card aspect-[4/3] sm:aspect-[16/10]">
+                  <iframe
+                    key={`${active.id}-${iframeKey}`}
+                    src={getEmbedUrl(active)}
+                    title={active.title}
+                    className="absolute inset-0 w-full h-full border-0"
+                    allowFullScreen
+                    loading="lazy"
+                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-pointer-lock"
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
