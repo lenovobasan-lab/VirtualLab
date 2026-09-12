@@ -1,21 +1,11 @@
 "use client"
 
-import { useState, useMemo, useEffect, useRef } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { simulations, type Simulation } from "@/lib/static-data"
 import { Button } from "@/components/ui/button"
-import { FlaskConical, ExternalLink, Monitor, Globe, FileCode, Atom, BookOpen, Search, ShieldCheck, ArrowRight } from "lucide-react"
+import { FlaskConical, Monitor, Globe, FileCode, Atom, BookOpen, Search, ArrowRight } from "lucide-react"
 
 // ── helpers ──────────────────────────────────────────────────────────────────
-
-function getEmbedUrl(sim: Simulation): string {
-  if (sim.type === "html" || sim.type === "phet" || sim.type === "url") return sim.url
-  // GeoGebra
-  const m = sim.url.match(/geogebra\.org\/m\/([a-zA-Z0-9]+)/)
-  if (m) {
-    return `https://www.geogebra.org/material/iframe/id/${m[1]}/width/800/height/500/border/888888/sfsb/true/smb/false/stb/false/stbh/false/ai/false/asb/false/sri/true/rc/false/ld/false/sdz/true/ctl/false`
-  }
-  return sim.url
-}
 
 function TypeIcon({ type }: { type: Simulation["type"] }) {
   const cls = "w-4 h-4"
@@ -46,10 +36,6 @@ export default function VirtualLabSection() {
   const [active, setActive]       = useState<Simulation>(simulations[0])
   const [filter, setFilter]       = useState("All")
   const [query, setQuery]         = useState("")
-  const [verified, setVerified] = useState(false)
-  const [entered, setEntered] = useState(false)
-  const [iframeKey, setIframeKey] = useState(0)
-  const viewerRef = useRef<HTMLDivElement>(null)
 
   const subjects = useMemo(() => {
     const s = new Set(simulations.map((s) => s.subject ?? "Other"))
@@ -71,20 +57,11 @@ export default function VirtualLabSection() {
   useEffect(() => {
     if (filtered.length > 0 && !filtered.some((simulation) => simulation.id === active.id)) {
       setActive(filtered[0])
-      setEntered(false)
-      setIframeKey((key) => key + 1)
     }
   }, [active.id, filtered])
 
   const select = (sim: Simulation) => {
     setActive(sim)
-    setEntered(false)
-    setIframeKey((k) => k + 1)
-  }
-
-  const enterSimulation = () => {
-    setEntered(true)
-    viewerRef.current?.requestFullscreen?.().catch(() => undefined)
   }
 
   if (simulations.length === 0) {
@@ -194,7 +171,7 @@ export default function VirtualLabSection() {
 
           {/* ── viewer (wider — where the actual learning happens) ── */}
           <div className="lg:col-span-3">
-            <div ref={viewerRef} className="glass-card rounded-2xl overflow-hidden [&:fullscreen]:h-screen [&:fullscreen]:w-screen [&:fullscreen]:rounded-none">
+            <div className="glass-card rounded-2xl overflow-hidden">
               {/* topbar */}
               <div className="flex items-center gap-2 px-3 sm:px-5 py-3.5 border-b border-border bg-secondary/40">
                 {/* window dots */}
@@ -217,13 +194,6 @@ export default function VirtualLabSection() {
                   )}
                 </div>
 
-                {/* open external */}
-                {verified && entered && <a href={active.url} target="_blank" rel="noopener noreferrer">
-                  <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-muted-foreground hover:text-foreground px-2">
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Open</span>
-                  </Button>
-                </a>}
               </div>
 
               {/* description */}
@@ -234,31 +204,7 @@ export default function VirtualLabSection() {
               )}
 
               {/* Keep every simulation unloaded until the user explicitly enters it. */}
-              {!verified ? (
-                <div className="min-h-[320px] sm:min-h-[460px] flex items-center justify-center p-5 sm:p-8 bg-card">
-                  <div className="w-full max-w-md rounded-2xl border border-border bg-background p-5 sm:p-7 shadow-sm">
-                    <div className="flex items-start gap-3 mb-5">
-                      <div className="rounded-xl bg-emerald-500/10 p-2.5 text-emerald-600 dark:text-emerald-400">
-                        <ShieldCheck className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h2 className="text-lg font-semibold">Verify before entering the lab</h2>
-                        <p className="text-sm text-muted-foreground mt-1">Confirm that you are human to load the interactive simulation.</p>
-                      </div>
-                    </div>
-                    <label className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 cursor-pointer hover:border-primary/50 transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={verified}
-                        onChange={(event) => setVerified(event.target.checked)}
-                        className="h-5 w-5 accent-primary"
-                      />
-                      <span className="text-sm font-medium">I&apos;m not a robot</span>
-                    </label>
-                    <p className="text-xs text-muted-foreground mt-3">This quick check helps protect the lab from automated traffic.</p>
-                  </div>
-                </div>
-              ) : !entered ? (
+              {
                 <div className="relative min-h-[320px] sm:min-h-[460px] overflow-hidden bg-card">
                   <img
                     src={active.previewImage ?? "/images/simulation-preview.svg"}
@@ -267,25 +213,15 @@ export default function VirtualLabSection() {
                   />
                   <div className="absolute inset-0 bg-slate-950/55" />
                   <div className="relative z-10 flex min-h-[320px] sm:min-h-[460px] items-center justify-center p-5 sm:p-8">
-                    <Button type="button" onClick={enterSimulation} className="gap-2 shadow-lg">
-                      Click here
-                      <ArrowRight className="w-4 h-4" />
-                    </Button>
+                    <a href={active.url} target="_blank" rel="noopener noreferrer">
+                      <Button type="button" className="gap-2 shadow-lg">
+                        Click here
+                        <ArrowRight className="w-4 h-4" />
+                      </Button>
+                    </a>
                   </div>
                 </div>
-              ) : (
-                <div className={`relative w-full bg-card ${entered ? "h-screen" : "aspect-[4/3] sm:aspect-[16/10]"}`}>
-                  <iframe
-                    key={`${active.id}-${iframeKey}`}
-                    src={getEmbedUrl(active)}
-                    title={active.title}
-                    className="absolute inset-0 w-full h-full border-0"
-                    allowFullScreen
-                    loading="lazy"
-                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-pointer-lock"
-                  />
-                </div>
-              )}
+              }
             </div>
           </div>
         </div>

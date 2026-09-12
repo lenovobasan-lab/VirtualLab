@@ -196,6 +196,7 @@ const simulations = [
         title: "Electric Circuit Kit",
         description: "Build and test DC circuits interactively",
         subject: "Physics",
+        previewImage: "/images/previews/electric-circuit.svg",
         url: "https://phet.colorado.edu/sims/html/circuit-construction-kit-dc-virtual-lab/latest/circuit-construction-kit-dc-virtual-lab_all.html",
         type: "phet",
         created_at: "2026-01-05T19:54:00.000Z"
@@ -211,6 +212,7 @@ const simulations = [
         title: "Simple Pendulum",
         description: "Interactive pendulum – adjust length, gravity and damping in real time",
         subject: "Physics",
+        previewImage: "/images/previews/physics.svg",
         url: "/simulations/pendulum.html",
         type: "html",
         created_at: "2026-01-05T19:54:00.000Z"
@@ -220,6 +222,7 @@ const simulations = [
         title: "Addition and Subtraction Simulation",
         description: "Interactive simulation of additionand subtraction",
         subject: "Mathematics",
+        previewImage: "/images/previews/mathematics.svg",
         url: "/simulations/math_lab.html",
         type: "html",
         created_at: "2026-01-05T19:54:00.000Z"
@@ -229,6 +232,7 @@ const simulations = [
         title: "Hydrogen Gas Preparation Simulation",
         description: "Interactive simulation of hydrogen gas preparation",
         subject: "Chemistry",
+        previewImage: "/images/previews/chemistry.svg",
         url: "/simulations/hydrogen_lab_simulation.html",
         type: "html",
         created_at: "2026-06-20T19:54:00.000Z"
@@ -238,6 +242,7 @@ const simulations = [
         title: "Simultaneous Equation Solver",
         description: "Interactive simulation for solving algebraic equations",
         subject: "Mathematics",
+        previewImage: "/images/previews/mathematics.svg",
         url: "/simulations/equation_solver.html",
         type: "html",
         created_at: "2026-06-20T19:54:00.000Z"
@@ -247,6 +252,7 @@ const simulations = [
         title: "Atomic Structure Of First 20 Elements",
         description: "Interactive simulation of atomic structure",
         subject: "Chemistry",
+        previewImage: "/images/previews/chemistry.svg",
         url: "/simulations/atomic_structure_simulation_2.html",
         type: "html",
         created_at: "2026-06-20T19:54:00.000Z"
@@ -256,6 +262,7 @@ const simulations = [
         title: "Solar System",
         description: "Interactive simulation of Solar System",
         subject: "Astronomy",
+        previewImage: "/images/previews/astronomy.svg",
         url: "/simulations/solar_system_3d.html",
         type: "html",
         created_at: "2026-06-20T19:54:00.000Z"
@@ -265,6 +272,7 @@ const simulations = [
         title: "Set Relations",
         description: "Interactive simulation of set relations",
         subject: "Mathematics",
+        previewImage: "/images/previews/mathematics.svg",
         url: "/simulations/interactive-set-operations-explorer_1.html",
         type: "html",
         created_at: "2026-06-20T19:54:00.000Z"
@@ -274,6 +282,7 @@ const simulations = [
         title: "Relative Motion",
         description: "Interactive simulation of relative motion",
         subject: "Physics",
+        previewImage: "/images/previews/physics.svg",
         url: "/simulations/relative_velocity_v4.html",
         type: "html",
         created_at: "2026-06-20T19:54:00.000Z"
@@ -283,6 +292,7 @@ const simulations = [
         title: "Ray Diagram Simulation in Concave and Convex Lens",
         description: "Interactive simulation of ray diagrams in concave and convex lenses",
         subject: "Physics",
+        previewImage: "/images/previews/physics.svg",
         url: "/simulations/mirror_simulation.html",
         type: "html",
         created_at: "2026-06-20T19:54:00.000Z"
@@ -292,6 +302,7 @@ const simulations = [
         title: "Addition and Subtraction Of Fractions Simulation",
         description: "Interactive simulation of addition and subtraction of fractions",
         subject: "Mathematics",
+        previewImage: "/images/previews/mathematics.svg",
         url: "/simulations/fractions_simulator.html",
         type: "html",
         created_at: "2026-06-20T19:54:00.000Z"
@@ -301,6 +312,7 @@ const simulations = [
         title: "Fraction Builder and Visualizer Simulation",
         description: "Interactive simulation of fraction building and visualization",
         subject: "Mathematics",
+        previewImage: "/images/previews/mathematics.svg",
         url: "/simulations/fraction-finder.html",
         type: "html",
         created_at: "2026-06-20T19:54:00.000Z"
@@ -310,6 +322,7 @@ const simulations = [
         title: "Integer Number Line Operations Simulation",
         description: "Interactive simulation of integer operations",
         subject: "Mathematics",
+        previewImage: "/images/previews/mathematics.svg",
         url: "/simulations/integer_number_line.html",
         type: "html",
         created_at: "2026-06-20T19:54:00.000Z"
@@ -319,6 +332,7 @@ const simulations = [
         title: "Modern Periodic Table",
         description: "Interactive simulation of the modern periodic table",
         subject: "Chemistry",
+        previewImage: "/images/previews/chemistry.svg",
         url: "/simulations/modern_periodic_table.html",
         type: "html",
         created_at: "2026-06-20T19:54:00.000Z"
@@ -328,6 +342,7 @@ const simulations = [
         title: "Constellation 2D",
         description: "Interactive simulation of constellations in 2D",
         subject: "Astronomy",
+        previewImage: "/images/previews/astronomy.svg",
         url: "/simulations/2d_constellation.html",
         type: "html",
         created_at: "2026-06-20T19:54:00.000Z"
@@ -337,6 +352,7 @@ const simulations = [
         title: "Respiration System",
         description: "Interactive simulation of the respiration system",
         subject: "Biology",
+        previewImage: "/images/previews/biology.svg",
         url: "/simulations/respiration_simulation.html",
         type: "html",
         created_at: "2026-06-20T19:54:00.000Z"
@@ -346,6 +362,7 @@ const simulations = [
         title: "Types Of Cell ",
         description: "Interactive simulation of different types of cells with their functions",
         subject: "Biology",
+        previewImage: "/images/previews/biology.svg",
         url: "/simulations/cell-simulation.html",
         type: "html",
         created_at: "2026-06-20T19:54:00.000Z"
@@ -355,6 +372,7 @@ const simulations = [
         title: "Algebraic Squares",
         description: "Interactive simulation of algebraic squares",
         subject: "Mathematics",
+        previewImage: "/images/previews/mathematics.svg",
         url: "/simulations/algebra_tiles_simulator.html",
         type: "html",
         created_at: "2026-06-20T19:54:00.000Z"
@@ -364,6 +382,7 @@ const simulations = [
         title: "Invertebrate Scanner",
         description: "Interactive simulation of invertebrate scanning",
         subject: "Biology",
+        previewImage: "/images/previews/biology.svg",
         url: "/simulations/invertebrate_scanner.html",
         type: "html",
         created_at: "2026-06-20T19:54:00.000Z"
