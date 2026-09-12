@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useRef } from "react"
 import { simulations, type Simulation } from "@/lib/static-data"
 import { Button } from "@/components/ui/button"
-import { FlaskConical, ExternalLink, Monitor, Globe, FileCode, Atom, BookOpen, Search, ShieldCheck } from "lucide-react"
+import { FlaskConical, ExternalLink, Monitor, Globe, FileCode, Atom, BookOpen, Search, ShieldCheck, ArrowRight } from "lucide-react"
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -46,8 +46,10 @@ export default function VirtualLabSection() {
   const [active, setActive]       = useState<Simulation>(simulations[0])
   const [filter, setFilter]       = useState("All")
   const [query, setQuery]         = useState("")
-  const [verified, setVerified]   = useState(false)
+  const [verified, setVerified] = useState(false)
+  const [entered, setEntered] = useState(false)
   const [iframeKey, setIframeKey] = useState(0)
+  const viewerRef = useRef<HTMLDivElement>(null)
 
   const subjects = useMemo(() => {
     const s = new Set(simulations.map((s) => s.subject ?? "Other"))
@@ -69,13 +71,20 @@ export default function VirtualLabSection() {
   useEffect(() => {
     if (filtered.length > 0 && !filtered.some((simulation) => simulation.id === active.id)) {
       setActive(filtered[0])
+      setEntered(false)
       setIframeKey((key) => key + 1)
     }
   }, [active.id, filtered])
 
   const select = (sim: Simulation) => {
     setActive(sim)
+    setEntered(false)
     setIframeKey((k) => k + 1)
+  }
+
+  const enterSimulation = () => {
+    setEntered(true)
+    viewerRef.current?.requestFullscreen?.().catch(() => undefined)
   }
 
   if (simulations.length === 0) {
@@ -185,7 +194,7 @@ export default function VirtualLabSection() {
 
           {/* ── viewer (wider — where the actual learning happens) ── */}
           <div className="lg:col-span-3">
-            <div className="glass-card rounded-2xl overflow-hidden">
+            <div ref={viewerRef} className="glass-card rounded-2xl overflow-hidden [&:fullscreen]:h-screen [&:fullscreen]:w-screen [&:fullscreen]:rounded-none">
               {/* topbar */}
               <div className="flex items-center gap-2 px-3 sm:px-5 py-3.5 border-b border-border bg-secondary/40">
                 {/* window dots */}
@@ -209,7 +218,7 @@ export default function VirtualLabSection() {
                 </div>
 
                 {/* open external */}
-                {verified && <a href={active.url} target="_blank" rel="noopener noreferrer">
+                {verified && entered && <a href={active.url} target="_blank" rel="noopener noreferrer">
                   <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-muted-foreground hover:text-foreground px-2">
                     <ExternalLink className="w-3.5 h-3.5" />
                     <span className="hidden sm:inline">Open</span>
@@ -224,7 +233,7 @@ export default function VirtualLabSection() {
                 </div>
               )}
 
-              {/* Verification keeps embedded content behind a clear user action. */}
+              {/* Keep every simulation unloaded until the user explicitly enters it. */}
               {!verified ? (
                 <div className="min-h-[320px] sm:min-h-[460px] flex items-center justify-center p-5 sm:p-8 bg-card">
                   <div className="w-full max-w-md rounded-2xl border border-border bg-background p-5 sm:p-7 shadow-sm">
@@ -249,8 +258,23 @@ export default function VirtualLabSection() {
                     <p className="text-xs text-muted-foreground mt-3">This quick check helps protect the lab from automated traffic.</p>
                   </div>
                 </div>
+              ) : !entered ? (
+                <div className="relative min-h-[320px] sm:min-h-[460px] overflow-hidden bg-card">
+                  <img
+                    src={active.previewImage ?? "/images/simulation-preview.svg"}
+                    alt={`${active.title} preview`}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-slate-950/55" />
+                  <div className="relative z-10 flex min-h-[320px] sm:min-h-[460px] items-center justify-center p-5 sm:p-8">
+                    <Button type="button" onClick={enterSimulation} className="gap-2 shadow-lg">
+                      Click here
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
               ) : (
-                <div className="relative w-full bg-card aspect-[4/3] sm:aspect-[16/10]">
+                <div className={`relative w-full bg-card ${entered ? "h-screen" : "aspect-[4/3] sm:aspect-[16/10]"}`}>
                   <iframe
                     key={`${active.id}-${iframeKey}`}
                     src={getEmbedUrl(active)}

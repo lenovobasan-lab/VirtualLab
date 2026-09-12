@@ -15,6 +15,7 @@ export interface Simulation {
   title: string
   description: string | null
   subject: string | null
+  previewImage?: string
   // For HTML files: put them in /public/simulations/ and set url: "/simulations/myfile.html"
   // For GeoGebra: use the full GeoGebra URL  e.g. "https://www.geogebra.org/m/ju8ed6xe"
   // For PhET or any other URL: just paste the full URL

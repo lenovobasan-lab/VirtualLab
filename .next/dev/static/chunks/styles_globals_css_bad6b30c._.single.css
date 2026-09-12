@@ -874,6 +874,10 @@ body {
   height: 100svh;
 }
 
+.h-screen {
+  height: 100vh;
+}
+
 .max-h-96 {
   max-height: 24rem;
 }
@@ -1747,6 +1751,10 @@ body {
 
 .bg-sidebar-border {
   background-color: hsl(var(--sidebar-border));
+}
+
+.bg-slate-950\/55 {
+  background-color: #0206178c;
 }
 
 .bg-success {
@@ -4190,6 +4198,22 @@ body {
 .\[\&\:first-child\[data-selected\=true\]_button\]\:rounded-l-md:first-child[data-selected="true"] button {
   border-top-left-radius: calc(var(--radius)  - 2px);
   border-bottom-left-radius: calc(var(--radius)  - 2px);
+}
+
+.\[\&\:fullscreen\]\:aspect-auto:fullscreen {
+  aspect-ratio: auto;
+}
+
+.\[\&\:fullscreen\]\:h-screen:fullscreen {
+  height: 100vh;
+}
+
+.\[\&\:fullscreen\]\:w-screen:fullscreen {
+  width: 100vw;
+}
+
+.\[\&\:fullscreen\]\:rounded-none:fullscreen {
+  border-radius: 0;
 }
 
 .\[\&\:has\(\[role\=checkbox\]\)\]\:pr-0:has([role="checkbox"]) {
