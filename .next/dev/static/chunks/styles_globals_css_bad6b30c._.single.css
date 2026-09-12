@@ -711,10 +711,6 @@ body {
   display: none;
 }
 
-.aspect-\[4\/3\] {
-  aspect-ratio: 4 / 3;
-}
-
 .aspect-square {
   aspect-ratio: 1;
 }
@@ -864,10 +860,6 @@ body {
 
 .h-px {
   height: 1px;
-}
-
-.h-screen {
-  height: 100vh;
 }
 
 .h-svh {
@@ -1763,6 +1755,15 @@ body {
 
 .bg-white\/20 {
   background-color: #fff3;
+}
+
+.bg-slate-950 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(2 6 23 / var(--tw-bg-opacity, 1));
+}
+
+.bg-slate-950\/85 {
+  background-color: #020617d9;
 }
 
 .bg-gradient-to-b {
@@ -3973,12 +3974,12 @@ body {
     display: flex;
   }
 
-  .sm\:aspect-\[16\/10\] {
-    aspect-ratio: 16 / 10;
-  }
-
   .sm\:min-h-\[460px\] {
     min-height: 460px;
+  }
+
+  .sm\:min-h-\[560px\] {
+    min-height: 560px;
   }
 
   .sm\:max-w-sm {
@@ -4173,18 +4174,6 @@ body {
 .\[\&\:first-child\[data-selected\=true\]_button\]\:rounded-l-md:first-child[data-selected="true"] button {
   border-top-left-radius: calc(var(--radius)  - 2px);
   border-bottom-left-radius: calc(var(--radius)  - 2px);
-}
-
-.\[\&\:fullscreen\]\:h-screen:fullscreen {
-  height: 100vh;
-}
-
-.\[\&\:fullscreen\]\:w-screen:fullscreen {
-  width: 100vw;
-}
-
-.\[\&\:fullscreen\]\:rounded-none:fullscreen {
-  border-radius: 0;
 }
 
 .\[\&\:has\(\[role\=checkbox\]\)\]\:pr-0:has([role="checkbox"]) {

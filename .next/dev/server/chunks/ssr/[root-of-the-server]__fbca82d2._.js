@@ -343,7 +343,7 @@ const simulations = [
         title: "Hydrogen Gas Preparation Simulation",
         description: "Interactive simulation of hydrogen gas preparation",
         subject: "Chemistry",
-        previewImage: "/images/previews/chemistry.svg",
+        previewImage: "/images/previews/h2.PNG",
         url: "/simulations/hydrogen_lab_simulation.html",
         type: "html",
         created_at: "2026-06-20T19:54:00.000Z"
@@ -760,7 +760,7 @@ function VirtualLabSection() {
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$10_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                             className: "text-muted-foreground max-w-xl mx-auto text-sm",
-                            children: "Explore simulations right here in the browser. Works with GeoGebra, PhET, and your own HTML files."
+                            children: "Explore simulations right here in the browser. Works with GeoGebra, PhET, and your HTML files."
                         }, void 0, false, {
                             fileName: "[project]/components/virtual-lab-section.tsx",
                             lineNumber: 88,

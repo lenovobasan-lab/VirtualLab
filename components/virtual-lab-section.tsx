@@ -86,7 +86,7 @@ export default function VirtualLabSection() {
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">Virtual Lab</h1>
           <p className="text-muted-foreground max-w-xl mx-auto text-sm">
-            Explore simulations right here in the browser. Works with GeoGebra, PhET, and your own HTML files.
+            Explore simulations right here in the browser. Works with GeoGebra, PhET, and your HTML files.
           </p>
           <div className="w-16 h-0.5 bg-primary mx-auto mt-4 rounded-full" />
         </div>
