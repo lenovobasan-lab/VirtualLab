@@ -343,7 +343,7 @@ const simulations = [
         title: "Hydrogen Gas Preparation Simulation",
         description: "Interactive simulation of hydrogen gas preparation",
         subject: "Chemistry",
-        previewImage: "/images/previews/h2.PNG",
+        previewImage: "/images/previews/h2.png",
         url: "/simulations/hydrogen_lab_simulation.html",
         type: "html",
         created_at: "2026-06-20T19:54:00.000Z"
@@ -383,7 +383,7 @@ const simulations = [
         title: "Set Relations",
         description: "Interactive simulation of set relations",
         subject: "Mathematics",
-        previewImage: "/images/previews/mathematics.svg",
+        previewImage: "/images/previews/set.png",
         url: "/simulations/interactive-set-operations-explorer_1.html",
         type: "html",
         created_at: "2026-06-20T19:54:00.000Z"

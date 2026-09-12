@@ -1,6 +1,205 @@
-[00:00:20.239] Server  LOG      ✓ Ready in 13.4s
-[00:00:23.259] Server  LOG      ○ Compiling / ...
-[00:00:42.215] Server  WARN     ⚠ Cross origin request detected from 192.168.1.70 to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
-Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
-[00:00:42.267] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:45.092] Browser WARN    Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[00:00:01.945] Server  LOG      ✓ Ready in 1328ms
+[00:00:35.220] Server  WARN     ⚠ [next]/internal/font/google/inter_b2991b2.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/inter_b2991b2.module.css
+    [next]/internal/font/google/inter_b2991b2.js
+    ./app/layout.tsx
+
+
+[00:00:35.220] Server  WARN     ⚠ [next]/internal/font/google/inter_b2991b2.module.css
+next/font: warning:
+Failed to download `Inter` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/inter_b2991b2.module.css
+    [next]/internal/font/google/inter_b2991b2.js
+    ./app/layout.tsx
+
+
+[00:00:35.774] Server  WARN     ⚠ [next]/internal/font/google/inter_b2991b2.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/inter_b2991b2.module.css
+    [next]/internal/font/google/inter_b2991b2.js
+    ./app/layout.tsx
+
+
+[00:00:35.774] Server  WARN     ⚠ [next]/internal/font/google/inter_b2991b2.module.css
+next/font: warning:
+Failed to download `Inter` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/inter_b2991b2.module.css
+    [next]/internal/font/google/inter_b2991b2.js
+    ./app/layout.tsx
+
+
+[00:00:35.809] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:38.615] Server  WARN     ⚠ [next]/internal/font/google/inter_b2991b2.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/inter_b2991b2.module.css
+    [next]/internal/font/google/inter_b2991b2.js
+    ./app/layout.tsx
+
+
+[00:00:38.616] Server  WARN     ⚠ [next]/internal/font/google/inter_b2991b2.module.css
+next/font: warning:
+Failed to download `Inter` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/inter_b2991b2.module.css
+    [next]/internal/font/google/inter_b2991b2.js
+    ./app/layout.tsx
+
+
+[00:00:38.870] Browser WARN    Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[00:04:07.806] Server  WARN     ⚠ [next]/internal/font/google/inter_b2991b2.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/inter_b2991b2.module.css
+    [next]/internal/font/google/inter_b2991b2.js
+    ./app/layout.tsx
+
+
+[00:04:07.806] Server  WARN     ⚠ [next]/internal/font/google/inter_b2991b2.module.css
+next/font: warning:
+Failed to download `Inter` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/inter_b2991b2.module.css
+    [next]/internal/font/google/inter_b2991b2.js
+    ./app/layout.tsx
+
+
+[00:04:07.914] Server  LOG      ✓ Compiled in 15ms
+[00:04:58.885] Server  LOG      ✓ Compiled in 18ms
+[00:04:58.936] Server  WARN     ⚠ [next]/internal/font/google/inter_b2991b2.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/inter_b2991b2.module.css
+    [next]/internal/font/google/inter_b2991b2.js
+    ./app/layout.tsx
+
+
+[00:04:58.937] Server  WARN     ⚠ [next]/internal/font/google/inter_b2991b2.module.css
+next/font: warning:
+Failed to download `Inter` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/inter_b2991b2.module.css
+    [next]/internal/font/google/inter_b2991b2.js
+    ./app/layout.tsx
+
+
+[00:05:07.766] Server  WARN     ⚠ [next]/internal/font/google/inter_b2991b2.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/inter_b2991b2.module.css
+    [next]/internal/font/google/inter_b2991b2.js
+    ./app/layout.tsx
+
+
+[00:05:07.767] Server  WARN     ⚠ [next]/internal/font/google/inter_b2991b2.module.css
+next/font: warning:
+Failed to download `Inter` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/inter_b2991b2.module.css
+    [next]/internal/font/google/inter_b2991b2.js
+    ./app/layout.tsx
+
+
+[00:05:08.536] Server  WARN     ⚠ [next]/internal/font/google/inter_b2991b2.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/inter_b2991b2.module.css
+    [next]/internal/font/google/inter_b2991b2.js
+    ./app/layout.tsx
+
+
+[00:05:08.536] Server  WARN     ⚠ [next]/internal/font/google/inter_b2991b2.module.css
+next/font: warning:
+Failed to download `Inter` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/inter_b2991b2.module.css
+    [next]/internal/font/google/inter_b2991b2.js
+    ./app/layout.tsx
+
+
+[00:05:08.537] Server  WARN     ⚠ [next]/internal/font/google/inter_b2991b2.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/inter_b2991b2.module.css
+    [next]/internal/font/google/inter_b2991b2.js
+    ./app/layout.tsx
+
+
+[00:05:08.537] Server  WARN     ⚠ [next]/internal/font/google/inter_b2991b2.module.css
+next/font: warning:
+Failed to download `Inter` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/inter_b2991b2.module.css
+    [next]/internal/font/google/inter_b2991b2.js
+    ./app/layout.tsx
+
+
+[00:05:08.561] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:05:09.868] Server  WARN     ⚠ [next]/internal/font/google/inter_b2991b2.module.css
+Error while requesting resource
+There was an issue establishing a connection while requesting https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/inter_b2991b2.module.css
+    [next]/internal/font/google/inter_b2991b2.js
+    ./app/layout.tsx
+
+
+[00:05:09.870] Server  WARN     ⚠ [next]/internal/font/google/inter_b2991b2.module.css
+next/font: warning:
+Failed to download `Inter` from Google Fonts. Using fallback font instead.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/inter_b2991b2.module.css
+    [next]/internal/font/google/inter_b2991b2.js
+    ./app/layout.tsx
+
+
+[00:05:10.073] Browser WARN    Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
