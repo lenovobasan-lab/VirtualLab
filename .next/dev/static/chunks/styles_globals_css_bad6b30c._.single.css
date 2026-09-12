@@ -1757,15 +1757,6 @@ body {
   background-color: #fff3;
 }
 
-.bg-slate-950 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(2 6 23 / var(--tw-bg-opacity, 1));
-}
-
-.bg-slate-950\/85 {
-  background-color: #020617d9;
-}
-
 .bg-gradient-to-b {
   background-image: linear-gradient(to bottom, var(--tw-gradient-stops));
 }
@@ -3976,10 +3967,6 @@ body {
 
   .sm\:min-h-\[460px\] {
     min-height: 460px;
-  }
-
-  .sm\:min-h-\[560px\] {
-    min-height: 560px;
   }
 
   .sm\:max-w-sm {
