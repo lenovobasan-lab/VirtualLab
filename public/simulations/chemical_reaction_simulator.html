@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chemical Reaction Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0b1120;
+    --panel: #111a2e;
+    --raised: #182338;
+    --field: #0d1526;
+    --line: rgba(148, 163, 184, 0.16);
+    --line-strong: rgba(148, 163, 184, 0.3);
+    --text: #e8edf6;
+    --muted: #93a1b8;
+    --reactant: #7dc8ff;
+    --product: #5ee6b8;
+    --accent: #ffb84d;
+    --accent-hover: #ffc56b;
+    --on-accent: #1d1305;
+    --danger: #ff8a8a;
+    --sans: 'Plus Jakarta Sans', 'Noto Sans Devanagari', system-ui, sans-serif;
+    --serif: 'Fraunces', 'Noto Serif Devanagari', Georgia, serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
+  body {
+    margin: 0;
+    display: grid;
+    grid-template-columns: 380px minmax(0, 1fr);
+    height: 100dvh;
+    overflow: hidden;
+    background: var(--ink);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  sub {
+    font-size: 0.55em;
+    line-height: 0;
+    position: relative;
+    bottom: -0.18em;
+    vertical-align: baseline;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* ---------- Control panel (left) ---------- */
+  .panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 28px 24px;
+    background: var(--panel);
+    border-right: 1px solid var(--line);
+    overflow-y: auto;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .brand-mark {
+    flex: none;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: var(--raised);
+    border: 1px solid var(--line-strong);
+    color: var(--accent);
+  }
+
+  .brand h1 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+
+  .brand p {
+    margin: 2px 0 0;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  /* Language switch */
+  .seg {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 4px;
+    border-radius: 12px;
+    background: var(--field);
+    border: 1px solid var(--line);
+  }
+
+  .seg-thumb {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 4px;
+    width: calc(50% - 4px);
+    border-radius: 9px;
+    background: var(--raised);
+    border: 1px solid var(--line-strong);
+    transition: transform 0.25s ease;
+  }
+
+  .seg[data-lang="ne"] .seg-thumb { transform: translateX(100%); }
+
+  .seg button {
+    position: relative;
+    z-index: 1;
+    padding: 8px 10px;
+    border: 0;
+    background: none;
+    color: var(--muted);
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 9px;
+    transition: color 0.2s;
+  }
+
+  .seg button[aria-checked="true"] { color: var(--text); }
+
+  /* Sections */
+  .section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .field-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .hint {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--muted);
+  }
+
+  .input {
+    width: 100%;
+    padding: 13px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--line-strong);
+    background: var(--field);
+    color: var(--text);
+    font: inherit;
+    font-size: 1.05rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .input::placeholder { color: #5d6b83; }
+
+  .input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(255, 184, 77, 0.18);
+  }
+
+  .input[aria-invalid="true"] { border-color: var(--danger); }
+
+  .error {
+    display: none;
+    margin: -4px 0 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(255, 138, 138, 0.1);
+    border: 1px solid rgba(255, 138, 138, 0.35);
+    font-size: 0.85rem;
+    color: var(--danger);
+  }
+
+  .error.show { display: block; }
+
+  .examples {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chip {
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+  }
+
+  .chip:hover {
+    color: var(--text);
+    border-color: var(--muted);
+    background: var(--raised);
+  }
+
+  .btn {
+    width: 100%;
+    padding: 13px 16px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--accent);
+    color: var(--on-accent);
+    font: inherit;
+    font-size: 0.975rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .btn:hover { background: var(--accent-hover); }
+  .btn:active { transform: scale(0.985); }
+
+  /* Result */
+  .result {
+    padding: 18px;
+    border-radius: 16px;
+    background: var(--raised);
+    border: 1px solid var(--line);
+    gap: 16px;
+  }
+
+  .equation {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: center;
+    gap: 4px 10px;
+    padding: 16px 12px;
+    min-height: 64px;
+    border-radius: 12px;
+    background: var(--field);
+    border: 1px solid var(--line);
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.3;
+    text-align: center;
+  }
+
+  .equation .r { color: var(--reactant); }
+  .equation .p { color: var(--product); }
+  .equation .op { color: var(--muted); font-weight: 500; }
+  .equation .empty {
+    font-family: var(--sans);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--muted);
+  }
+
+  .atoms {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+    gap: 8px;
+  }
+
+  .atoms li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: var(--field);
+    border: 1px solid var(--line);
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .atoms b {
+    font-family: var(--serif);
+    font-size: 1rem;
+    color: var(--text);
+  }
+
+  /* ---------- Stage (right) ---------- */
+  .stage {
+    container-type: inline-size;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    overflow: auto;
+    background:
+      radial-gradient(circle at 1px 1px, rgba(148, 163, 184, 0.09) 1px, transparent 0) 0 0 / 28px 28px,
+      var(--ink);
+  }
+
+  .scene {
+    width: 100%;
+    max-width: 1200px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: stretch;
+    gap: 20px;
+  }
+
+  .scene.enter { animation: settle 0.45s ease both; }
+
+  @keyframes settle {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .side {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    padding: 36px 24px 44px;
+    border-radius: 24px;
+    background: rgba(17, 26, 46, 0.72);
+    border: 1px solid var(--line);
+    min-width: 0;
+  }
+
+  .side-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 16px 6px 12px;
+    border-radius: 999px;
+    background: var(--field);
+    border: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  .side-label::before {
+    content: "";
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .side.reactants .side-label::before { background: var(--reactant); }
+  .side.products  .side-label::before { background: var(--product); }
+  .side.reactants { color: var(--reactant); }
+  .side.products  { color: var(--product); }
+
+  .terms {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: center;
+    gap: 14px 18px;
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: clamp(2.25rem, 7cqi, 5.25rem);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+
+  .term { display: inline-flex; align-items: baseline; gap: 0.12em; }
+  .term .coeff { font-size: 0.72em; opacity: 0.62; }
+  .plus { color: var(--muted); font-weight: 500; font-size: 0.7em; }
+
+  .arrow {
+    align-self: center;
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--raised);
+    border: 1px solid var(--line-strong);
+    color: var(--text);
+  }
+
+  .stage-empty.is-error { color: var(--danger); }
+
+  .stage-empty {
+    max-width: 30ch;
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.05rem;
+  }
+
+  /* ---------- Small screens ---------- */
+  @media (max-width: 860px) {
+    body {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto minmax(0, 1fr);
+      height: auto;
+      min-height: 100dvh;
+      overflow: auto;
+    }
+    .panel {
+      border-right: 0;
+      border-bottom: 1px solid var(--line);
+      overflow: visible;
+    }
+    .stage { padding: 24px 16px 32px; min-height: 60dvh; }
+    .scene { grid-template-columns: minmax(0, 1fr); }
+    .arrow { justify-self: center; transform: rotate(90deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+  <aside class="panel">
+    <header class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 3h6"/>
+          <path d="M10 3v6.2L4.6 18.4A2 2 0 0 0 6.3 21.4h11.4a2 2 0 0 0 1.7-3L14 9.2V3"/>
+          <path d="M7.4 15h9.2"/>
+        </svg>
+      </div>
+      <div>
+        <h1 id="t-title">Reaction Simulator</h1>
+        <p id="t-tagline">Balance an equation and see it.</p>
+      </div>
+    </header>
+
+    <div class="seg" id="lang-toggle" data-lang="en" role="radiogroup" aria-label="Language">
+      <span class="seg-thumb" aria-hidden="true"></span>
+      <button type="button" role="radio" aria-checked="true" data-lang="en">English</button>
+      <button type="button" role="radio" aria-checked="false" data-lang="ne">नेपाली</button>
+    </div>
+
+    <form class="section" id="reaction-form" novalidate>
+      <label for="equation-input" class="field-label">
+        <span id="t-input-label">Reaction</span>
+        <span class="hint" id="t-input-hint">e.g. H2 + O2 = H2O</span>
+      </label>
+      <input class="input" type="text" id="equation-input" value="H2 + O2 = H2O" placeholder="H2 + O2 = H2O" autocomplete="off" spellcheck="false" aria-describedby="input-error">
+      <p class="error" id="input-error" role="alert"></p>
+
+      <div class="examples" id="examples" aria-label="Examples"></div>
+
+      <button type="submit" class="btn" id="btn-balance">Balance &amp; visualize</button>
+    </form>
+
+    <section class="section result" aria-live="polite">
+      <div class="field-label" id="t-eq-label">Balanced equation</div>
+      <div class="equation" id="equation-display"></div>
+
+      <div class="field-label" id="t-atoms-label">Atom count</div>
+      <ul class="atoms" id="atoms"></ul>
+    </section>
+  </aside>
+
+  <main class="stage" id="stage">
+    <div class="scene" id="simulation-display"></div>
+  </main>
+
+<script>
+  const dict = {
+    en: {
+      'title': 'Reaction Simulator',
+      'tagline': 'Balance an equation and see it.',
+      'input-label': 'Reaction',
+      'input-hint': 'e.g. H2 + O2 = H2O',
+      'btn-balance': 'Balance & visualize',
+      'eq-label': 'Balanced equation',
+      'atoms-label': 'Atom count (left = right)',
+      'lbl-reactants': 'Reactants',
+      'lbl-products': 'Products',
+      'eq-empty': 'The balanced equation appears here.',
+      'stage-empty': 'Type a reaction and press Balance.',
+      'err-format': "Put '=' between the reactants and the products.",
+      'err-empty': 'A compound is missing next to a "+" or "=". Check the equation.',
+      'err-formula': '"{f}" is not a valid formula. Element symbols start with a capital letter (Cl, not CL).',
+      'err-side': 'Element {el} appears on only one side, so this equation cannot be balanced.',
+      'err-balance': 'This equation cannot be balanced. Check the formulas.',
+      'err-multi': 'This equation has more than one way to balance. Split it into separate reactions.'
+    },
+    ne: {
+      'title': 'रासायनिक प्रतिक्रिया सिमुलेटर',
+      'tagline': 'समीकरण सन्तुलन गरेर हेर्नुहोस्।',
+      'input-label': 'प्रतिक्रिया',
+      'input-hint': 'जस्तै: H2 + O2 = H2O',
+      'btn-balance': 'सन्तुलन र हेर्नुहोस्',
+      'eq-label': 'सन्तुलित समीकरण',
+      'atoms-label': 'परमाणु गणना (बायाँ = दायाँ)',
+      'lbl-reactants': 'प्रतिक्रियात्मक पदार्थ',
+      'lbl-products': 'उत्पादक पदार्थ',
+      'eq-empty': 'सन्तुलित समीकरण यहाँ देखिन्छ।',
+      'stage-empty': 'प्रतिक्रिया लेखेर सन्तुलन थिच्नुहोस्।',
+      'err-format': "प्रतिक्रियात्मक र उत्पादक पदार्थबीच '=' राख्नुहोस्।",
+      'err-empty': '"+" वा "=" को छेउमा पदार्थ छुटेको छ। समीकरण जाँच गर्नुहोस्।',
+      'err-formula': '"{f}" मान्य सूत्र होइन। तत्वको संकेत ठूलो अक्षरले सुरु हुन्छ (Cl, CL होइन)।',
+      'err-side': '{el} तत्व एकातर्फ मात्र छ, त्यसैले यो समीकरण सन्तुलन गर्न मिल्दैन।',
+      'err-balance': 'यो समीकरण सन्तुलन गर्न सकिएन। सूत्रहरू जाँच गर्नुहोस्।',
+      'err-multi': 'यो समीकरण सन्तुलन गर्ने एकभन्दा बढी तरिका छन्। यसलाई छुट्टाछुट्टै प्रतिक्रियामा बाँड्नुहोस्।'
+    }
+  };
+
+  const EXAMPLES = [
+    'H2 + O2 = H2O',
+    'CH4 + O2 = CO2 + H2O',
+    'NaOH + HCl = NaCl + H2O',
+    'Fe + O2 = Fe2O3',
+    'KMnO4 + HCl = KCl + MnCl2 + H2O + Cl2',
+    'Ca(OH)2 + H3PO4 = Ca3(PO4)2 + H2O'
+  ];
+
+  const ELEMENTS = new Set(('H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br Kr ' +
+    'Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I Xe Cs Ba La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po At Rn ' +
+    'Fr Ra Ac Th Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr Rf Db Sg Bh Hs Mt Ds Rg Cn Nh Fl Mc Lv Ts Og').split(' '));
+
+  const COMMON = new Set(('H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br Kr ' +
+    'Rb Sr Ag Sn I Xe Cs Ba Au Hg Pt Pb').split(' '));
+
+  let currentLang = 'en';
+  let currentReaction = null;
+  let currentError = null; // { key, params }
+
+  const $ = (id) => document.getElementById(id);
+  const fmt = (str, params = {}) => str.replace(/\{(\w+)\}/g, (_, k) => params[k] ?? '');
+  const tr = (key, params) => fmt(dict[currentLang][key], params);
+
+  class ReactionError extends Error {
+    constructor(key, params) { super(key); this.key = key; this.params = params || {}; }
+  }
+
+  function formatFormula(formula) {
+    return formula.replace(/\d+/g, (m, offset, str) =>
+      offset === 0 || /[·.*]/.test(str[offset - 1]) ? m : `<sub>${m}</sub>`);
+  }
+
+  /* ---------- Translations ---------- */
+  function updateTranslations() {
+    document.documentElement.lang = currentLang === 'ne' ? 'ne' : 'en';
+    $('t-title').textContent = tr('title');
+    $('t-tagline').textContent = tr('tagline');
+    $('t-input-label').textContent = tr('input-label');
+    $('t-input-hint').textContent = tr('input-hint');
+    $('btn-balance').textContent = tr('btn-balance');
+    $('t-eq-label').textContent = tr('eq-label');
+    $('t-atoms-label').textContent = tr('atoms-label');
+    if (currentError) showError(currentError.key, currentError.params);
+    renderResult(currentReaction);
+    renderStage(currentReaction, false);
+  }
+
+  const toggle = $('lang-toggle');
+  toggle.querySelectorAll('button').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      currentLang = btn.dataset.lang;
+      toggle.dataset.lang = currentLang;
+      toggle.querySelectorAll('button').forEach((b) =>
+        b.setAttribute('aria-checked', String(b === btn)));
+      updateTranslations();
+    });
+  });
+
+  /* ---------- Formula parsing ---------- */
+
+  // Parses "Ca3(PO4)2", "Fe4[Fe(CN)6]3", "CuSO4·5H2O" into { element: count }.
+  // Returns null if the text is not a valid formula.
+  function parseFormula(formula) {
+    const parts = formula.split(/[·.*•]/);
+    const total = {};
+    for (let idx = 0; idx < parts.length; idx++) {
+      let part = parts[idx];
+      let mult = 1;
+      if (idx > 0) {
+        const m = part.match(/^(\d+)/);
+        if (m) { mult = parseInt(m[1], 10); part = part.slice(m[1].length); }
+      }
+      const comp = parseGroup(part);
+      if (!comp) return null;
+      for (const [el, n] of Object.entries(comp)) total[el] = (total[el] || 0) + n * mult;
+    }
+    return Object.keys(total).length ? total : null;
+  }
+
+  function parseGroup(s) {
+    let pos = 0;
+    function parseSeq(closer) {
+      const comp = {};
+      while (pos < s.length) {
+        const ch = s[pos];
+        if (ch === ')' || ch === ']') {
+          if (ch !== closer) return null;
+          return comp;
+        }
+        let sub;
+        if (ch === '(' || ch === '[') {
+          pos++;
+          sub = parseSeq(ch === '(' ? ')' : ']');
+          if (!sub || s[pos] !== (ch === '(' ? ')' : ']')) return null;
+          pos++;
+        } else {
+          const m = /^[A-Z][a-z]?/.exec(s.slice(pos));
+          if (!m) return null;
+          let sym = m[0];
+          if (!ELEMENTS.has(sym)) {
+            sym = sym[0];               // e.g. "Co" fine, "Xy" -> try single letter
+            if (!ELEMENTS.has(sym)) return null;
+          }
+          pos += sym.length;
+          sub = { [sym]: 1 };
+        }
+        const num = /^\d+/.exec(s.slice(pos));
+        let count = 1;
+        if (num) { count = parseInt(num[0], 10); pos += num[0].length; }
+        if (count < 1) return null;
+        for (const [el, n] of Object.entries(sub)) comp[el] = (comp[el] || 0) + n * count;
+      }
+      return closer ? null : comp;
+    }
+    const result = parseSeq(null);
+    return pos === s.length ? result : null;
+  }
+
+  // Try to repair wrong capitalisation in a letter run: "HCL" -> "HCl", "nacl" -> "NaCl"
+  function repairLetters(run) {
+    const lower = run.toLowerCase();
+    let best = null;
+    (function walk(i, syms) {
+      if (i === lower.length) {
+        const rare = syms.filter((s) => !COMMON.has(s)).length;
+        const score = rare * 10 - syms.length;
+        if (!best || score < best.score) best = { score, syms: syms.slice() };
+        return;
+      }
+      for (const len of [1, 2]) {
+        if (i + len > lower.length) continue;
+        const sym = lower[i].toUpperCase() + lower.slice(i + 1, i + len);
+        if (ELEMENTS.has(sym)) { syms.push(sym); walk(i + len, syms); syms.pop(); }
+      }
+    })(0, []);
+    return best ? best.syms.join('') : null;
+  }
+
+  function cleanFormula(raw) {
+    let f = raw
+      .replace(/[₀-₉]/g, (d) => String(d.charCodeAt(0) - 0x2080))
+      .replace(/^\d+(?=[A-Za-z(\[])/, '');       // drop a typed leading coefficient (2H2 -> H2)
+    if (parseFormula(f)) return f;
+
+    const fixed = f.replace(/[A-Za-z]+/g, (run) => {
+      const asTyped = run.match(/[A-Z][a-z]?/g);
+      if (asTyped && asTyped.join('') === run && asTyped.every((s) => ELEMENTS.has(s))) return run;
+      return repairLetters(run) || run;
+    });
+    return parseFormula(fixed) ? fixed : f;
+  }
+
+  /* ---------- Balancing (exact linear algebra) ---------- */
+  const bgcd = (a, b) => { a = a < 0n ? -a : a; b = b < 0n ? -b : b; while (b) [a, b] = [b, a % b]; return a; };
+
+  function balanceEquation(equationStr) {
+    if (!/=|->|→|➔|⟶/.test(equationStr)) throw new ReactionError('err-format');
+    const sides = equationStr.split(/=|->|→|➔|⟶/);
+    if (sides.length !== 2) throw new ReactionError('err-format');
+
+    const split = (side) => side.split('+').map((s) => s.replace(/\s+/g, ''));
+    const rawR = split(sides[0]);
+    const rawP = split(sides[1]);
+    if (rawR.some((s) => !s) || rawP.some((s) => !s)) throw new ReactionError('err-empty');
+
+    const build = (list) => list.map((raw) => {
+      const formula = cleanFormula(raw);
+      const comp = parseFormula(formula);
+      if (!comp) throw new ReactionError('err-formula', { f: raw });
+      return { formula, comp };
+    });
+    const reactants = build(rawR);
+    const products = build(rawP);
+    const species = [...reactants, ...products];
+    const nR = reactants.length;
+
+    const elements = [...new Set(species.flatMap((s) => Object.keys(s.comp)))];
+    for (const el of elements) {
+      const inR = reactants.some((s) => s.comp[el]);
+      const inP = products.some((s) => s.comp[el]);
+      if (inR !== inP) throw new ReactionError('err-side', { el });
+    }
+
+    // Matrix: rows = elements, cols = species (products negative). Find its null space.
+    const rows = elements.map((el) =>
+      species.map((s, j) => BigInt((s.comp[el] || 0) * (j < nR ? 1 : -1))));
+    const cols = species.length;
+
+    // Fraction-free Gauss-Jordan elimination
+    const pivotCols = [];
+    let r = 0;
+    for (let c = 0; c < cols && r < rows.length; c++) {
+      let p = r;
+      while (p < rows.length && rows[p][c] === 0n) p++;
+      if (p === rows.length) continue;
+      [rows[r], rows[p]] = [rows[p], rows[r]];
+      for (let i = 0; i < rows.length; i++) {
+        if (i === r || rows[i][c] === 0n) continue;
+        const a = rows[r][c], b = rows[i][c];
+        rows[i] = rows[i].map((v, k) => v * a - rows[r][k] * b);
+        const g = rows[i].reduce((acc, v) => bgcd(acc, v), 0n);
+        if (g > 1n) rows[i] = rows[i].map((v) => v / g);
+      }
+      pivotCols.push(c);
+      r++;
+    }
+
+    const free = [];
+    for (let c = 0; c < cols; c++) if (!pivotCols.includes(c)) free.push(c);
+    if (free.length === 0) throw new ReactionError('err-balance');
+    if (free.length > 1) throw new ReactionError('err-multi');
+
+    // Set the free variable to a common multiple, solve each pivot variable
+    const f = free[0];
+    let scale = 1n;
+    pivotCols.forEach((pc, i) => {
+      const d = rows[i][pc];
+      const g = bgcd(d, rows[i][f]);
+      scale = (scale * (d < 0n ? -d : d)) / bgcd(scale, d < 0n ? -d : d);
+    });
+    const sol = new Array(cols).fill(0n);
+    sol[f] = scale;
+    pivotCols.forEach((pc, i) => { sol[pc] = -(rows[i][f] * scale) / rows[i][pc]; });
+
+    let g = sol.reduce((acc, v) => bgcd(acc, v), 0n);
+    let coeffs = sol.map((v) => v / g);
+    if (coeffs.every((v) => v <= 0n)) coeffs = coeffs.map((v) => -v);
+    if (coeffs.some((v) => v <= 0n)) throw new ReactionError('err-balance');
+    coeffs = coeffs.map(Number);
+
+    return {
+      reactants: reactants.map((s, i) => ({ ...s, coeff: coeffs[i] })),
+      products: products.map((s, i) => ({ ...s, coeff: coeffs[nR + i] }))
+    };
+  }
+
+  /* ---------- Rendering ---------- */
+  const termHtml = (item) =>
+    `<span class="term">${item.coeff > 1 ? `<span class="coeff">${item.coeff}</span>` : ''}<span>${formatFormula(item.formula)}</span></span>`;
+
+  const joinTerms = (list, sep) => list.map(termHtml).join(sep);
+
+  function renderResult(reaction) {
+    const eq = $('equation-display');
+    const atoms = $('atoms');
+
+    if (!reaction) {
+      eq.innerHTML = `<span class="empty">${tr('eq-empty')}</span>`;
+      atoms.innerHTML = '';
+      return;
+    }
+
+    const side = (list, cls) =>
+      list.map((x, i) =>
+        `<span class="${cls}">${(x.coeff > 1 ? x.coeff : '') + formatFormula(x.formula)}</span>` +
+        (i < list.length - 1 ? '<span class="op">+</span>' : '')
+      ).join('');
+
+    eq.innerHTML = side(reaction.reactants, 'r') + '<span class="op">→</span>' + side(reaction.products, 'p');
+
+    const totals = (list) => {
+      const out = {};
+      list.forEach((x) => {
+        for (const [el, n] of Object.entries(x.comp)) out[el] = (out[el] || 0) + n * x.coeff;
+      });
+      return out;
+    };
+    const left = totals(reaction.reactants);
+    const right = totals(reaction.products);
+    atoms.innerHTML = Object.keys(left).map((el) =>
+      `<li><b>${el}</b><span>${left[el]} = ${right[el]}</span></li>`
+    ).join('');
+  }
+
+  function renderStage(reaction, animate = true) {
+    const scene = $('simulation-display');
+
+    if (!reaction) {
+      scene.style.display = 'flex';
+      scene.style.justifyContent = 'center';
+      const msg = currentError ? tr(currentError.key, currentError.params) : tr('stage-empty');
+      scene.innerHTML = `<p class="stage-empty${currentError ? ' is-error' : ''}">${escapeHtml(msg)}</p>`;
+      return;
+    }
+    scene.style.display = '';
+    scene.style.justifyContent = '';
+
+    const plus = '<span class="plus">+</span>';
+    scene.innerHTML = `
+      <section class="side reactants">
+        <div class="side-label">${tr('lbl-reactants')}</div>
+        <div class="terms">${joinTerms(reaction.reactants, plus)}</div>
+      </section>
+      <div class="arrow" aria-hidden="true">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15"/><path d="m13 6 6 6-6 6"/></svg>
+      </div>
+      <section class="side products">
+        <div class="side-label">${tr('lbl-products')}</div>
+        <div class="terms">${joinTerms(reaction.products, plus)}</div>
+      </section>`;
+
+    if (animate) {
+      scene.classList.remove('enter');
+      void scene.offsetWidth;
+      scene.classList.add('enter');
+    }
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  }
+
+  /* ---------- Errors ---------- */
+  function showError(key, params) {
+    currentError = { key, params };
+    const el = $('input-error');
+    el.textContent = tr(key, params);
+    el.classList.add('show');
+    $('equation-input').setAttribute('aria-invalid', 'true');
+  }
+
+  function clearError() {
+    currentError = null;
+    $('input-error').classList.remove('show');
+    $('equation-input').removeAttribute('aria-invalid');
+  }
+
+  /* ---------- Actions ---------- */
+  function run() {
+    const input = $('equation-input');
+    clearError();
+
+    try {
+      const balanced = balanceEquation(input.value);
+      currentReaction = balanced;
+
+      // Show the student exactly how their input was read (fixes capitals, spacing)
+      const text = (list) => list.map((s) => s.formula).join(' + ');
+      input.value = `${text(balanced.reactants)} = ${text(balanced.products)}`;
+    } catch (err) {
+      if (!(err instanceof ReactionError)) throw err;
+      currentReaction = null;
+      showError(err.key, err.params);
+    }
+
+    renderResult(currentReaction);
+    renderStage(currentReaction);
+  }
+
+  $('reaction-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    run();
+  });
+
+  $('equation-input').addEventListener('input', () => {
+    if (currentError) $('input-error').classList.remove('show');
+  });
+
+  // Example chips
+  $('examples').innerHTML = EXAMPLES.map((ex) =>
+    `<button type="button" class="chip" data-eq="${ex}">${formatFormula(ex).replace(/ = /g, ' → ')}</button>`
+  ).join('');
+
+  $('examples').addEventListener('click', (e) => {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    $('equation-input').value = chip.dataset.eq;
+    run();
+  });
+
+  // Init
+  updateTranslations();
+  run();
+</script>
+</body>
+</html>

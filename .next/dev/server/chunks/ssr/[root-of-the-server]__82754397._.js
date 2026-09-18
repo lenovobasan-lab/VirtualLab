@@ -386,6 +386,16 @@ const simulations = [
         url: "/simulations/invertebrate_scanner.html",
         type: "html",
         created_at: "2026-06-20T19:54:00.000Z"
+    },
+    {
+        id: "sim-21",
+        title: "Chemical Reaction",
+        description: "Interactive simulation of chemical reactions",
+        subject: "Chemistry",
+        previewImage: "/images/previews/reaction.png",
+        url: "/simulations/chemical_reaction_simulator.html",
+        type: "html",
+        created_at: "2026-06-20T19:54:00.000Z"
     }
 ];
 }),
