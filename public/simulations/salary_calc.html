@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>शिक्षक तलब क्यालकुलेटर</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Nirmala UI', 'Nirmala Text', 'Noto Sans Devanagari', Calibri, sans-serif;
+    background: #f0f2f5;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+  }
+  .sheet {
+    background: #ffffff;
+    border: 2px solid #444;
+    border-radius: 6px;
+    max-width: 950px;
+    width: 100%;
+    padding: 24px 28px 32px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+  }
+  h1.title {
+    text-align: center;
+    color: #FF0000;
+    font-size: 22px;
+    margin: 0 0 20px;
+  }
+  .top-row {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 26px;
+  }
+  .field-box {
+    flex: 1;
+    min-width: 260px;
+    text-align: center;
+  }
+  .field-label {
+    color: #FF0000;
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+  select {
+    width: 100%;
+    font-size: 20px;
+    color: #00B050;
+    font-family: Calibri, sans-serif;
+    text-align: center;
+    text-align-last: center;
+    padding: 8px 6px;
+    border: 1px solid #999;
+    border-radius: 4px;
+    background: #fbfbfb;
+  }
+  .result-area {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .breakdown {
+    flex: 1.4;
+    min-width: 300px;
+    border-collapse: collapse;
+  }
+  .breakdown td {
+    border: 1px solid #888;
+    padding: 8px 10px;
+  }
+  .breakdown .label-cell {
+    font-size: 13px;
+    text-align: center;
+    background: #fafafa;
+  }
+  .breakdown .value-cell {
+    font-family: Calibri, sans-serif;
+    font-weight: bold;
+    font-size: 17px;
+    color: #C00000;
+    text-align: center;
+  }
+  .breakdown tr.final .label-cell {
+    font-weight: bold;
+    background: #FFFF00;
+  }
+  .breakdown tr.final .value-cell {
+    background: #FFFF00;
+    font-size: 21px;
+  }
+  .headline {
+    flex: 1;
+    min-width: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #fffef2;
+    border: 1px dashed #ccc;
+    border-radius: 6px;
+    padding: 10px;
+  }
+  .headline .rs {
+    font-family: 'Lucida Handwriting', cursive;
+    color: #FF0000;
+    font-weight: bold;
+    font-size: 22px;
+  }
+  .headline .amount {
+    font-family: 'Lucida Handwriting', cursive;
+    color: #FF0000;
+    font-weight: bold;
+    font-size: 26px;
+  }
+  .prepared-by {
+    margin-top: 26px;
+    text-align: center;
+    background: #00B050;
+    color: #fff;
+    font-weight: bold;
+    font-size: 15px;
+    padding: 14px;
+    border-radius: 4px;
+  }
+  @media (max-width: 640px) {
+    .top-row { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <h1 class="title">शिक्षक तलब हिसाब (Teacher Salary Calculator)</h1>
+
+  <div class="top-row">
+    <div class="field-box">
+      <div class="field-label">तह र श्रेणी छान्नुहोस</div>
+      <select id="category"></select>
+    </div>
+    <div class="field-box">
+      <div class="field-label">ग्रेड छान्नुहोस्</div>
+      <select id="grade"></select>
+    </div>
+  </div>
+
+  <div class="result-area">
+    <table class="breakdown">
+      <tr><td class="label-cell">सुरु तलब:</td><td class="value-cell" id="v-start">-</td></tr>
+      <tr><td class="label-cell">ग्रेड संख्या:</td><td class="value-cell" id="v-gradeNum">-</td></tr>
+      <tr><td class="label-cell">ग्रेड पछिको रकम:</td><td class="value-cell" id="v-afterGrade">-</td></tr>
+      <tr><td class="label-cell">क.सं.को कट्टी पछिको रकम(-10%)</td><td class="value-cell" id="v-after10">-</td></tr>
+      <tr><td class="label-cell">बिमा पछिको रकम(-400)</td><td class="value-cell" id="v-afterBima">-</td></tr>
+      <tr><td class="label-cell">प्रोत्साहन भत्ता पछिको रकम:</td><td class="value-cell" id="v-afterIncentive">-</td></tr>
+      <tr><td class="label-cell">महंगी भत्ता(+5000):</td><td class="value-cell" id="v-afterMahangi">-</td></tr>
+      <tr><td class="label-cell">कर कट्टी(-1%):</td><td class="value-cell" id="v-afterTax">-</td></tr>
+      <tr class="final"><td class="label-cell">जम्मा प्राप्त हुन आउने रकम</td><td class="value-cell" id="v-total">-</td></tr>
+    </table>
+
+    <div class="headline">
+      <span class="rs">RS</span>
+      <span class="amount" id="v-headline">-</span>
+    </div>
+  </div>
+
+  <div class="prepared-by">PREPARED BY: BASANTA BHATTARAI</div>
+</div>
+
+<script>
+// ---- Data replicated from the hidden "Sheet1" lookup table ----
+const table = [
+  { category: "माद्यमिक प्रथम",           base: 62465.7, maxGrade: 8 },
+  { category: "माद्यमिक द्वितीय",          base: 53610.7, maxGrade: 8 },
+  { category: "माद्यमिक तृतीय",           base: 48057.9, maxGrade: 8 },
+  { category: "निम्\u200dन माद्यमिक प्रथम",  base: 50448.2, maxGrade: 8 },
+  { category: "निम्\u200dन माद्यमिक द्वितीय", base: 48057.9, maxGrade: 8 },
+  { category: "निम्\u200dन माद्यमिक तृतीय",  base: 38203,   maxGrade: 8 },
+  { category: "प्राथमिक प्रथम",           base: 48057.9, maxGrade: 8 },
+  { category: "प्राथमिक द्वितीय",          base: 38203,   maxGrade: 8 },
+  { category: "प्राथमिक तृतीय",           base: 36192.2, maxGrade: 6 }
+];
+
+// Categories that use the shorter grade list (0-6) instead of the full one (0-8)
+const shortGradeCategories = new Set(["प्राथमिक तृतीय", "माद्यमिक प्रथम"]);
+
+const categorySelect = document.getElementById('category');
+const gradeSelect = document.getElementById('grade');
+
+// Populate category dropdown (mirrors Sheet1!C4:C12 list)
+table.forEach(row => {
+  const opt = document.createElement('option');
+  opt.value = row.category;
+  opt.textContent = row.category;
+  categorySelect.appendChild(opt);
+});
+
+function populateGrades() {
+  const selectedCategory = categorySelect.value;
+  const maxGrade = shortGradeCategories.has(selectedCategory) ? 6 : 8;
+  const prevValue = gradeSelect.value;
+  gradeSelect.innerHTML = '';
+  for (let g = 0; g <= maxGrade; g++) {
+    const opt = document.createElement('option');
+    opt.value = g;
+    opt.textContent = g;
+    gradeSelect.appendChild(opt);
+  }
+  // keep previous selection if still valid, else default to 0
+  if (prevValue !== '' && Number(prevValue) <= maxGrade) {
+    gradeSelect.value = prevValue;
+  } else {
+    gradeSelect.value = '0';
+  }
+}
+
+function fmt(n) {
+  if (n === null || n === undefined || isNaN(n)) return '-';
+  return n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function calculate() {
+  const category = categorySelect.value;
+  const grade = Number(gradeSelect.value);
+  const row = table.find(r => r.category === category);
+  if (!row) return;
+
+  const D = row.base;                 // सुरु तलब (Primary Scale)
+  const E = D / 30;                   // Grade Rate
+  const F = grade;                    // selected grade number
+  const G = D + (E * F);              // ग्रेड पछिको रकम (Scale with grade)
+  const H = G - (10 / 100) * G;       // -10% कट्टी
+  const I = H - 400;                  // -400 बिमा
+  const J = I + (10 / 100) * D;       // +10% प्रोत्साहन भत्ता (of base D)
+  const K = J + 5000;                 // +5000 महंगी भत्ता
+  const L = K - (1 / 100) * K;        // -1% कर कट्टी => जम्मा प्राप्त हुन आउने रकम
+
+  document.getElementById('v-start').textContent = fmt(D);
+  document.getElementById('v-gradeNum').textContent = F;
+  document.getElementById('v-afterGrade').textContent = fmt(G);
+  document.getElementById('v-after10').textContent = fmt(H);
+  document.getElementById('v-afterBima').textContent = fmt(I);
+  document.getElementById('v-afterIncentive').textContent = fmt(J);
+  document.getElementById('v-afterMahangi').textContent = fmt(K);
+  document.getElementById('v-afterTax').textContent = fmt(L);
+  document.getElementById('v-total').textContent = fmt(L);
+  document.getElementById('v-headline').textContent = fmt(L);
+}
+
+categorySelect.addEventListener('change', () => { populateGrades(); calculate(); });
+gradeSelect.addEventListener('change', calculate);
+
+// initial load: default category = प्राथमिक तृतीय (matches original workbook's saved state)
+categorySelect.value = "प्राथमिक तृतीय";
+populateGrades();
+gradeSelect.value = '0';
+calculate();
+</script>
+</body>
+</html>
