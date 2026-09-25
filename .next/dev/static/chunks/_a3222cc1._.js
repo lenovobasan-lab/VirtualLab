@@ -504,7 +504,7 @@ const simulations = [
         id: "sim-21",
         title: "Salary Calculator",
         description: "Interactive simulation of salary calculation",
-        subject: "Mathematics",
+        subject: "Others",
         previewImage: "/images/previews/calc.png",
         url: "/simulations/salary_calc.html",
         type: "html",
@@ -512,11 +512,11 @@ const simulations = [
     },
     {
         id: "sim-22",
-        title: "Vertebrate Anatomy",
-        description: "Interactive simulation of vertebrate anatomy",
-        subject: "Biology",
-        previewImage: "/images/previews/biology.svg",
-        url: "/simulations/vertebrate_anatomy.html",
+        title: "Conic Sections",
+        description: "Interactive simulation of conic sections",
+        subject: "Mathematics",
+        previewImage: "/images/previews/conic.png",
+        url: "/simulations/conic_sections.html",
         type: "html",
         created_at: "2026-06-20T19:54:00.000Z"
     }

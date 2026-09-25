@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conic Sections 3D Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Serif&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F5F5DC; /* Educational Beige */
+            margin: 0;
+            overflow: hidden;
+            color: #334155;
+        }
+
+        /* Custom scrollbar for control panel */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        /* Radio button custom styling */
+        .shape-radio:checked + div {
+            background-color: #e0e7ff; /* Faint Indigo */
+            border-color: #6366f1;
+            font-weight: 600;
+        }
+        .shape-radio:checked + div .indicator {
+            background-color: #6366f1;
+            border-color: #6366f1;
+        }
+        
+        .ggb-shadow {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen w-screen bg-[#F5F5DC]">
+
+    <!-- Settings Dropdown -->
+    <div id="settings-dropdown" class="fixed top-14 right-4 w-56 bg-white rounded-lg shadow-xl border border-slate-200 p-3 hidden z-50">
+        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 px-1">Simulation Settings</div>
+        <div class="flex flex-col gap-2">
+            <label class="flex items-center justify-between px-2 py-2 hover:bg-slate-50 rounded cursor-pointer transition-colors">
+                <span class="text-sm font-medium text-slate-700">Show 3D Axes</span>
+                <input type="checkbox" id="toggle-axes" checked onchange="toggleAxes()" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+            </label>
+            <label class="flex items-center justify-between px-2 py-2 hover:bg-slate-50 rounded cursor-pointer transition-colors">
+                <span class="text-sm font-medium text-slate-700">Auto-rotate 3D</span>
+                <input type="checkbox" id="toggle-autorotate" onchange="toggleAutoRotate()" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+            </label>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white text-sm font-medium px-4 py-2 rounded-full shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none z-50">
+        Action triggered
+    </div>
+
+    <header class="h-12 bg-white/90 backdrop-blur border-b border-slate-300 flex items-center justify-between px-4 shrink-0 z-20 ggb-shadow relative">
+        <div class="flex items-center gap-4">
+            <div class="text-lg font-semibold text-slate-700 tracking-tight flex items-center gap-2">
+                <svg class="text-indigo-600" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>
+                Conic 3D Explorer
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <div class="flex bg-slate-100 rounded-md p-1 border border-slate-200">
+                <button onclick="showToast('Nothing to undo.')" class="p-1.5 text-slate-500 hover:text-slate-800 rounded"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
+                <button onclick="showToast('Nothing to redo.')" class="p-1.5 text-slate-500 hover:text-slate-800 rounded"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg></button>
+            </div>
+            <button onclick="toggleSettings()" class="p-1.5 hover:bg-slate-100 rounded text-slate-600 ml-2" title="Settings"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        
+        <!-- Left Panel: Algebra/Control (Compact) -->
+        <div class="w-64 bg-white/80 backdrop-blur-md border-r border-slate-300 flex-shrink-0 flex flex-col z-10 ggb-shadow overflow-y-auto">
+            
+            <div class="p-3 border-b border-slate-200 bg-slate-50/50">
+                <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Algebra / Input</div>
+            </div>
+
+            <div class="p-3 flex flex-col gap-2">
+                <!-- Selectors -->
+                <label class="cursor-pointer relative">
+                    <input type="radio" name="conicShape" value="circle" class="shape-radio hidden" checked onchange="updateShape('circle')">
+                    <div class="border border-slate-200 rounded-md p-3 flex items-center gap-3 transition-colors hover:bg-slate-50">
+                        <div class="indicator w-4 h-4 rounded-full border-2 border-slate-400 bg-white flex-shrink-0 transition-colors"></div>
+                        <div class="flex flex-col">
+                            <span class="text-sm">Circle</span>
+                            <span class="text-[10px] font-serif italic text-slate-500 mt-0.5">x² + y² = r²</span>
+                        </div>
+                    </div>
+                </label>
+
+                <label class="cursor-pointer relative">
+                    <input type="radio" name="conicShape" value="ellipse" class="shape-radio hidden" onchange="updateShape('ellipse')">
+                    <div class="border border-slate-200 rounded-md p-3 flex items-center gap-3 transition-colors hover:bg-slate-50">
+                        <div class="indicator w-4 h-4 rounded-full border-2 border-slate-400 bg-white flex-shrink-0 transition-colors"></div>
+                        <div class="flex flex-col">
+                            <span class="text-sm">Ellipse</span>
+                            <span class="text-[10px] font-serif italic text-slate-500 mt-0.5">x²/a² + y²/b² = 1</span>
+                        </div>
+                    </div>
+                </label>
+
+                <label class="cursor-pointer relative">
+                    <input type="radio" name="conicShape" value="parabola" class="shape-radio hidden" onchange="updateShape('parabola')">
+                    <div class="border border-slate-200 rounded-md p-3 flex items-center gap-3 transition-colors hover:bg-slate-50">
+                        <div class="indicator w-4 h-4 rounded-full border-2 border-slate-400 bg-white flex-shrink-0 transition-colors"></div>
+                        <div class="flex flex-col">
+                            <span class="text-sm">Parabola</span>
+                            <span class="text-[10px] font-serif italic text-slate-500 mt-0.5">y = ax²</span>
+                        </div>
+                    </div>
+                </label>
+
+                <label class="cursor-pointer relative">
+                    <input type="radio" name="conicShape" value="hyperbola" class="shape-radio hidden" onchange="updateShape('hyperbola')">
+                    <div class="border border-slate-200 rounded-md p-3 flex items-center gap-3 transition-colors hover:bg-slate-50">
+                        <div class="indicator w-4 h-4 rounded-full border-2 border-slate-400 bg-white flex-shrink-0 transition-colors"></div>
+                        <div class="flex flex-col">
+                            <span class="text-sm">Hyperbola</span>
+                            <span class="text-[10px] font-serif italic text-slate-500 mt-0.5">x²/a² - y²/b² = 1</span>
+                        </div>
+                    </div>
+                </label>
+            </div>
+
+            <!-- Plane Info Equation -->
+            <div class="mt-auto p-4 bg-indigo-50/50 border-t border-slate-200">
+                <div class="text-xs font-semibold text-indigo-800 mb-1">Intersecting Plane (3D)</div>
+                <div id="plane-eq" class="font-serif text-sm text-slate-700 font-medium">
+                    z = 2.0
+                </div>
+                <div class="text-[10px] text-slate-500 mt-2">
+                    Tip: Drag the 3D view to rotate the camera.
+                </div>
+            </div>
+        </div>
+
+        <div id="center-panel" class="flex-1 relative bg-[#F5F5DC] border-r border-slate-300 min-w-0 min-h-0 overflow-hidden">
+            <!-- Overlay Toolbar (like Screenshot) -->
+            <div class="absolute top-4 right-4 bg-white/90 backdrop-blur shadow-md rounded-md flex p-1 z-10 border border-slate-200">
+                <button onclick="toggleFullscreen()" class="p-1.5 text-slate-500 hover:text-slate-800 rounded" title="Fullscreen 3D"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg></button>
+                <div class="w-px bg-slate-300 mx-1"></div>
+                <button class="p-1.5 text-slate-500 hover:text-slate-800" onclick="resetCamera()" title="Reset Camera"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></button>
+            </div>
+            
+            <div id="canvas-3d" class="absolute inset-0 cursor-grab active:cursor-grabbing"></div>
+        </div>
+
+        <div class="w-[30%] min-w-[300px] relative bg-[#F5F5DC] flex flex-col shadow-inner">
+            <div class="absolute top-4 left-4 bg-white/80 backdrop-blur px-2 py-1 rounded shadow-sm text-xs font-semibold text-slate-600 border border-slate-200 z-10">
+                2D Projection
+            </div>
+            
+            <!-- Notice no gridlines, just pure beige background for the canvas -->
+            <canvas id="canvas-2d" class="w-full h-full absolute inset-0"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // --- State Management ---
+        const state = {
+            shape: 'circle',
+            transitionProgress: 1,
+            time: 0,
+            
+            // Plane Targets for smooth transitions
+            planeTarget: { rx: 0, py: 1.5, pz: 0 },
+            planeCurrent: { rx: 0, py: 1.5, pz: 0 },
+            
+            // Equation string mapping
+            eqMap: {
+                'circle': 'z = 2.0 (Horizontal)',
+                'ellipse': 'z = 0.4y + 1.2',
+                'parabola': 'z = y - 1.5',
+                'hyperbola': 'z = 2.5y (Vertical)'
+            }
+        };
+
+        // DOM Elements
+        const planeEqDisplay = document.getElementById('plane-eq');
+        
+        // ==========================================
+        // UI INTERACTIONS & TOAST NOTIFICATIONS
+        // ==========================================
+        let toastTimeout;
+        window.showToast = (message) => {
+            const toast = document.getElementById('toast');
+            toast.innerText = message;
+            toast.classList.remove('opacity-0');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('opacity-0');
+            }, 2500);
+        };
+
+        window.toggleSettings = () => {
+            const dropdown = document.getElementById('settings-dropdown');
+            dropdown.classList.toggle('hidden');
+        };
+
+        window.toggleAxes = () => {
+            const isChecked = document.getElementById('toggle-axes').checked;
+            axesHelper.visible = isChecked;
+        };
+
+        window.toggleAutoRotate = () => {
+            const isChecked = document.getElementById('toggle-autorotate').checked;
+            controls.autoRotate = isChecked;
+            controls.autoRotateSpeed = 2.0; // speed of auto-rotation
+        };
+
+        window.toggleFullscreen = () => {
+            const container = document.getElementById('center-panel');
+            if (!document.fullscreenElement) {
+                if (container.requestFullscreen) {
+                    container.requestFullscreen().catch(err => {
+                        showToast(`Error: ${err.message}`);
+                    });
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        };
+
+        // ==========================================
+        // 3D SIMULATION (THREE.JS)
+        // ==========================================
+        const container3D = document.getElementById('canvas-3d');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xF5F5DC); // Beige background matching UI
+        
+        const camera = new THREE.PerspectiveCamera(45, container3D.clientWidth / container3D.clientHeight, 0.1, 100);
+        camera.position.set(10, 5, 12);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        renderer.setSize(container3D.clientWidth, container3D.clientHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container3D.appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.target.set(0, 0, 0);
+
+        // Lights
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+        
+        const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.6);
+        dirLight1.position.set(5, 10, 7);
+        scene.add(dirLight1);
+        
+        const dirLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
+        dirLight2.position.set(-5, 5, -7);
+        scene.add(dirLight2);
+
+        // Construct Double Cone (GeoGebra Green Aesthetic)
+        const coneMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0x2e7d32, // Deep Green
+            transparent: true,
+            opacity: 0.65,
+            side: THREE.DoubleSide,
+            roughness: 0.2,
+            transmission: 0.5,
+            thickness: 0.5
+        });
+
+        // CylinderGeometry(radiusTop, radiusBottom, height, radialSegments)
+        // Cone angle is exactly 45 degrees
+        const topGeom = new THREE.CylinderGeometry(4, 0, 4, 64);
+        const topCone = new THREE.Mesh(topGeom, coneMaterial);
+        topCone.position.y = 2; 
+
+        const bottomGeom = new THREE.CylinderGeometry(0, 4, 4, 64);
+        const bottomCone = new THREE.Mesh(bottomGeom, coneMaterial);
+        bottomCone.position.y = -2;
+
+        const coneGroup = new THREE.Group();
+        coneGroup.add(topCone);
+        coneGroup.add(bottomCone);
+        
+        // Add subtle wireframe edges for GeoGebra feel
+        const edgeMaterial = new THREE.LineBasicMaterial({ color: 0x1b5e20, linewidth: 2, transparent: true, opacity: 0.5 });
+        const topEdges = new THREE.LineSegments(new THREE.EdgesGeometry(topGeom), edgeMaterial);
+        const bottomEdges = new THREE.LineSegments(new THREE.EdgesGeometry(bottomGeom), edgeMaterial);
+        topCone.add(topEdges);
+        bottomCone.add(bottomEdges);
+        
+        scene.add(coneGroup);
+
+        // Intersecting Plane (GeoGebra Blue/Purple Aesthetic)
+        const planeMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0x6366f1, // Indigo
+            transparent: true,
+            opacity: 0.5,
+            side: THREE.DoubleSide,
+            roughness: 0.1,
+            metalness: 0.1
+        });
+        const planeGeom = new THREE.PlaneGeometry(15, 15);
+        const plane = new THREE.Mesh(planeGeom, planeMaterial);
+        // Add border to plane
+        const planeBorder = new THREE.LineSegments(
+            new THREE.EdgesGeometry(planeGeom), 
+            new THREE.LineBasicMaterial({ color: 0x4338ca, linewidth: 2 })
+        );
+        plane.add(planeBorder);
+        scene.add(plane);
+
+        const axesHelper = new THREE.AxesHelper(6);
+        // Using default standard colors (Red=X, Green=Y, Blue=Z) supported by r128
+        scene.add(axesHelper);
+
+        // Function to Reset Camera
+        window.resetCamera = () => {
+            camera.position.set(10, 5, 12);
+            controls.target.set(0, 0, 0);
+        };
+
+        function updateAllSizes() {
+            const width3d = container3D.clientWidth;
+            const height3d = container3D.clientHeight;
+            if (width3d > 0 && height3d > 0) {
+                camera.aspect = width3d / height3d;
+                camera.updateProjectionMatrix();
+                renderer.setSize(width3d, height3d);
+            }
+            resize2DCanvas();
+        }
+
+        window.addEventListener('resize', updateAllSizes);
+        document.addEventListener('fullscreenchange', () => {
+            updateAllSizes();
+            setTimeout(updateAllSizes, 100);
+            setTimeout(updateAllSizes, 300);
+        });
+
+
+        // ==========================================
+        // 2D PROJECTION (CANVAS API)
+        // ==========================================
+        const canvas2D = document.getElementById('canvas-2d');
+        const ctx = canvas2D.getContext('2d');
+        let scale2D = 35; // px per math unit
+
+        function resize2DCanvas() {
+            const container = canvas2D.parentElement;
+            if (!container) return;
+            
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+            // Guard against temporary 0-size during fullscreen transitions
+            if (w === 0 || h === 0) return;
+
+            const dpr = window.devicePixelRatio || 1;
+            canvas2D.width = w * dpr;
+            canvas2D.height = h * dpr;
+            canvas2D.style.width = `${w}px`;
+            canvas2D.style.height = `${h}px`;
+            
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.scale(dpr, dpr);
+        }
+        resize2DCanvas();
+
+        function draw2DScene() {
+            const w = canvas2D.clientWidth;
+            const h = canvas2D.clientHeight;
+            const cx = w / 2;
+            const cy = h / 2;
+
+            // Clear Background
+            ctx.clearRect(0, 0, w, h);
+
+            // Draw Axes (NO GRIDLINES per user request)
+            ctx.beginPath();
+            ctx.moveTo(0, cy);
+            ctx.lineTo(w, cy);
+            ctx.moveTo(cx, 0);
+            ctx.lineTo(cx, h);
+            ctx.strokeStyle = "rgba(100, 116, 139, 0.4)"; // Faint slate
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // Arrows for axes
+            ctx.beginPath();
+            ctx.moveTo(w - 10, cy - 4); ctx.lineTo(w - 2, cy); ctx.lineTo(w - 10, cy + 4);
+            ctx.moveTo(cx - 4, 10); ctx.lineTo(cx, 2); ctx.lineTo(cx + 4, 10);
+            ctx.stroke();
+
+            // Styles for the conic curve
+            const curveColor = "#2563eb"; // Blue
+            ctx.strokeStyle = curveColor;
+            ctx.lineWidth = 2.5;
+
+            // Common transform helper
+            const toScreen = (mx, my) => ({ x: cx + mx * scale2D, y: cy - my * scale2D });
+            
+            // Draw Points helper
+            const drawPoint = (mx, my, label, color = "#334155") => {
+                const pt = toScreen(mx, my);
+                ctx.beginPath();
+                ctx.arc(pt.x, pt.y, 4, 0, Math.PI*2);
+                ctx.fillStyle = color;
+                ctx.fill();
+                ctx.strokeStyle = "#fff";
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+                
+                ctx.font = "italic 12px serif";
+                ctx.fillStyle = color;
+                ctx.fillText(label, pt.x + 8, pt.y - 8);
+            };
+
+            // Calculate animated point position based on time
+            const t = state.time;
+
+            ctx.beginPath();
+            if (state.shape === 'circle') {
+                const r = 2.5;
+                const pt = toScreen(0, 0);
+                ctx.arc(pt.x, pt.y, r * scale2D, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                drawPoint(0, 0, "Center (A)");
+                
+                // Animated tracing point
+                const px = r * Math.cos(t);
+                const py = r * Math.sin(t);
+                drawPoint(px, py, "P", "#ef4444");
+                
+                // Radius line
+                const pScreen = toScreen(px, py);
+                ctx.beginPath();
+                ctx.moveTo(pt.x, pt.y);
+                ctx.lineTo(pScreen.x, pScreen.y);
+                ctx.strokeStyle = "rgba(37, 99, 235, 0.3)";
+                ctx.setLineDash([5, 5]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                
+            } else if (state.shape === 'ellipse') {
+                const a = 3;
+                const b = 2;
+                const c = Math.sqrt(a*a - b*b);
+                
+                for(let th=0; th<=Math.PI*2.05; th+=0.05) {
+                    let pt = toScreen(a * Math.cos(th), b * Math.sin(th));
+                    if(th===0) ctx.moveTo(pt.x, pt.y);
+                    else ctx.lineTo(pt.x, pt.y);
+                }
+                ctx.stroke();
+
+                drawPoint(-c, 0, "F₁");
+                drawPoint(c, 0, "F₂");
+
+                // Animated tracing point
+                const px = a * Math.cos(t);
+                const py = b * Math.sin(t);
+                drawPoint(px, py, "P", "#ef4444");
+
+            } else if (state.shape === 'parabola') {
+                const p = 1.5;
+                
+                for(let x=-5; x<=5; x+=0.1) {
+                    let y = (x*x) / (4*p) - 2; // Shifted down for visual balance
+                    let pt = toScreen(x, y);
+                    if(x===-5) ctx.moveTo(pt.x, pt.y);
+                    else ctx.lineTo(pt.x, pt.y);
+                }
+                ctx.stroke();
+
+                const focusY = p - 2;
+                const directrixY = -p - 2;
+                
+                drawPoint(0, focusY, "F");
+                
+                // Directrix
+                const dir1 = toScreen(-5, directrixY);
+                const dir2 = toScreen(5, directrixY);
+                ctx.beginPath();
+                ctx.moveTo(dir1.x, dir1.y);
+                ctx.lineTo(dir2.x, dir2.y);
+                ctx.strokeStyle = "#0d9488";
+                ctx.setLineDash([6, 4]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                
+                ctx.font = "12px sans-serif";
+                ctx.fillStyle = "#0d9488";
+                ctx.fillText("Directrix", dir1.x + 10, dir1.y - 10);
+
+                // Animated tracing point (oscillating)
+                const px = Math.sin(t*0.5) * 4;
+                const py = (px*px) / (4*p) - 2;
+                drawPoint(px, py, "P", "#ef4444");
+
+            } else if (state.shape === 'hyperbola') {
+                const a = 1.5;
+                const b = 2;
+                const c = Math.sqrt(a*a + b*b);
+
+                // Right branch
+                ctx.beginPath();
+                for(let y=-4; y<=4; y+=0.1) {
+                    let x = a * Math.sqrt(1 + (y*y)/(b*b));
+                    let pt = toScreen(x, y);
+                    if(y===-4) ctx.moveTo(pt.x, pt.y);
+                    else ctx.lineTo(pt.x, pt.y);
+                }
+                ctx.stroke();
+
+                // Left branch
+                ctx.beginPath();
+                for(let y=-4; y<=4; y+=0.1) {
+                    let x = -a * Math.sqrt(1 + (y*y)/(b*b));
+                    let pt = toScreen(x, y);
+                    if(y===-4) ctx.moveTo(pt.x, pt.y);
+                    else ctx.lineTo(pt.x, pt.y);
+                }
+                ctx.stroke();
+
+                // Asymptotes
+                const asymp1A = toScreen(-5, -5*(b/a));
+                const asymp1B = toScreen(5, 5*(b/a));
+                const asymp2A = toScreen(-5, 5*(b/a));
+                const asymp2B = toScreen(5, -5*(b/a));
+                
+                ctx.beginPath();
+                ctx.moveTo(asymp1A.x, asymp1A.y); ctx.lineTo(asymp1B.x, asymp1B.y);
+                ctx.moveTo(asymp2A.x, asymp2A.y); ctx.lineTo(asymp2B.x, asymp2B.y);
+                ctx.strokeStyle = "#94a3b8";
+                ctx.setLineDash([4, 6]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                drawPoint(-c, 0, "F₁");
+                drawPoint(c, 0, "F₂");
+
+                // Animated point
+                const py = Math.sin(t*0.5) * 3;
+                const px = a * Math.sqrt(1 + (py*py)/(b*b));
+                drawPoint(px, py, "P", "#ef4444");
+            }
+        }
+
+        // ==========================================
+        // APPLICATION CONTROLS & ANIMATION
+        // ==========================================
+        
+        // Target properties mapped to shapes
+        const shapeConfigs = {
+            'circle': { rx: Math.PI / 2, py: 2.0, pz: 0 },
+            'ellipse': { rx: (Math.PI / 2) - 0.3, py: 2.0, pz: 0 },
+            'parabola': { rx: (Math.PI / 2) - (Math.PI / 4), py: 2.0, pz: 1.5 },
+            'hyperbola': { rx: 0, py: 0, pz: 1.5 }
+        };
+
+        window.updateShape = (newShape) => {
+            state.shape = newShape;
+            state.planeTarget = shapeConfigs[newShape];
+            planeEqDisplay.innerText = state.eqMap[newShape];
+            
+            // Note: Initializing rotation might jump if crossing PI boundaries improperly, 
+            // but these simple angles lerp nicely.
+        };
+
+        // Linear interpolation helper
+        const lerp = (start, end, amt) => (1 - amt) * start + amt * end;
+
+        function animate(time) {
+            requestAnimationFrame(animate);
+
+            // Update Time for 2D animation
+            state.time = time * 0.001;
+
+            // Smooth transition for Plane in 3D
+            const lerpSpeed = 0.05;
+            state.planeCurrent.rx = lerp(state.planeCurrent.rx, state.planeTarget.rx, lerpSpeed);
+            state.planeCurrent.py = lerp(state.planeCurrent.py, state.planeTarget.py, lerpSpeed);
+            state.planeCurrent.pz = lerp(state.planeCurrent.pz, state.planeTarget.pz, lerpSpeed);
+
+            // Apply transforms to Three.js Plane
+            // We rotate around X to slice the cones.
+            plane.rotation.x = state.planeCurrent.rx;
+            plane.position.y = state.planeCurrent.py;
+            plane.position.z = state.planeCurrent.pz;
+
+            // Render 3D
+            controls.update();
+            renderer.render(scene, camera);
+
+            // Render 2D
+            draw2DScene();
+        }
+
+        // Initialize state visually on load
+        window.onload = () => {
+            updateShape('circle');
+            
+            // Set immediate position so it doesn't animate from 0 on load
+            state.planeCurrent = { ...shapeConfigs['circle'] };
+            plane.rotation.x = state.planeCurrent.rx;
+            plane.position.y = state.planeCurrent.py;
+            plane.position.z = state.planeCurrent.pz;
+
+            animate(0);
+        };
+
+    </script>
+</body>
+</html>
